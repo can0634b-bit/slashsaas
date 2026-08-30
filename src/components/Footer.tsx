@@ -11,7 +11,7 @@ export const Footer: React.FC = () => {
         <div className="flex flex-col md:flex-row items-center justify-between gap-6 pb-8 border-b border-white/[0.06]">
           <div className="flex items-center gap-3">
             <Link href="/" className="hover:opacity-90 transition-opacity">
-              <SlashLogo size="sm" showPro={false} />
+              <SlashLogo size="sm" />
             </Link>
             <span className="text-zinc-700">|</span>
             <span className="text-zinc-400">Autonomous SaaS Waste Elimination Platform</span>

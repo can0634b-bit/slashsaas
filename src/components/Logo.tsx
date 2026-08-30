@@ -1,7 +1,6 @@
 ﻿'use client';
 
 import React from 'react';
-import Image from 'next/image';
 
 interface LogoIconProps {
   className?: string;
@@ -17,7 +16,7 @@ export const SlashLogoIcon: React.FC<LogoIconProps> = ({ className = "h-8 w-8", 
         height={size}
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className="drop-shadow-[0_0_12px_rgba(163,230,53,0.4)]"
+        className="drop-shadow-[0_0_12px_rgba(140,224,74,0.4)]"
       >
         {/* Left Green Spark Star */}
         <path
@@ -34,25 +33,15 @@ export const SlashLogoIcon: React.FC<LogoIconProps> = ({ className = "h-8 w-8", 
   );
 };
 
-export const SlashLogo: React.FC<{ size?: 'sm' | 'md' | 'lg'; showPro?: boolean }> = ({
+export const SlashLogo: React.FC<{ size?: 'sm' | 'md' | 'lg' }> = ({
   size = 'md',
-  showPro = true,
 }) => {
   return (
     <div className="flex items-center gap-2.5 group select-none">
-      <SlashLogoIcon size={size === 'sm' ? 24 : size === 'lg' ? 38 : 30} />
-      <div className="flex flex-col text-left leading-none">
-        <div className="flex items-center gap-1.5">
-          <span className="text-base sm:text-lg font-black tracking-tight text-white font-sans">
-            Slash<span className="text-white">SaaS</span>
-          </span>
-          {showPro && (
-            <span className="rounded-full bg-[#8ce04a]/15 px-2 py-0.5 text-[9px] font-extrabold text-[#a3e635] border border-[#8ce04a]/30">
-              PRO
-            </span>
-          )}
-        </div>
-      </div>
+      <SlashLogoIcon size={size === 'sm' ? 24 : size === 'lg' ? 36 : 28} />
+      <span className="text-base sm:text-lg font-black tracking-tight text-white font-sans">
+        SlashSaaS
+      </span>
     </div>
   );
 };

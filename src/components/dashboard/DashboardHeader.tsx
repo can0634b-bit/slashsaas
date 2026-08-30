@@ -47,7 +47,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
               className="hover:opacity-90 transition-opacity"
               title="Return to Home"
             >
-              <SlashLogo size="sm" showPro={false} />
+              <SlashLogo size="sm" />
             </Link>
 
             <div className="border-l border-white/10 pl-3">
