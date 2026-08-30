@@ -1,18 +1,21 @@
-﻿import { NextResponse } from 'next/server';
+﻿import { NextRequest, NextResponse } from 'next/server';
 
-export async function POST(request: Request) {
+export async function POST(req: NextRequest) {
   try {
-    const body = await request.json();
-    const { planId, billingInterval } = body;
+    const body = await req.json();
+    const { provider = 'lemonsqueezy', planId = 'growth', billingInterval = 'annual', discountApplied = false } = body;
 
-    // Simulate Stripe/Billing Checkout session creation
+    // LemonSqueezy Checkout simulation
+    const checkoutUrl = `https://slashsaas.lemonsqueezy.com/checkout/buy/${planId}?billing=${billingInterval}&coupon=${discountApplied ? 'SLASH20' : ''}`;
+
     return NextResponse.json({
       success: true,
-      checkoutUrl: `/dashboard?plan=${planId}&billing=${billingInterval}&upgraded=true`,
-      message: `Checkout session initialized for ${planId} (${billingInterval})`
+      provider,
+      planId,
+      checkoutUrl,
+      message: 'Checkout session initialized',
     });
   } catch (error) {
-    console.error('Checkout error:', error);
-    return NextResponse.json({ error: 'Checkout failed' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to create checkout session' }, { status: 500 });
   }
 }

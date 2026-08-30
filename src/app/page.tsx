@@ -12,46 +12,48 @@ import { FaqSection } from '@/components/FaqSection';
 import { CtaSection } from '@/components/CtaSection';
 import { Footer } from '@/components/Footer';
 import { AuthModal } from '@/components/AuthModal';
+import { LemonSqueezyModal } from '@/components/LemonSqueezyModal';
 
-export default function HomePage() {
-  const [authModal, setAuthModal] = useState<{ isOpen: boolean; mode: 'signin' | 'signup' }>({
-    isOpen: false,
-    mode: 'signup',
-  });
-
-  const handleOpenAuth = (mode: 'signin' | 'signup' = 'signup') => {
-    setAuthModal({ isOpen: true, mode });
-  };
-
-  const handleCloseAuth = () => {
-    setAuthModal(prev => ({ ...prev, isOpen: false }));
-  };
+export default function LandingPage() {
+  const [authModalMode, setAuthModalMode] = useState<'signin' | 'signup' | null>(null);
+  const [isLemonModalOpen, setIsLemonModalOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-black text-zinc-100 selection:bg-white selection:text-black font-sans antialiased">
-      {/* Top Floating Glassmorphic Navbar */}
-      <Navbar onOpenAuthModal={handleOpenAuth} />
+    <div className="min-h-screen bg-black text-white selection:bg-white selection:text-black">
+      {/* Floating Glass Navigation */}
+      <Navbar
+        onOpenAuthModal={(mode) => setAuthModalMode(mode)}
+        onOpenUpgradeModal={() => setIsLemonModalOpen(true)}
+      />
 
       {/* Main Sections */}
       <main>
-        <Hero onOpenAuthModal={() => handleOpenAuth('signup')} />
+        <Hero onOpenAuthModal={() => setAuthModalMode('signup')} />
         <BentoGrid />
         <HowItWorks />
-        <RoiCalculator onOpenAuthModal={() => handleOpenAuth('signup')} />
+        <RoiCalculator onOpenAuthModal={() => setAuthModalMode('signup')} />
         <SecuritySection />
-        <Pricing onOpenAuthModal={() => handleOpenAuth('signup')} />
+        <Pricing
+          onSelectPlan={() => setIsLemonModalOpen(true)}
+        />
         <FaqSection />
-        <CtaSection onOpenAuthModal={() => handleOpenAuth('signup')} />
+        <CtaSection onOpenAuthModal={() => setAuthModalMode('signup')} />
       </main>
 
       {/* Footer */}
       <Footer />
 
-      {/* Authentication / Free Trial Modal */}
+      {/* Auth Modal (Sign In / Sign Up) */}
       <AuthModal
-        isOpen={authModal.isOpen}
-        mode={authModal.mode}
-        onClose={handleCloseAuth}
+        isOpen={!!authModalMode}
+        mode={authModalMode || 'signup'}
+        onClose={() => setAuthModalMode(null)}
+      />
+
+      {/* LemonSqueezy Checkout Modal */}
+      <LemonSqueezyModal
+        isOpen={isLemonModalOpen}
+        onClose={() => setIsLemonModalOpen(false)}
       />
     </div>
   );

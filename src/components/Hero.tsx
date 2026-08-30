@@ -18,24 +18,24 @@ export const Hero: React.FC<HeroProps> = ({ onOpenAuthModal }) => {
         {/* Top Feature Pill */}
         <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5 text-xs font-medium text-zinc-300 backdrop-blur-md mb-8 hover:border-white/20 transition-colors">
           <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span>SlashSaaS: Startuplar için Otonom Lisans Optimizasyonu</span>
+          <span>SlashSaaS: Autonomous License Waste Hunter for Startups</span>
           <span className="text-zinc-600">|</span>
           <span className="text-emerald-400 font-semibold flex items-center gap-1">
-            Yeni Nesil FinOps
+            Next-Gen FinOps
           </span>
         </div>
 
         {/* Hero Title */}
         <h1 className="mx-auto max-w-4xl text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.1]">
-          Şirketinizin Unutulmuş Lisanslarını{' '}
+          Stop Bleeding Money on SaaS Seats Your Team{' '}
           <span className="bg-gradient-to-r from-zinc-100 via-zinc-300 to-zinc-500 bg-clip-text text-transparent">
-            60 Saniyede Kesip Atın.
+            Forgot Existed.
           </span>
         </h1>
 
         {/* Hero Subtitle */}
         <p className="mx-auto mt-6 max-w-2xl text-base sm:text-lg text-zinc-400 leading-relaxed font-normal">
-          50 kişilik bir teknoloji şirketi her ay ortalama <strong className="text-white font-semibold">2.000$</strong> tutarında kullanılmayan Figma, Notion ve yapay zeka koltuğunu unutur. <strong>SlashSaaS</strong>, Google Workspace ve Slack ile bağlanarak bu israfı anında tespit eder ve kurtarır.
+          The average 50-person startup wastes <strong className="text-white font-semibold">$2,000+/month</strong> on inactive Figma, Notion, and AI tool seats. <strong>SlashSaaS</strong> connects to Google Workspace & Slack to uncover zombie licenses and reclaim your budget with 1-click autonomous nudges.
         </p>
 
         {/* Primary Action Buttons */}
@@ -45,7 +45,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenAuthModal }) => {
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 rounded-xl bg-white px-7 py-3.5 text-sm font-bold text-zinc-950 hover:bg-zinc-200 transition-all shadow-xl shadow-white/10 active:scale-95"
           >
             <Zap className="h-4 w-4 fill-zinc-950" />
-            <span>Ücretsiz Denetimi Başlat</span>
+            <span>Start Waste Audit</span>
             <ArrowRight className="h-4 w-4" />
           </button>
 
@@ -53,20 +53,20 @@ export const Hero: React.FC<HeroProps> = ({ onOpenAuthModal }) => {
             href="#how-it-works"
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-6 py-3.5 text-sm font-semibold text-zinc-300 hover:bg-white/[0.08] hover:text-white transition-all backdrop-blur-sm"
           >
-            <span>Nasıl Çalışır? (2 Dk)</span>
+            <span>How It Works (2 Mins)</span>
           </a>
         </div>
 
         {/* Trust Badges */}
         <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-xs text-zinc-500">
           <span className="flex items-center gap-1.5">
-            <ShieldCheck className="h-4 w-4 text-emerald-400" /> %100 Read-Only (Yalnızca Okuma)
+            <ShieldCheck className="h-4 w-4 text-emerald-400" /> 100% Read-Only (Zero Document Access)
           </span>
           <span className="flex items-center gap-1.5">
-            <CheckCircle2 className="h-4 w-4 text-emerald-400" /> Kredi Kartı Gerekmez
+            <CheckCircle2 className="h-4 w-4 text-emerald-400" /> Zero Password Storage
           </span>
           <span className="flex items-center gap-1.5">
-            <CheckCircle2 className="h-4 w-4 text-emerald-400" /> 60 Saniyede Kurulum
+            <CheckCircle2 className="h-4 w-4 text-emerald-400" /> 60-Second Setup
           </span>
         </div>
 
@@ -79,15 +79,15 @@ export const Hero: React.FC<HeroProps> = ({ onOpenAuthModal }) => {
                   /S
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-white">SlashSaaS Otonom Radar</h3>
-                  <p className="text-xs text-zinc-400">Google Workspace & Slack API ile Canlı Senkronize</p>
+                  <h3 className="text-sm font-bold text-white">SlashSaaS Autonomous Radar</h3>
+                  <p className="text-xs text-zinc-400">Live Synchronized with Google Workspace & Slack</p>
                 </div>
               </div>
 
               <div className="flex items-center gap-2">
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-400">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping" />
-                  Sistem Aktif ve Koruyor
+                  System Active & Protecting
                 </span>
               </div>
             </div>
@@ -95,28 +95,28 @@ export const Hero: React.FC<HeroProps> = ({ onOpenAuthModal }) => {
             {/* 3 Value Pillars */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 my-6">
               <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
-                <span className="text-[11px] font-medium uppercase tracking-wider text-zinc-500">Tespit Edilen İsraf Oranı</span>
-                <p className="text-2xl font-extrabold text-white mt-1">%22.4 <span className="text-xs font-normal text-rose-400 font-sans">bütçe fazlası</span></p>
-                <p className="text-[11px] text-zinc-400 mt-1">Kullanılmayan 40+ koltuk tespit edildi</p>
+                <span className="text-[11px] font-medium uppercase tracking-wider text-zinc-500">Detected Budget Waste</span>
+                <p className="text-2xl font-extrabold text-white mt-1">22.4% <span className="text-xs font-normal text-rose-400 font-sans">average excess</span></p>
+                <p className="text-[11px] text-zinc-400 mt-1">40+ dormant licenses detected per 50 seats</p>
               </div>
 
               <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
-                <span className="text-[11px] font-medium uppercase tracking-wider text-zinc-500">Yıllık Geri Kazanılan Bütçe</span>
-                <p className="text-2xl font-extrabold text-emerald-400 mt-1">+24.600$ / yıl</p>
-                <p className="text-[11px] text-zinc-400 mt-1">Doğrudan şirketin kasasında kalan nakit</p>
+                <span className="text-[11px] font-medium uppercase tracking-wider text-zinc-500">Annual Recovered Budget</span>
+                <p className="text-2xl font-extrabold text-emerald-400 mt-1">+$24,600 / yr</p>
+                <p className="text-[11px] text-zinc-400 mt-1">Direct bottom-line profit back to your bank</p>
               </div>
 
               <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
-                <span className="text-[11px] font-medium uppercase tracking-wider text-zinc-500">Slack Nudge Dönüşümü</span>
-                <p className="text-2xl font-extrabold text-cyan-400 mt-1">%94 Başarı</p>
-                <p className="text-[11px] text-zinc-400 mt-1">Çalışanlar koltuklarını gönüllü devretti</p>
+                <span className="text-[11px] font-medium uppercase tracking-wider text-zinc-500">Slack Nudge Resolution Rate</span>
+                <p className="text-2xl font-extrabold text-cyan-400 mt-1">94% Success</p>
+                <p className="text-[11px] text-zinc-400 mt-1">Team members voluntarily relinquish seats</p>
               </div>
             </div>
 
             {/* Visual SaaS App Pills */}
             <div className="rounded-xl border border-white/[0.06] bg-white/[0.01] p-4 flex flex-wrap items-center justify-between gap-3 text-xs text-zinc-400">
               <div className="flex items-center gap-2">
-                <span className="font-semibold text-zinc-300">Otomatik Taranan Popüler Araçlar:</span>
+                <span className="font-semibold text-zinc-300">Monitored SaaS Ecosystems:</span>
               </div>
               <div className="flex flex-wrap items-center gap-2 font-medium text-zinc-300">
                 <span className="px-2.5 py-1 rounded-lg bg-zinc-900 border border-white/[0.06]">Figma</span>
@@ -125,7 +125,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenAuthModal }) => {
                 <span className="px-2.5 py-1 rounded-lg bg-zinc-900 border border-white/[0.06]">GitHub Copilot</span>
                 <span className="px-2.5 py-1 rounded-lg bg-zinc-900 border border-white/[0.06]">Loom</span>
                 <span className="px-2.5 py-1 rounded-lg bg-zinc-900 border border-white/[0.06]">Slack</span>
-                <span className="px-2.5 py-1 rounded-lg bg-zinc-900 border border-white/[0.06] text-zinc-500">+35 Araç</span>
+                <span className="px-2.5 py-1 rounded-lg bg-zinc-900 border border-white/[0.06] text-zinc-500">+35 Apps</span>
               </div>
             </div>
           </div>
@@ -134,7 +134,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenAuthModal }) => {
         {/* Integration Logos Strip */}
         <div className="mt-16 pt-8 border-t border-white/[0.06]">
           <p className="text-xs uppercase tracking-widest text-zinc-500 font-semibold mb-6">
-            Mevcut Altyapınızla Kusursuz Entegre Olur
+            Seamlessly Integrated with Your Tech Stack
           </p>
           <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-14 opacity-60 grayscale hover:grayscale-0 transition-all text-xs font-semibold text-zinc-400">
             <span className="flex items-center gap-2">Google Workspace</span>

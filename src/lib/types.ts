@@ -4,6 +4,19 @@ export type Department = 'Engineering' | 'Product' | 'Design' | 'Marketing' | 'S
 
 export type NudgeStatus = 'pending' | 'nudged' | 'reclaimed' | 'retained' | 'ignored';
 
+export interface UserProfile {
+  id: string;
+  email: string;
+  fullName: string;
+  avatarUrl?: string;
+  organizationId: string;
+  organizationName: string;
+  role: 'owner' | 'admin' | 'member';
+  plan: 'free' | 'growth' | 'scale';
+  createdAt: string;
+  rememberMe: boolean;
+}
+
 export interface SaaSApp {
   id: string;
   name: string;
@@ -24,7 +37,7 @@ export interface ZombieUserSeat {
   id: string;
   userName: string;
   userEmail: string;
-  avatarUrl: string;
+  avatarUrl?: string;
   department: Department;
   appId: string;
   appName: string;
@@ -76,6 +89,7 @@ export interface IntegrationStatus {
   accountsFound?: number;
   icon: string;
   description: string;
+  apiKeyOrClientId?: string;
 }
 
 export interface AutomationRule {

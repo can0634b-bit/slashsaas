@@ -1,62 +1,70 @@
 ﻿'use client';
 
 import React, { useState } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, HelpCircle } from 'lucide-react';
 
 export const FaqSection: React.FC = () => {
-  const [openIdx, setOpenIdx] = useState<number | null>(0);
+  const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   const faqs = [
     {
-      q: 'GhostSpend şirketimizin verilerine veya mesajlarına erişir mi?',
-      a: 'Hayır. GhostSpend %100 Read-Only (Yalnızca Okuma) yetkisiyle çalışır. Mesajlarınızı, dosyalarınızı veya e-postalarınızı asla okumaz. Sadece kullanıcıların araçlara en son ne zaman giriş yaptığının zaman damgasını (timestamp) okur.'
+      q: 'Does SlashSaaS have access to our company emails, files, or messages?',
+      a: 'Absolutely not. SlashSaaS connects strictly through Read-Only OAuth 2.0 and SAML directory scopes. We only read user authentication timestamps (e.g. "Last login: 45 days ago"). We never access, parse, or store documents, emails, Slack messages, or passwords.',
     },
     {
-      q: 'Kurulum ne kadar sürer? Bir yazılım indirmemiz gerekiyor mu?',
-      a: 'Kurulum tam 60 saniye sürer. Bilgisayarlara veya sunuculara herhangi bir ajan ya da program kurmanız gerekmez. Sadece şirket yöneticinizin Google Workspace veya Slack ile tek tıkla oturum açması yeterlidir.'
+      q: 'How does the 1-Click Slack Nudge Bot work?',
+      a: 'When an employee hasn’t logged into a paid app (like Figma or Notion) for 30+ days, SlashSaaS can send an automated, friendly DM in Slack: "Hey Alex, we noticed you haven\'t used Figma in 45 days. Do you still need this $75/mo license?" Alex can click "Keep" or "Relinquish" directly in Slack with zero awkwardness.',
     },
     {
-      q: 'Slack Nudge özelliği nasıl çalışır?',
-      a: 'Bir çalışanın (örneğin bir tasarımcının) son 60 gündür Figma açmadığı tespit edilirse, GhostSpend Bot çalışana özelden kibar bir Slack mesajı atar: "Figma hesabınızı son 60 gündür kullanmadığınız görüldü. Lisansınızı boşa çıkarmak ister misiniz?" Çalışan tek tıkla "Evet" dediğinde lisans güvenle geri kazanılır.'
+      q: 'How long does onboarding take?',
+      a: 'Less than 60 seconds. You authenticate your Google Workspace or Slack admin account with one click. SlashSaaS immediately audits your active OAuth tokens and builds your full organizational waste breakdown.',
     },
     {
-      q: 'Hangi SaaS araçları otomatik taranır?',
-      a: 'Figma, Notion, OpenAI ChatGPT Team, GitHub Copilot, Linear, Loom, Miro, Slack, Salesforce, HubSpot, Datadog, Zoom, Canva ve Google Workspace üzerindeki tüm OAuth bağlantılı araçlar taranır.'
+      q: 'Which SaaS tools and apps does SlashSaaS support?',
+      a: 'We monitor over 40+ premier tech SaaS tools out of the box, including Figma, Notion, ChatGPT Team/Enterprise, GitHub Copilot, Linear, Loom, Salesforce, Miro, Asana, Datadog, Slack, and Zoom. You can also define custom pricing for any internal software.',
     },
     {
-      q: 'İstediğimiz an iptal edebilir miyiz?',
-      a: 'Evet. GhostSpend\'de hiçbir bağlayıcı yıllık taahhüt yoktur. İstediğiniz an tek tıkla aboneliğinizi sonlandırabilir ve tüm entegrasyon erişimini kaldırabilirsiniz.'
-    }
+      q: 'How does billing work?',
+      a: 'Payments are handled securely via LemonSqueezy. You can choose monthly or annual billing (with a 20% discount). You can upgrade, downgrade, or cancel your subscription at any time with a single click.',
+    },
   ];
 
   return (
-    <section id="faq" className="py-24 border-t border-white/[0.06] bg-black">
+    <section id="faq" className="py-24 border-t border-white/[0.06] bg-black relative">
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <span className="text-xs font-bold uppercase tracking-widest text-emerald-400">
-            Sıkça Sorulan Sorular
+            Frequently Asked Questions
           </span>
           <h2 className="mt-2 text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-            Aklınıza Takılan Sorular
+            Everything You Need to Know
           </h2>
+          <p className="mt-3 text-zinc-400 text-sm sm:text-base">
+            Have questions about security, integration, or ROI? Here are quick answers.
+          </p>
         </div>
 
         <div className="space-y-4">
           {faqs.map((faq, idx) => {
-            const isOpen = openIdx === idx;
+            const isOpen = openIndex === idx;
+
             return (
               <div
                 key={idx}
-                className="rounded-2xl border border-white/[0.08] bg-zinc-950/80 overflow-hidden transition-colors hover:border-white/20"
+                className="rounded-3xl border border-white/[0.08] bg-zinc-950/70 overflow-hidden transition-all"
               >
                 <button
-                  onClick={() => setOpenIdx(isOpen ? null : idx)}
-                  className="w-full p-6 text-left flex items-center justify-between gap-4"
+                  onClick={() => setOpenIndex(isOpen ? null : idx)}
+                  className="w-full p-6 text-left flex items-center justify-between gap-4 hover:bg-white/[0.02] transition-colors"
                 >
                   <span className="text-sm sm:text-base font-bold text-white">
                     {faq.q}
                   </span>
-                  <ChevronDown className={`h-4 w-4 text-zinc-400 transition-transform ${isOpen ? 'rotate-180 text-emerald-400' : ''}`} />
+                  <ChevronDown
+                    className={`h-4 w-4 text-zinc-400 shrink-0 transition-transform duration-200 ${
+                      isOpen ? 'rotate-180 text-white' : ''
+                    }`}
+                  />
                 </button>
 
                 {isOpen && (

@@ -6,7 +6,6 @@ import {
   Layers, 
   ExternalLink, 
   Edit3, 
-  Save, 
   Check, 
   AlertTriangle,
   TrendingDown,
@@ -34,19 +33,35 @@ export const AppsCatalogTab: React.FC<AppsCatalogTabProps> = ({ apps, onUpdateAp
     setEditingId(null);
   };
 
+  if (apps.length === 0) {
+    return (
+      <div className="py-16 text-center max-w-xl mx-auto">
+        <div className="rounded-3xl border border-white/10 bg-zinc-950 p-8 sm:p-12 shadow-2xl">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-zinc-950 font-black">
+            /S
+          </div>
+          <h3 className="text-xl font-bold text-white mb-2">No Subscriptions Discovered</h3>
+          <p className="text-xs sm:text-sm text-zinc-400">
+            Connect your company Single Sign-On (Google Workspace or Slack) to populate your SaaS subscription catalog.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 pb-12">
-      <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="rounded-3xl border border-white/[0.08] bg-zinc-950 p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div>
           <h3 className="text-base font-bold text-white">Discovered SaaS Subscriptions</h3>
           <p className="text-xs text-zinc-400">
-            Detected via Google Workspace OAuth and SAML application registry.
+            Detected via OAuth 2.0 and SAML application registries.
           </p>
         </div>
 
         <button
-          onClick={() => alert('Custom SaaS manual entry added to catalog')}
-          className="inline-flex items-center gap-1.5 rounded-xl bg-zinc-900 border border-zinc-800 px-4 py-2 text-xs font-semibold text-zinc-200 hover:bg-zinc-850 hover:text-white transition-colors"
+          onClick={() => alert('Custom SaaS tool addition modal')}
+          className="inline-flex items-center gap-1.5 rounded-xl bg-white/[0.04] border border-white/10 px-4 py-2 text-xs font-semibold text-zinc-200 hover:bg-white/[0.08] hover:text-white transition-colors"
         >
           <Plus className="h-4 w-4 text-emerald-400" />
           <span>Add Custom SaaS Tool</span>
@@ -61,10 +76,9 @@ export const AppsCatalogTab: React.FC<AppsCatalogTabProps> = ({ apps, onUpdateAp
           return (
             <div
               key={app.id}
-              className="rounded-2xl border border-zinc-800 bg-zinc-950 p-5 flex flex-col justify-between hover:border-zinc-700 transition-all group shadow-md"
+              className="rounded-3xl border border-white/[0.08] bg-zinc-950 p-6 flex flex-col justify-between hover:border-white/20 transition-all group shadow-xl"
             >
               <div>
-                {/* Top Title & Category */}
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <span className="h-2 w-2 rounded-full bg-emerald-400" />
@@ -86,7 +100,7 @@ export const AppsCatalogTab: React.FC<AppsCatalogTabProps> = ({ apps, onUpdateAp
                 <h4 className="text-base font-bold text-white mb-1">{app.name}</h4>
 
                 {/* Price per seat with inline edit */}
-                <div className="flex items-center gap-2 text-xs text-zinc-400 mb-4 pb-3 border-b border-zinc-850">
+                <div className="flex items-center gap-2 text-xs text-zinc-400 mb-4 pb-3 border-b border-white/[0.06]">
                   <span>Seat Cost:</span>
                   {isEditing ? (
                     <div className="flex items-center gap-1">
@@ -95,11 +109,11 @@ export const AppsCatalogTab: React.FC<AppsCatalogTabProps> = ({ apps, onUpdateAp
                         type="number"
                         value={tempCost}
                         onChange={(e) => setTempCost(Number(e.target.value))}
-                        className="w-16 rounded bg-zinc-900 px-2 py-0.5 text-xs text-white border border-emerald-500 focus:outline-none"
+                        className="w-16 rounded-lg bg-zinc-900 px-2 py-0.5 text-xs text-white border border-white/30 focus:outline-none"
                       />
                       <button
                         onClick={() => handleSaveEdit(app.id)}
-                        className="rounded bg-emerald-500 p-1 text-zinc-950 hover:bg-emerald-400"
+                        className="rounded-lg bg-white p-1 text-zinc-950 hover:bg-zinc-200"
                       >
                         <Check className="h-3 w-3" />
                       </button>
@@ -125,7 +139,7 @@ export const AppsCatalogTab: React.FC<AppsCatalogTabProps> = ({ apps, onUpdateAp
                     <span className="text-rose-400 font-bold">{app.zombieSeats} Zombie ({wastePercent}%)</span>
                   </div>
 
-                  <div className="h-2 w-full rounded-full bg-zinc-800 overflow-hidden flex">
+                  <div className="h-1.5 w-full rounded-full bg-zinc-800 overflow-hidden flex">
                     <div
                       className="bg-emerald-500 h-full rounded-l-full"
                       style={{ width: `${100 - wastePercent}%` }}
@@ -138,10 +152,10 @@ export const AppsCatalogTab: React.FC<AppsCatalogTabProps> = ({ apps, onUpdateAp
                 </div>
               </div>
 
-              {/* Bottom Bleed Summary */}
-              <div className="pt-3 border-t border-zinc-850 flex items-center justify-between text-xs">
+              {/* Bottom Summary */}
+              <div className="pt-4 border-t border-white/[0.06] flex items-center justify-between text-xs">
                 <div>
-                  <span className="text-[10px] text-zinc-500 uppercase tracking-wider block">Monthly Leakage</span>
+                  <span className="text-[10px] text-zinc-500 uppercase tracking-wider block">Monthly Bleed</span>
                   <span className="font-bold text-rose-400">${app.monthlyWaste}/mo</span>
                 </div>
 
