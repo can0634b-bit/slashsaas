@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -50,6 +50,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, mode: initialMode,
   };
 
   const handleQuickSso = (provider: string) => {
+    if (provider === 'Google') {
+      window.location.href = '/api/auth/google';
+      return;
+    }
     setLoading(true);
     const domain = email ? email.split('@')[1] : 'company.io';
     const userProfile: UserProfile = {
