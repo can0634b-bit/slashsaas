@@ -1,7 +1,7 @@
 ﻿'use client';
 
 import React, { useState } from 'react';
-import { ChevronDown, HelpCircle } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 
 export const FaqSection: React.FC = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
@@ -30,16 +30,16 @@ export const FaqSection: React.FC = () => {
   ];
 
   return (
-    <section id="faq" className="py-24 border-t border-white/[0.06] bg-black relative">
+    <section id="faq" className="py-24 border-t border-zinc-200 dark:border-white/[0.06] bg-zinc-50/50 dark:bg-black relative">
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <span className="text-xs font-bold uppercase tracking-widest text-emerald-400">
+          <span className="text-xs font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
             Frequently Asked Questions
           </span>
-          <h2 className="mt-2 text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+          <h2 className="mt-2 text-3xl sm:text-4xl font-extrabold text-zinc-950 dark:text-white tracking-tight">
             Everything You Need to Know
           </h2>
-          <p className="mt-3 text-zinc-400 text-sm sm:text-base">
+          <p className="mt-3 text-zinc-600 dark:text-zinc-400 text-sm sm:text-base">
             Have questions about security, integration, or ROI? Here are quick answers.
           </p>
         </div>
@@ -51,24 +51,24 @@ export const FaqSection: React.FC = () => {
             return (
               <div
                 key={idx}
-                className="rounded-3xl border border-white/[0.08] bg-zinc-950/70 overflow-hidden transition-all"
+                className="rounded-3xl border border-zinc-200/80 dark:border-white/[0.08] bg-white dark:bg-zinc-950/70 overflow-hidden transition-all shadow-xs"
               >
                 <button
                   onClick={() => setOpenIndex(isOpen ? null : idx)}
-                  className="w-full p-6 text-left flex items-center justify-between gap-4 hover:bg-white/[0.02] transition-colors"
+                  className="w-full p-6 text-left flex items-center justify-between gap-4 hover:bg-zinc-50 dark:hover:bg-white/[0.02] transition-colors"
                 >
-                  <span className="text-sm sm:text-base font-bold text-white">
+                  <span className="text-sm sm:text-base font-bold text-zinc-950 dark:text-white">
                     {faq.q}
                   </span>
                   <ChevronDown
                     className={`h-4 w-4 text-zinc-400 shrink-0 transition-transform duration-200 ${
-                      isOpen ? 'rotate-180 text-white' : ''
+                      isOpen ? 'rotate-180 text-zinc-950 dark:text-white' : ''
                     }`}
                   />
                 </button>
 
                 {isOpen && (
-                  <div className="px-6 pb-6 text-xs sm:text-sm text-zinc-400 leading-relaxed border-t border-white/[0.04] pt-4 animate-in fade-in">
+                  <div className="px-6 pb-6 text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed border-t border-zinc-100 dark:border-white/[0.04] pt-4 animate-in fade-in">
                     {faq.a}
                   </div>
                 )}

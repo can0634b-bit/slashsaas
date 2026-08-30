@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState } from 'react';
 import { Navbar } from '@/components/Navbar';
@@ -19,7 +19,7 @@ export default function LandingPage() {
   const [isLemonModalOpen, setIsLemonModalOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-white selection:text-black">
+    <div className="min-h-screen bg-white dark:bg-black text-zinc-900 dark:text-white transition-colors duration-200">
       {/* Floating Glass Navigation */}
       <Navbar
         onOpenAuthModal={(mode) => setAuthModalMode(mode)}
@@ -43,7 +43,7 @@ export default function LandingPage() {
       {/* Footer */}
       <Footer />
 
-      {/* Auth Modal (Sign In / Sign Up) */}
+      {/* Auth Modal */}
       <AuthModal
         isOpen={!!authModalMode}
         mode={authModalMode || 'signup'}
