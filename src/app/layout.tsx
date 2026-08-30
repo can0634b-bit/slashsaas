@@ -16,6 +16,11 @@ export const metadata: Metadata = {
   title: "SlashSaaS — Slash Your Software Waste in 60 Seconds",
   description: "Detect inactive Notion, Figma, and AI tool seats in 60 seconds. Reclaim your wasted budget with autonomous 1-click Slack nudges.",
   keywords: ["SaaS spend management", "zombie license hunter", "startup finops", "license optimization", "slack nudge bot", "google workspace audit", "slashsaas"],
+  icons: {
+    icon: "/icon.svg",
+    shortcut: "/icon.svg",
+    apple: "/icon.svg",
+  },
 };
 
 export default function RootLayout({

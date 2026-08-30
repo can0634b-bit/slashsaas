@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { ArrowRight, ShieldCheck, Zap, Sparkles, TrendingDown, Layers, Bot, CheckCircle2 } from 'lucide-react';
+import { Interactive3DModel } from './Interactive3DModel';
 
 interface HeroProps {
   onOpenAuthModal: () => void;
@@ -11,16 +12,16 @@ export const Hero: React.FC<HeroProps> = ({ onOpenAuthModal }) => {
   return (
     <section className="relative pt-32 pb-20 sm:pt-40 sm:pb-28 overflow-hidden">
       {/* Ambient Lighting */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[450px] bg-gradient-to-b from-emerald-500/15 via-teal-500/5 to-transparent blur-[140px] pointer-events-none -z-10" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[450px] bg-gradient-to-b from-[#8ce04a]/20 via-emerald-500/10 to-transparent blur-[140px] pointer-events-none -z-10" />
       <div className="absolute top-1/3 left-1/4 w-[400px] h-[300px] bg-cyan-500/10 blur-[120px] pointer-events-none -z-10" />
 
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 text-center">
         {/* Top Feature Pill */}
-        <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5 text-xs font-medium text-zinc-300 backdrop-blur-md mb-8 hover:border-white/20 transition-colors">
-          <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+        <div className="inline-flex items-center gap-2 rounded-full border border-[#8ce04a]/30 bg-[#8ce04a]/[0.06] px-4 py-1.5 text-xs font-medium text-zinc-300 backdrop-blur-md mb-8 hover:border-[#8ce04a]/50 transition-colors">
+          <span className="flex h-2 w-2 rounded-full bg-[#8ce04a] animate-pulse" />
           <span>SlashSaaS: Autonomous License Waste Hunter for Startups</span>
           <span className="text-zinc-600">|</span>
-          <span className="text-emerald-400 font-semibold flex items-center gap-1">
+          <span className="text-[#a3e635] font-semibold flex items-center gap-1">
             Next-Gen FinOps
           </span>
         </div>
@@ -28,7 +29,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenAuthModal }) => {
         {/* Hero Title */}
         <h1 className="mx-auto max-w-4xl text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.1]">
           Stop Bleeding Money on SaaS Seats Your Team{' '}
-          <span className="bg-gradient-to-r from-zinc-100 via-zinc-300 to-zinc-500 bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-zinc-100 via-zinc-300 to-[#a3e635] bg-clip-text text-transparent">
             Forgot Existed.
           </span>
         </h1>
@@ -60,23 +61,37 @@ export const Hero: React.FC<HeroProps> = ({ onOpenAuthModal }) => {
         {/* Trust Badges */}
         <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-xs text-zinc-500">
           <span className="flex items-center gap-1.5">
-            <ShieldCheck className="h-4 w-4 text-emerald-400" /> 100% Read-Only (Zero Document Access)
+            <ShieldCheck className="h-4 w-4 text-[#8ce04a]" /> 100% Read-Only (Zero Document Access)
           </span>
           <span className="flex items-center gap-1.5">
-            <CheckCircle2 className="h-4 w-4 text-emerald-400" /> Zero Password Storage
+            <CheckCircle2 className="h-4 w-4 text-[#8ce04a]" /> Zero Password Storage
           </span>
           <span className="flex items-center gap-1.5">
-            <CheckCircle2 className="h-4 w-4 text-emerald-400" /> 60-Second Setup
+            <CheckCircle2 className="h-4 w-4 text-[#8ce04a]" /> 60-Second Setup
           </span>
         </div>
 
-        {/* Showcase Card */}
-        <div className="mt-16 mx-auto max-w-5xl rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.06] to-white/[0.01] p-2.5 sm:p-4 shadow-2xl shadow-black/80 backdrop-blur-xl">
+        {/* Interactive 3D Model Section */}
+        <div className="mt-12">
+          <Interactive3DModel />
+        </div>
+
+        {/* Showcase Metrics Card */}
+        <div className="mt-6 mx-auto max-w-5xl rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.06] to-white/[0.01] p-2.5 sm:p-4 shadow-2xl shadow-black/80 backdrop-blur-xl">
           <div className="rounded-2xl border border-white/[0.08] bg-zinc-950/90 p-6 sm:p-8 text-left">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-white/[0.08]">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-zinc-950 font-black text-sm">
-                  /S
+                <div className="flex items-center justify-center">
+                  <svg viewBox="0 0 100 100" className="h-9 w-9 drop-shadow-[0_0_10px_#8ce04a]">
+                    <path
+                      d="M32 20 C32 38 18 50 4 50 C18 50 32 62 32 80 C32 62 46 50 60 50 C46 50 32 38 32 20 Z"
+                      fill="#8ce04a"
+                    />
+                    <path
+                      d="M68 20 C68 38 54 50 40 50 C54 50 68 62 68 80 C68 62 82 50 96 50 C82 50 68 38 68 20 Z"
+                      fill="#a3e635"
+                    />
+                  </svg>
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-white">SlashSaaS Autonomous Radar</h3>
@@ -85,8 +100,8 @@ export const Hero: React.FC<HeroProps> = ({ onOpenAuthModal }) => {
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-400">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping" />
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#8ce04a]/10 border border-[#8ce04a]/25 px-3 py-1 text-xs font-semibold text-[#a3e635]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#8ce04a] animate-ping" />
                   System Active & Protecting
                 </span>
               </div>
@@ -102,7 +117,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenAuthModal }) => {
 
               <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
                 <span className="text-[11px] font-medium uppercase tracking-wider text-zinc-500">Annual Recovered Budget</span>
-                <p className="text-2xl font-extrabold text-emerald-400 mt-1">+$24,600 / yr</p>
+                <p className="text-2xl font-extrabold text-[#a3e635] mt-1">+$24,600 / yr</p>
                 <p className="text-[11px] text-zinc-400 mt-1">Direct bottom-line profit back to your bank</p>
               </div>
 

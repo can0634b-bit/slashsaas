@@ -2,17 +2,17 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { SlashLogo } from './Logo';
 
 export const Footer: React.FC = () => {
   return (
     <footer className="border-t border-white/[0.06] bg-black py-14 text-xs text-zinc-500">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6 pb-8 border-b border-white/[0.06]">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-7 w-7 items-center justify-center rounded-xl bg-white text-zinc-950 font-black text-xs">
-              /S
-            </div>
-            <span className="font-bold text-sm text-white tracking-tight">SlashSaaS</span>
+          <div className="flex items-center gap-3">
+            <Link href="/" className="hover:opacity-90 transition-opacity">
+              <SlashLogo size="sm" showPro={false} />
+            </Link>
             <span className="text-zinc-700">|</span>
             <span className="text-zinc-400">Autonomous SaaS Waste Elimination Platform</span>
           </div>
@@ -30,14 +30,18 @@ export const Footer: React.FC = () => {
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p>© 2026 SlashSaaS (slashsaas.com). All rights reserved.</p>
           <div className="flex items-center gap-4">
-            <span className="flex items-center gap-1.5 text-emerald-400">
-              <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
+            <span className="flex items-center gap-1.5 text-[#8ce04a]">
+              <span className="h-2 w-2 rounded-full bg-[#8ce04a] animate-ping" />
               All Systems Operational
             </span>
             <span className="text-zinc-700">•</span>
-            <span className="hover:text-zinc-300 cursor-pointer">Privacy Policy</span>
+            <Link href="/privacy" className="hover:text-zinc-300 transition-colors">
+              Privacy Policy
+            </Link>
             <span className="text-zinc-700">•</span>
-            <span className="hover:text-zinc-300 cursor-pointer">Security & Compliance</span>
+            <Link href="/terms" className="hover:text-zinc-300 transition-colors">
+              Terms of Service
+            </Link>
           </div>
         </div>
       </div>

@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { ArrowRight, Menu, X } from 'lucide-react';
+import { SlashLogo } from './Logo';
 
 interface NavbarProps {
   onOpenAuthModal: (mode: 'signin' | 'signup') => void;
@@ -15,17 +16,9 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuthModal, onOpenUpgradeMo
   return (
     <header className="fixed top-0 left-0 right-0 z-50 flex justify-center pt-4 px-4 sm:px-6">
       <nav className="w-full max-w-6xl rounded-2xl border border-white/10 bg-zinc-950/70 backdrop-blur-xl px-5 py-3 shadow-2xl shadow-black/60 flex items-center justify-between transition-all">
-        {/* Brand Logo */}
-        <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-white text-zinc-950 font-black shadow-sm group-hover:scale-105 transition-transform tracking-tighter text-sm">
-            <span>/S</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="text-base font-extrabold tracking-tight text-white">SlashSaaS</span>
-            <span className="rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[9px] font-bold text-emerald-400 border border-emerald-500/20">
-              PRO
-            </span>
-          </div>
+        {/* Official Brand Logo */}
+        <Link href="/" className="flex items-center gap-2 group hover:opacity-90 transition-opacity">
+          <SlashLogo size="md" />
         </Link>
 
         {/* Desktop Navigation Links */}

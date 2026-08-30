@@ -13,6 +13,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { ScanSummary, UserProfile } from '@/lib/types';
+import { SlashLogo } from '../Logo';
 
 interface DashboardHeaderProps {
   scanData: ScanSummary | null;
@@ -40,21 +41,21 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-3.5">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           {/* Logo & Org Details */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             <Link
               href="/"
-              className="flex h-8 w-8 items-center justify-center rounded-xl bg-white text-zinc-950 font-black text-xs shadow-md hover:scale-105 transition-transform"
+              className="hover:opacity-90 transition-opacity"
               title="Return to Home"
             >
-              /S
+              <SlashLogo size="sm" showPro={false} />
             </Link>
 
-            <div>
+            <div className="border-l border-white/10 pl-3">
               <div className="flex items-center gap-2">
                 <h1 className="text-sm sm:text-base font-bold text-white tracking-tight flex items-center gap-1.5">
                   {scanData?.organizationName || userProfile?.organizationName || 'My Organization'}
                 </h1>
-                <span className="rounded-full bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.2 text-[9px] font-extrabold text-emerald-400">
+                <span className="rounded-full bg-[#8ce04a]/15 border border-[#8ce04a]/30 px-2 py-0.2 text-[9px] font-extrabold text-[#a3e635]">
                   {userProfile?.plan === 'scale' ? 'SCALE' : userProfile?.plan === 'growth' ? 'GROWTH' : 'PRO'}
                 </span>
               </div>
@@ -82,7 +83,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
               onClick={onOpenConnectModal}
               className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-semibold text-zinc-200 hover:bg-white/[0.08] hover:text-white transition-colors"
             >
-              <RefreshCw className="h-3.5 w-3.5 text-emerald-400" />
+              <RefreshCw className="h-3.5 w-3.5 text-[#8ce04a]" />
               <span>{scanData ? 'Re-Scan' : 'Connect Workspace'}</span>
             </button>
 
