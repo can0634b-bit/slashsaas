@@ -1,14 +1,29 @@
 ﻿'use client';
 
 import React from 'react';
-import { ArrowRight, ShieldCheck, Zap, Sparkles, TrendingDown, Layers, Bot, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, ShieldCheck, Zap, CheckCircle2, Calendar } from 'lucide-react';
 import { Interactive3DModel } from './Interactive3DModel';
+import { IntegrationsStrip } from './IntegrationsStrip';
 
 interface HeroProps {
-  onOpenAuthModal: () => void;
+  onOpenWaitlistModal: () => void;
+  onBookDemo?: () => void;
 }
 
-export const Hero: React.FC<HeroProps> = ({ onOpenAuthModal }) => {
+export const Hero: React.FC<HeroProps> = ({ onOpenWaitlistModal, onBookDemo }) => {
+  const handleDemoClick = () => {
+    if (onBookDemo) {
+      onBookDemo();
+    } else {
+      const calUrl = process.env.NEXT_PUBLIC_CAL_EMBED_URL;
+      if (calUrl && calUrl.trim().length > 0) {
+        window.open(calUrl, '_blank', 'noopener,noreferrer');
+      } else {
+        window.location.href = 'mailto:support@slashsaas.com?subject=Book%20a%20Demo%20-%20SlashSaaS';
+      }
+    }
+  };
+
   return (
     <section className="relative pt-32 pb-20 sm:pt-40 sm:pb-28 overflow-hidden">
       {/* Ambient Lighting */}
@@ -42,7 +57,8 @@ export const Hero: React.FC<HeroProps> = ({ onOpenAuthModal }) => {
         {/* Primary Action Buttons */}
         <div className="mt-9 flex flex-col sm:flex-row items-center justify-center gap-3.5">
           <button
-            onClick={onOpenAuthModal}
+            type="button"
+            onClick={onOpenWaitlistModal}
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 rounded-xl bg-white px-7 py-3.5 text-sm font-bold text-zinc-950 hover:bg-zinc-200 transition-all shadow-xl shadow-white/10 active:scale-95"
           >
             <Zap className="h-4 w-4 fill-zinc-950" />
@@ -50,18 +66,20 @@ export const Hero: React.FC<HeroProps> = ({ onOpenAuthModal }) => {
             <ArrowRight className="h-4 w-4" />
           </button>
 
-          <a
-            href="#how-it-works"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-6 py-3.5 text-sm font-semibold text-zinc-300 hover:bg-white/[0.08] hover:text-white transition-all backdrop-blur-sm"
+          <button
+            type="button"
+            onClick={handleDemoClick}
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-zinc-950/80 px-6 py-3.5 text-sm font-semibold text-zinc-300 hover:bg-white/[0.08] hover:text-white transition-all backdrop-blur-sm"
           >
-            <span>How It Works (2 Mins)</span>
-          </a>
+            <Calendar className="h-4 w-4" />
+            <span>Book a Demo (15 Min)</span>
+          </button>
         </div>
 
         {/* Trust Badges */}
         <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-xs text-zinc-500">
           <span className="flex items-center gap-1.5">
-            <ShieldCheck className="h-4 w-4 text-[#8ce04a]" /> 100% Read-Only (Zero Document Access)
+            <ShieldCheck className="h-4 w-4 text-[#8ce04a]" /> 100% Read-Only OAuth (Zero Message/Document Access)
           </span>
           <span className="flex items-center gap-1.5">
             <CheckCircle2 className="h-4 w-4 text-[#8ce04a]" /> Zero Password Storage
@@ -82,7 +100,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenAuthModal }) => {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-white/[0.08]">
               <div className="flex items-center gap-3">
                 <div className="flex items-center justify-center">
-                  <svg viewBox="0 0 100 100" className="h-9 w-9 drop-shadow-[0_0_10px_#8ce04a]">
+                  <svg viewBox="0 0 100 100" className="h-9 w-9 drop-shadow-[0_0_10px_#8ce04a]" aria-hidden="true">
                     <path
                       d="M32 20 C32 38 18 50 4 50 C18 50 32 62 32 80 C32 62 46 50 60 50 C46 50 32 38 32 20 Z"
                       fill="#8ce04a"
@@ -110,20 +128,20 @@ export const Hero: React.FC<HeroProps> = ({ onOpenAuthModal }) => {
             {/* 3 Value Pillars */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 my-6">
               <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
-                <span className="text-[11px] font-medium uppercase tracking-wider text-zinc-500">Detected Budget Waste</span>
+                <span className="text-[11px] font-medium uppercase tracking-wider text-zinc-500">Typical Identified Waste</span>
                 <p className="text-2xl font-extrabold text-white mt-1">22.4% <span className="text-xs font-normal text-rose-400 font-sans">average excess</span></p>
                 <p className="text-[11px] text-zinc-400 mt-1">40+ dormant licenses detected per 50 seats</p>
               </div>
 
               <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
-                <span className="text-[11px] font-medium uppercase tracking-wider text-zinc-500">Annual Recovered Budget</span>
+                <span className="text-[11px] font-medium uppercase tracking-wider text-zinc-500">Projected Recoverable Budget</span>
                 <p className="text-2xl font-extrabold text-[#a3e635] mt-1">+$24,600 / yr</p>
                 <p className="text-[11px] text-zinc-400 mt-1">Direct bottom-line profit back to your bank</p>
               </div>
 
               <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
-                <span className="text-[11px] font-medium uppercase tracking-wider text-zinc-500">Slack Nudge Resolution Rate</span>
-                <p className="text-2xl font-extrabold text-cyan-400 mt-1">94% Success</p>
+                <span className="text-[11px] font-medium uppercase tracking-wider text-zinc-500">Slack Nudge Target Resolution</span>
+                <p className="text-2xl font-extrabold text-cyan-400 mt-1">90%+ Target</p>
                 <p className="text-[11px] text-zinc-400 mt-1">Team members voluntarily relinquish seats</p>
               </div>
             </div>
@@ -147,18 +165,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenAuthModal }) => {
         </div>
 
         {/* Integration Logos Strip */}
-        <div className="mt-16 pt-8 border-t border-white/[0.06]">
-          <p className="text-xs uppercase tracking-widest text-zinc-500 font-semibold mb-6">
-            Seamlessly Integrated with Your Tech Stack
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-14 opacity-60 grayscale hover:grayscale-0 transition-all text-xs font-semibold text-zinc-400">
-            <span className="flex items-center gap-2">Google Workspace</span>
-            <span className="flex items-center gap-2">Slack Enterprise</span>
-            <span className="flex items-center gap-2">Microsoft 365</span>
-            <span className="flex items-center gap-2">Okta SAML SSO</span>
-            <span className="flex items-center gap-2">Stripe Invoicing</span>
-          </div>
-        </div>
+        <IntegrationsStrip />
       </div>
     </section>
   );

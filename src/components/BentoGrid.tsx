@@ -8,14 +8,14 @@ export const BentoGrid: React.FC = () => {
     <section id="solutions" className="py-24 border-t border-white/[0.06] bg-zinc-950/40 relative">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <span className="text-xs font-bold uppercase tracking-widest text-emerald-400">
+          <span className="text-xs font-bold uppercase tracking-widest text-[#8ce04a]">
             Why SlashSaaS?
           </span>
           <h2 className="mt-2 text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
             Intelligent Architecture to Protect Your Runway
           </h2>
           <p className="mt-3 text-zinc-400 text-sm sm:text-base">
-            No 6-month enterprise onboarding. No invasive desktop agents. Connects via API in 60 seconds.
+            No 6-month enterprise onboarding. No invasive desktop agents. Connects via read-only API in 60 seconds.
           </p>
         </div>
 
@@ -28,8 +28,8 @@ export const BentoGrid: React.FC = () => {
                 <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 text-white font-bold">
                   <Search className="h-5 w-5" />
                 </div>
-                <span className="text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
-                  Real-Time Login Telemetry
+                <span className="text-[11px] font-semibold text-[#8ce04a] bg-[#8ce04a]/10 px-3 py-1 rounded-full border border-[#8ce04a]/20">
+                  Read-Only Telemetry
                 </span>
               </div>
 
@@ -37,16 +37,16 @@ export const BentoGrid: React.FC = () => {
                 Deep OAuth & SAML Activity Inspection
               </h3>
               <p className="text-sm text-zinc-400 leading-relaxed max-w-lg">
-                SlashSaaS doesn't just guess based on credit card receipts. We inspect real OAuth 2.0 refresh timestamps across Google and Slack to calculate exact dormancy scores across 30, 60, and 90+ day inactivity thresholds.
+                SlashSaaS doesn&apos;t just guess based on credit card receipts. We inspect real OAuth 2.0 refresh timestamps across Google and Slack to calculate exact dormancy classifications across 30, 60, and 90+ day inactivity thresholds.
               </p>
             </div>
 
             <div className="mt-8 rounded-2xl border border-white/[0.06] bg-black/40 p-4 flex items-center justify-between text-xs text-zinc-300">
               <span className="flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-emerald-400" />
-                Dormancy Algorithm: 30 / 60 / 90+ Day Granular Classification
+                <span className="h-2 w-2 rounded-full bg-[#8ce04a]" />
+                Classification Model: 30 / 60 / 90+ Day Inactivity Buckets
               </span>
-              <span className="text-emerald-400 font-bold">100% Accuracy</span>
+              <span className="text-[#8ce04a] font-bold">Deterministic Telemetry</span>
             </div>
           </div>
 
@@ -66,13 +66,13 @@ export const BentoGrid: React.FC = () => {
                 1-Click Slack Nudge Bot
               </h3>
               <p className="text-sm text-zinc-400 leading-relaxed">
-                Eliminate awkward manual emails. Our bot sends polite, automated Slack DMs allowing team members to relinquish unused seats with a single click.
+                Eliminate awkward manual emails. Our bot sends polite, automated Slack DMs allowing team members to voluntarily relinquish unused seats with a single click.
               </p>
             </div>
 
             <div className="mt-6 pt-4 border-t border-white/[0.06] text-xs text-zinc-400 flex items-center gap-1.5">
               <Sparkles className="h-4 w-4 text-cyan-400" />
-              <span>Zero Interpersonal Friction, 94% Resolution</span>
+              <span>Zero Interpersonal Friction, High Resolution</span>
             </div>
           </div>
 
