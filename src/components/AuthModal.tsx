@@ -2,9 +2,10 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { X, ArrowRight, Zap, Check, ShieldCheck } from 'lucide-react';
+import { X, ArrowRight } from 'lucide-react';
 import { saveSession } from '@/lib/authStore';
 import { UserProfile } from '@/lib/types';
+import { SlashLogoIcon } from './Logo';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -82,10 +83,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, mode: initialMode,
           <X className="h-4 w-4" />
         </button>
 
-        <div className="flex items-center gap-3 mb-6">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-zinc-950 font-black text-sm shadow-md">
-            /S
-          </div>
+        {/* Header with Official Logo Icon */}
+        <div className="flex items-center gap-3.5 mb-6">
+          <SlashLogoIcon size={34} />
           <div>
             <h3 className="text-lg font-bold text-white tracking-tight">
               {mode === 'signup' ? 'Create Your Account' : 'Sign in to SlashSaaS'}

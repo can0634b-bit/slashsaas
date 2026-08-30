@@ -1,9 +1,9 @@
 ﻿'use client';
 
 import React, { useState } from 'react';
-import { X, ShieldCheck, ArrowRight, Zap, CheckCircle2, Building2, Users } from 'lucide-react';
+import { X, ShieldCheck, ArrowRight, Zap, Building2, Users } from 'lucide-react';
 import { ScanSummary } from '@/lib/types';
-import { generateCustomScan } from '@/lib/scanEngine';
+import { SlashLogoIcon } from './Logo';
 
 interface ConnectWorkspaceModalProps {
   isOpen: boolean;
@@ -62,10 +62,8 @@ export const ConnectWorkspaceModal: React.FC<ConnectWorkspaceModalProps> = ({
           <X className="h-4 w-4" />
         </button>
 
-        <div className="flex items-center gap-3 mb-6">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-zinc-950 font-black text-sm">
-            /S
-          </div>
+        <div className="flex items-center gap-3.5 mb-6">
+          <SlashLogoIcon size={34} />
           <div>
             <h3 className="text-lg font-bold text-white tracking-tight">
               Connect {provider}
@@ -122,7 +120,7 @@ export const ConnectWorkspaceModal: React.FC<ConnectWorkspaceModalProps> = ({
           </div>
 
           <div className="rounded-xl border border-white/[0.06] bg-black/40 p-3 text-[11px] text-zinc-400 flex items-start gap-2">
-            <ShieldCheck className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
+            <ShieldCheck className="h-4 w-4 text-[#8ce04a] shrink-0 mt-0.5" />
             <span>
               <strong>100% Read-Only:</strong> SlashSaaS only requests access to user login timestamps. No messages, documents, or passwords are accessed.
             </span>

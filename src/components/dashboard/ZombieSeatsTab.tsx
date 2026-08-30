@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { ZombieUserSeat, SaaSApp } from '@/lib/types';
 import { getInactivityBadgeStyle, getNudgeStatusBadge, formatUSD } from '@/lib/utils';
+import { SlashLogoIcon } from '../Logo';
 
 interface ZombieSeatsTabProps {
   zombieSeats: ZombieUserSeat[];
@@ -42,8 +43,8 @@ export const ZombieSeatsTab: React.FC<ZombieSeatsTabProps> = ({
     return (
       <div className="py-16 text-center max-w-xl mx-auto">
         <div className="rounded-3xl border border-white/10 bg-zinc-950 p-8 sm:p-12 shadow-2xl">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-zinc-950 font-black">
-            /S
+          <div className="mx-auto mb-4 flex items-center justify-center">
+            <SlashLogoIcon size={44} />
           </div>
           <h3 className="text-xl font-bold text-white mb-2">No Inactive Seats Detected</h3>
           <p className="text-xs sm:text-sm text-zinc-400 mb-6">
@@ -227,7 +228,7 @@ export const ZombieSeatsTab: React.FC<ZombieSeatsTabProps> = ({
                             <button
                               onClick={() => onSingleNudge(seat, 'nudge')}
                               title="Send Automated Slack DM"
-                              className="rounded-xl bg-white/[0.04] hover:bg-white/[0.08] px-2.5 py-1 text-[11px] font-semibold text-emerald-400 border border-white/10 flex items-center gap-1 transition-colors"
+                              className="rounded-xl bg-white/[0.04] hover:bg-white/[0.08] px-2.5 py-1 text-[11px] font-semibold text-[#8ce04a] border border-white/10 flex items-center gap-1 transition-colors"
                             >
                               <MessageSquare className="h-3 w-3" />
                               <span>Slack Nudge</span>
@@ -235,14 +236,14 @@ export const ZombieSeatsTab: React.FC<ZombieSeatsTabProps> = ({
                             <button
                               onClick={() => onSingleNudge(seat, 'reclaim')}
                               title="Mark License Reclaimed"
-                              className="rounded-xl bg-white/[0.04] hover:bg-emerald-500/10 px-2.5 py-1 text-[11px] font-semibold text-zinc-400 hover:text-emerald-300 border border-white/10 transition-colors"
+                              className="rounded-xl bg-white/[0.04] hover:bg-emerald-500/10 px-2.5 py-1 text-[11px] font-semibold text-zinc-400 hover:text-[#8ce04a] border border-white/10 transition-colors"
                             >
                               <CheckCircle2 className="h-3 w-3" />
                               <span>Reclaim</span>
                             </button>
                           </>
                         ) : (
-                          <span className="text-[11px] text-emerald-400 font-bold flex items-center gap-1">
+                          <span className="text-[11px] text-[#8ce04a] font-bold flex items-center gap-1">
                             <CheckCircle2 className="h-3.5 w-3.5" /> Reclaimed
                           </span>
                         )}

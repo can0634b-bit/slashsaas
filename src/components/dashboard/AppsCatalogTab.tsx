@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { SaaSApp } from '@/lib/types';
 import { formatUSD } from '@/lib/utils';
+import { SlashLogoIcon } from '../Logo';
 
 interface AppsCatalogTabProps {
   apps: SaaSApp[];
@@ -37,8 +38,8 @@ export const AppsCatalogTab: React.FC<AppsCatalogTabProps> = ({ apps, onUpdateAp
     return (
       <div className="py-16 text-center max-w-xl mx-auto">
         <div className="rounded-3xl border border-white/10 bg-zinc-950 p-8 sm:p-12 shadow-2xl">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-zinc-950 font-black">
-            /S
+          <div className="mx-auto mb-4 flex items-center justify-center">
+            <SlashLogoIcon size={44} />
           </div>
           <h3 className="text-xl font-bold text-white mb-2">No Subscriptions Discovered</h3>
           <p className="text-xs sm:text-sm text-zinc-400">
@@ -63,7 +64,7 @@ export const AppsCatalogTab: React.FC<AppsCatalogTabProps> = ({ apps, onUpdateAp
           onClick={() => alert('Custom SaaS tool addition modal')}
           className="inline-flex items-center gap-1.5 rounded-xl bg-white/[0.04] border border-white/10 px-4 py-2 text-xs font-semibold text-zinc-200 hover:bg-white/[0.08] hover:text-white transition-colors"
         >
-          <Plus className="h-4 w-4 text-emerald-400" />
+          <Plus className="h-4 w-4 text-[#8ce04a]" />
           <span>Add Custom SaaS Tool</span>
         </button>
       </div>
@@ -81,7 +82,7 @@ export const AppsCatalogTab: React.FC<AppsCatalogTabProps> = ({ apps, onUpdateAp
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
-                    <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                    <span className="h-2 w-2 rounded-full bg-[#8ce04a]" />
                     <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
                       {app.category}
                     </span>
@@ -123,7 +124,7 @@ export const AppsCatalogTab: React.FC<AppsCatalogTabProps> = ({ apps, onUpdateAp
                       <span>${app.costPerSeatMonthly}/mo</span>
                       <button
                         onClick={() => handleStartEdit(app)}
-                        className="text-zinc-500 hover:text-emerald-400 transition-colors"
+                        className="text-zinc-500 hover:text-[#8ce04a] transition-colors"
                         title="Edit Seat Price"
                       >
                         <Edit3 className="h-3 w-3" />

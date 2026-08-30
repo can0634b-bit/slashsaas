@@ -1,8 +1,9 @@
 ﻿'use client';
 
 import React, { useState } from 'react';
-import { X, Check, ShieldCheck, Zap, Lock, CreditCard, Sparkles, ArrowRight } from 'lucide-react';
+import { X, Check, ShieldCheck, Zap, Lock, Sparkles, ArrowRight } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { SlashLogoIcon } from './Logo';
 
 interface LemonSqueezyModalProps {
   isOpen: boolean;
@@ -46,7 +47,6 @@ export const LemonSqueezyModal: React.FC<LemonSqueezyModalProps> = ({ isOpen, on
       });
       const data = await res.json();
       
-      // Simulate successful checkout activation
       setTimeout(() => {
         setLoading(false);
         try {
@@ -54,7 +54,7 @@ export const LemonSqueezyModal: React.FC<LemonSqueezyModalProps> = ({ isOpen, on
             particleCount: 90,
             spread: 70,
             origin: { y: 0.6 },
-            colors: ['#10b981', '#34d399', '#6ee7b7', '#ffffff']
+            colors: ['#8ce04a', '#a3e635', '#6ee7b7', '#ffffff']
           });
         } catch {}
 
@@ -80,14 +80,12 @@ export const LemonSqueezyModal: React.FC<LemonSqueezyModalProps> = ({ isOpen, on
         </button>
 
         {/* Header */}
-        <div className="flex items-center gap-3 mb-6">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-zinc-950 font-black text-sm">
-            /S
-          </div>
+        <div className="flex items-center gap-3.5 mb-6">
+          <SlashLogoIcon size={34} />
           <div>
             <h3 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
               <span>Upgrade to SlashSaaS Pro</span>
-              <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-400 border border-emerald-500/20">
+              <span className="rounded-full bg-[#8ce04a]/15 px-2 py-0.5 text-[10px] font-bold text-[#a3e635] border border-[#8ce04a]/30">
                 LemonSqueezy Secure
               </span>
             </h3>
@@ -113,7 +111,7 @@ export const LemonSqueezyModal: React.FC<LemonSqueezyModalProps> = ({ isOpen, on
           >
             <span>Annual Billing</span>
             <span className={`text-[9px] uppercase tracking-wider px-1.5 py-0.2 rounded-full ${
-              billingInterval === 'annual' ? 'bg-zinc-900 text-emerald-400 font-bold' : 'bg-emerald-500/20 text-emerald-400'
+              billingInterval === 'annual' ? 'bg-zinc-900 text-[#8ce04a] font-bold' : 'bg-[#8ce04a]/20 text-[#a3e635]'
             }`}>
               Save 20%
             </span>
@@ -127,14 +125,14 @@ export const LemonSqueezyModal: React.FC<LemonSqueezyModalProps> = ({ isOpen, on
             onClick={() => setSelectedPlan('growth')}
             className={`cursor-pointer rounded-2xl border p-4 transition-all flex flex-col justify-between ${
               selectedPlan === 'growth'
-                ? 'border-emerald-500/60 bg-emerald-500/[0.06] shadow-lg shadow-emerald-950/40 ring-1 ring-emerald-500/40'
+                ? 'border-[#8ce04a]/60 bg-[#8ce04a]/[0.06] shadow-lg shadow-emerald-950/40 ring-1 ring-[#8ce04a]/40'
                 : 'border-white/[0.08] bg-white/[0.02] hover:border-white/20'
             }`}
           >
             <div>
               <div className="flex items-center justify-between mb-1">
                 <h4 className="text-sm font-bold text-white">Growth Plan</h4>
-                {selectedPlan === 'growth' && <span className="h-2 w-2 rounded-full bg-emerald-400" />}
+                {selectedPlan === 'growth' && <span className="h-2 w-2 rounded-full bg-[#8ce04a]" />}
               </div>
               <p className="text-[11px] text-zinc-400 mb-3">Up to 60 team seats</p>
             </div>
@@ -151,14 +149,14 @@ export const LemonSqueezyModal: React.FC<LemonSqueezyModalProps> = ({ isOpen, on
             onClick={() => setSelectedPlan('scale')}
             className={`cursor-pointer rounded-2xl border p-4 transition-all flex flex-col justify-between ${
               selectedPlan === 'scale'
-                ? 'border-emerald-500/60 bg-emerald-500/[0.06] shadow-lg shadow-emerald-950/40 ring-1 ring-emerald-500/40'
+                ? 'border-[#8ce04a]/60 bg-[#8ce04a]/[0.06] shadow-lg shadow-emerald-950/40 ring-1 ring-[#8ce04a]/40'
                 : 'border-white/[0.08] bg-white/[0.02] hover:border-white/20'
             }`}
           >
             <div>
               <div className="flex items-center justify-between mb-1">
                 <h4 className="text-sm font-bold text-white">Scale Plan</h4>
-                {selectedPlan === 'scale' && <span className="h-2 w-2 rounded-full bg-emerald-400" />}
+                {selectedPlan === 'scale' && <span className="h-2 w-2 rounded-full bg-[#8ce04a]" />}
               </div>
               <p className="text-[11px] text-zinc-400 mb-3">Unlimited team seats</p>
             </div>
@@ -174,15 +172,15 @@ export const LemonSqueezyModal: React.FC<LemonSqueezyModalProps> = ({ isOpen, on
         {/* Feature Highlights */}
         <div className="rounded-2xl border border-white/[0.06] bg-black/40 p-4 mb-6 text-xs text-zinc-300 space-y-2">
           <div className="flex items-center gap-2">
-            <Check className="h-3.5 w-3.5 text-emerald-400" />
+            <Check className="h-3.5 w-3.5 text-[#8ce04a]" />
             <span>Continuous 24/7 background OAuth & SAML token audit</span>
           </div>
           <div className="flex items-center gap-2">
-            <Check className="h-3.5 w-3.5 text-emerald-400" />
+            <Check className="h-3.5 w-3.5 text-[#8ce04a]" />
             <span>1-Click automated Slack bot license recovery DMs</span>
           </div>
           <div className="flex items-center gap-2">
-            <Check className="h-3.5 w-3.5 text-emerald-400" />
+            <Check className="h-3.5 w-3.5 text-[#8ce04a]" />
             <span>Official CFO & Board-ready CSV audit exports</span>
           </div>
         </div>
@@ -223,7 +221,7 @@ export const LemonSqueezyModal: React.FC<LemonSqueezyModalProps> = ({ isOpen, on
 
         {/* Security Trust Note */}
         <div className="mt-4 text-center text-[11px] text-zinc-500 flex items-center justify-center gap-1.5">
-          <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
+          <ShieldCheck className="h-3.5 w-3.5 text-[#8ce04a]" />
           <span>Processed securely via LemonSqueezy Merchant of Record with 256-bit encryption.</span>
         </div>
       </div>

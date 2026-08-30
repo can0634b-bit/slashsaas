@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { ScanSummary, SaaSApp } from '@/lib/types';
 import { formatUSD } from '@/lib/utils';
+import { SlashLogoIcon } from '../Logo';
 import { 
   BarChart, 
   Bar, 
@@ -47,8 +48,8 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
     return (
       <div className="py-16 text-center max-w-2xl mx-auto">
         <div className="rounded-3xl border border-white/10 bg-zinc-950 p-8 sm:p-12 shadow-2xl">
-          <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-zinc-950 font-black text-xl">
-            /S
+          <div className="mx-auto mb-6 flex items-center justify-center">
+            <SlashLogoIcon size={48} />
           </div>
           <h2 className="text-2xl font-bold text-white tracking-tight mb-2">
             No Workspace Connected Yet
@@ -155,9 +156,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
       {/* Quick 1-Click Action Callout */}
       <div className="rounded-3xl border border-white/10 bg-gradient-to-r from-emerald-950/30 via-zinc-950 to-zinc-950 p-6 flex flex-col md:flex-row items-center justify-between gap-4 shadow-xl">
         <div className="flex items-center gap-4 text-left">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-zinc-950 font-black text-sm shrink-0">
-            /S
-          </div>
+          <SlashLogoIcon size={38} />
           <div>
             <h3 className="text-base font-bold text-white">
               Instant 1-Click Slack License Recovery
