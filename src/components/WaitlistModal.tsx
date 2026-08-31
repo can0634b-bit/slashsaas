@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect } from 'react';
 import { X, ArrowRight, CheckCircle2, Sparkles, ShieldCheck, Mail, Building, User } from 'lucide-react';
@@ -9,7 +9,7 @@ import { track } from '@vercel/analytics';
 interface WaitlistModalProps {
   isOpen: boolean;
   onClose: () => void;
-  initialPlan?: 'growth' | 'scale' | 'audit' | 'demo' | null;
+  initialPlan?: 'growth' | 'scale' | 'audit' | null;
 }
 
 export const WaitlistModal: React.FC<WaitlistModalProps> = ({
@@ -105,7 +105,6 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({
   const getTitle = () => {
     if (initialPlan === 'growth') return 'Request Early Access: Growth Plan';
     if (initialPlan === 'scale') return 'Request Early Access: Scale Plan';
-    if (initialPlan === 'demo') return 'Book a Demo / Early Access';
     return 'Get Early Access to SlashSaaS';
   };
 

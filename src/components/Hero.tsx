@@ -1,29 +1,15 @@
 ﻿'use client';
 
 import React from 'react';
-import { ArrowRight, ShieldCheck, Zap, CheckCircle2, Calendar } from 'lucide-react';
+import { ArrowRight, ShieldCheck, Zap, CheckCircle2 } from 'lucide-react';
 import { Interactive3DModel } from './Interactive3DModel';
 import { IntegrationsStrip } from './IntegrationsStrip';
 
 interface HeroProps {
   onOpenWaitlistModal: () => void;
-  onBookDemo?: () => void;
 }
 
-export const Hero: React.FC<HeroProps> = ({ onOpenWaitlistModal, onBookDemo }) => {
-  const handleDemoClick = () => {
-    if (onBookDemo) {
-      onBookDemo();
-    } else {
-      const calUrl = process.env.NEXT_PUBLIC_CAL_EMBED_URL;
-      if (calUrl && calUrl.trim().length > 0) {
-        window.open(calUrl, '_blank', 'noopener,noreferrer');
-      } else {
-        window.location.href = 'mailto:support@slashsaas.com?subject=Book%20a%20Demo%20-%20SlashSaaS';
-      }
-    }
-  };
-
+export const Hero: React.FC<HeroProps> = ({ onOpenWaitlistModal }) => {
   return (
     <section className="relative pt-32 pb-20 sm:pt-40 sm:pb-28 overflow-hidden">
       {/* Ambient Lighting */}
@@ -66,14 +52,12 @@ export const Hero: React.FC<HeroProps> = ({ onOpenWaitlistModal, onBookDemo }) =
             <ArrowRight className="h-4 w-4" />
           </button>
 
-          <button
-            type="button"
-            onClick={handleDemoClick}
+          <a
+            href="#how-it-works"
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-zinc-950/80 px-6 py-3.5 text-sm font-semibold text-zinc-300 hover:bg-white/[0.08] hover:text-white transition-all backdrop-blur-sm"
           >
-            <Calendar className="h-4 w-4" />
-            <span>Book a Demo (15 Min)</span>
-          </button>
+            <span>How It Works (2 Mins)</span>
+          </a>
         </div>
 
         {/* Trust Badges */}

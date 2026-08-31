@@ -1,15 +1,14 @@
-'use client';
+﻿'use client';
 
 import React, { useState } from 'react';
-import { Check, Zap, Sparkles, ArrowRight, ShieldCheck, Lock, Calendar } from 'lucide-react';
+import { Check, Zap, Sparkles, ArrowRight, ShieldCheck, Lock } from 'lucide-react';
 import { track } from '@vercel/analytics';
 
 interface PricingProps {
   onSelectPlan: (plan: 'growth' | 'scale') => void;
-  onBookDemo?: () => void;
 }
 
-export const Pricing: React.FC<PricingProps> = ({ onSelectPlan, onBookDemo }) => {
+export const Pricing: React.FC<PricingProps> = ({ onSelectPlan }) => {
   const [annualBilling, setAnnualBilling] = useState(true);
 
   const plans = [
@@ -71,19 +70,6 @@ export const Pricing: React.FC<PricingProps> = ({ onSelectPlan, onBookDemo }) =>
     } else {
       // Fall back to early access / waitlist modal
       onSelectPlan(planId);
-    }
-  };
-
-  const handleDemoClick = () => {
-    if (onBookDemo) {
-      onBookDemo();
-    } else {
-      const calUrl = process.env.NEXT_PUBLIC_CAL_EMBED_URL;
-      if (calUrl && calUrl.trim().length > 0) {
-        window.open(calUrl, '_blank', 'noopener,noreferrer');
-      } else {
-        window.location.href = 'mailto:support@slashsaas.com?subject=Book%20a%20Demo%20-%20SlashSaaS';
-      }
     }
   };
 
@@ -179,7 +165,7 @@ export const Pricing: React.FC<PricingProps> = ({ onSelectPlan, onBookDemo }) =>
                   </ul>
                 </div>
 
-                <div className="space-y-2.5">
+                <div>
                   <button
                     type="button"
                     onClick={() => handlePlanClick(plan.id)}
@@ -192,15 +178,6 @@ export const Pricing: React.FC<PricingProps> = ({ onSelectPlan, onBookDemo }) =>
                     <Lock className="h-3.5 w-3.5" />
                     <span>Choose {plan.name}</span>
                     <ArrowRight className="h-3.5 w-3.5" />
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleDemoClick}
-                    className="w-full flex items-center justify-center gap-1.5 py-2 text-xs font-semibold text-zinc-400 hover:text-white transition-colors"
-                  >
-                    <Calendar className="h-3.5 w-3.5" />
-                    <span>Book a 15-Min Walkthrough</span>
                   </button>
                 </div>
               </div>

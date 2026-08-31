@@ -2,34 +2,19 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { ArrowRight, Menu, X, Calendar } from 'lucide-react';
+import { ArrowRight, Menu, X } from 'lucide-react';
 import { SlashLogo } from './Logo';
 
 interface NavbarProps {
   onOpenAuthModal: (mode: 'signin' | 'signup') => void;
   onOpenWaitlistModal: () => void;
-  onBookDemo?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
   onOpenAuthModal,
   onOpenWaitlistModal,
-  onBookDemo,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  const handleDemoClick = () => {
-    if (onBookDemo) {
-      onBookDemo();
-    } else {
-      const calUrl = process.env.NEXT_PUBLIC_CAL_EMBED_URL;
-      if (calUrl && calUrl.trim().length > 0) {
-        window.open(calUrl, '_blank', 'noopener,noreferrer');
-      } else {
-        window.location.href = 'mailto:support@slashsaas.com?subject=Book%20a%20Demo%20-%20SlashSaaS';
-      }
-    }
-  };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 flex justify-center pt-4 px-4 sm:px-6">
@@ -51,16 +36,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         {/* Right Action Buttons */}
-        <div className="hidden md:flex items-center gap-2.5">
-          <button
-            type="button"
-            onClick={handleDemoClick}
-            className="text-xs font-medium text-zinc-400 hover:text-white px-3 py-2 rounded-lg hover:bg-white/5 transition-colors flex items-center gap-1.5"
-          >
-            <Calendar className="h-3.5 w-3.5" />
-            <span>Book a Demo</span>
-          </button>
-
+        <div className="hidden md:flex items-center gap-3">
           <button
             type="button"
             onClick={() => onOpenAuthModal('signin')}
@@ -102,14 +78,6 @@ export const Navbar: React.FC<NavbarProps> = ({
           <a href="#faq" onClick={() => setMobileMenuOpen(false)} className="block text-zinc-300 hover:text-white py-1">FAQ</a>
 
           <div className="pt-4 border-t border-white/10 flex flex-col gap-2.5">
-            <button
-              type="button"
-              onClick={() => { setMobileMenuOpen(false); handleDemoClick(); }}
-              className="w-full py-2.5 text-center text-xs font-semibold text-zinc-300 border border-white/10 rounded-xl flex items-center justify-center gap-1.5"
-            >
-              <Calendar className="h-3.5 w-3.5" />
-              <span>Book a Demo</span>
-            </button>
             <button
               type="button"
               onClick={() => { setMobileMenuOpen(false); onOpenAuthModal('signin'); }}

@@ -20,22 +20,13 @@ import { CookieBanner } from '@/components/CookieBanner';
 
 export default function LandingPage() {
   const [authModalMode, setAuthModalMode] = useState<'signin' | 'signup' | null>(null);
-  const [waitlistPlan, setWaitlistPlan] = useState<'growth' | 'scale' | 'audit' | 'demo' | null>(null);
+  const [waitlistPlan, setWaitlistPlan] = useState<'growth' | 'scale' | 'audit' | null>(null);
   const [isWaitlistOpen, setIsWaitlistOpen] = useState(false);
   const [isLemonModalOpen, setIsLemonModalOpen] = useState(false);
 
-  const handleOpenWaitlist = (plan: 'growth' | 'scale' | 'audit' | 'demo' = 'audit') => {
+  const handleOpenWaitlist = (plan: 'growth' | 'scale' | 'audit' = 'audit') => {
     setWaitlistPlan(plan);
     setIsWaitlistOpen(true);
-  };
-
-  const handleBookDemo = () => {
-    const calUrl = process.env.NEXT_PUBLIC_CAL_EMBED_URL;
-    if (calUrl && calUrl.trim().length > 0) {
-      window.open(calUrl, '_blank', 'noopener,noreferrer');
-    } else {
-      handleOpenWaitlist('demo');
-    }
   };
 
   const handleSelectPlan = (plan: 'growth' | 'scale') => {
@@ -57,14 +48,12 @@ export default function LandingPage() {
       <Navbar
         onOpenAuthModal={(mode) => setAuthModalMode(mode)}
         onOpenWaitlistModal={() => handleOpenWaitlist('audit')}
-        onBookDemo={handleBookDemo}
       />
 
       {/* Main Sections */}
       <main>
         <Hero
           onOpenWaitlistModal={() => handleOpenWaitlist('audit')}
-          onBookDemo={handleBookDemo}
         />
         <BentoGrid />
         <HowItWorks />
@@ -74,12 +63,10 @@ export default function LandingPage() {
         <SecuritySection />
         <Pricing
           onSelectPlan={handleSelectPlan}
-          onBookDemo={handleBookDemo}
         />
         <FaqSection />
         <CtaSection
           onOpenWaitlistModal={() => handleOpenWaitlist('audit')}
-          onBookDemo={handleBookDemo}
         />
       </main>
 
