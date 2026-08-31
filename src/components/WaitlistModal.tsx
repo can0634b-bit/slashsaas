@@ -1,7 +1,7 @@
 ﻿'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, ArrowRight, CheckCircle2, Sparkles, ShieldCheck, Mail, Building, User } from 'lucide-react';
+import { X, ArrowRight, CheckCircle2, ShieldCheck, Mail, Building, User } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SlashLogoIcon } from './Logo';
 import { track } from '@vercel/analytics';
@@ -9,7 +9,7 @@ import { track } from '@vercel/analytics';
 interface WaitlistModalProps {
   isOpen: boolean;
   onClose: () => void;
-  initialPlan?: 'growth' | 'scale' | 'audit' | null;
+  initialPlan?: 'growth' | 'scale' | 'audit' | 'signin' | null;
 }
 
 export const WaitlistModal: React.FC<WaitlistModalProps> = ({
@@ -66,7 +66,7 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({
           name: name.trim() || undefined,
           company: company.trim() || undefined,
           planInterest: initialPlan || 'early_access',
-          source: 'landing_modal',
+          source: initialPlan === 'signin' ? 'signin_redirect' : 'landing_modal',
         }),
       });
 
@@ -80,7 +80,7 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({
       try {
         track('waitlist_signup', {
           plan: initialPlan || 'early_access',
-          source: 'landing_modal',
+          source: initialPlan === 'signin' ? 'signin_redirect' : 'landing_modal',
         });
       } catch (trackErr) {
         console.error('Analytics tracking error:', trackErr);
@@ -103,9 +103,17 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({
   };
 
   const getTitle = () => {
+    if (initialPlan === 'signin') return 'Private Early Access';
     if (initialPlan === 'growth') return 'Request Early Access: Growth Plan';
     if (initialPlan === 'scale') return 'Request Early Access: Scale Plan';
     return 'Get Early Access to SlashSaaS';
+  };
+
+  const getSubtitle = () => {
+    if (initialPlan === 'signin') {
+      return 'SlashSaaS is currently in private early access — request priority access below.';
+    }
+    return 'Join our priority cohort. 100% read-only license waste elimination.';
   };
 
   return (
@@ -136,7 +144,7 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({
                   {getTitle()}
                 </h3>
                 <p className="text-xs text-zinc-400">
-                  Join our priority cohort. 100% read-only license waste elimination.
+                  {getSubtitle()}
                 </p>
               </div>
             </div>

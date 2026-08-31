@@ -6,14 +6,10 @@ import { ArrowRight, Menu, X } from 'lucide-react';
 import { SlashLogo } from './Logo';
 
 interface NavbarProps {
-  onOpenAuthModal: (mode: 'signin' | 'signup') => void;
-  onOpenWaitlistModal: () => void;
+  onOpenWaitlistModal: (plan?: 'growth' | 'scale' | 'audit' | 'signin') => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({
-  onOpenAuthModal,
-  onOpenWaitlistModal,
-}) => {
+export const Navbar: React.FC<NavbarProps> = ({ onOpenWaitlistModal }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -39,7 +35,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="hidden md:flex items-center gap-3">
           <button
             type="button"
-            onClick={() => onOpenAuthModal('signin')}
+            onClick={() => onOpenWaitlistModal('signin')}
             className="text-xs font-medium text-zinc-300 hover:text-white px-3 py-2 rounded-lg hover:bg-white/5 transition-colors"
           >
             Sign In
@@ -47,7 +43,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           
           <button
             type="button"
-            onClick={onOpenWaitlistModal}
+            onClick={() => onOpenWaitlistModal('audit')}
             className="group inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2 text-xs font-bold text-zinc-950 hover:bg-zinc-200 transition-all active:scale-95 shadow-sm"
           >
             <span>Get Started</span>
@@ -80,14 +76,14 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="pt-4 border-t border-white/10 flex flex-col gap-2.5">
             <button
               type="button"
-              onClick={() => { setMobileMenuOpen(false); onOpenAuthModal('signin'); }}
+              onClick={() => { setMobileMenuOpen(false); onOpenWaitlistModal('signin'); }}
               className="w-full py-2.5 text-center text-xs font-semibold text-zinc-300 border border-white/10 rounded-xl"
             >
               Sign In
             </button>
             <button
               type="button"
-              onClick={() => { setMobileMenuOpen(false); onOpenWaitlistModal(); }}
+              onClick={() => { setMobileMenuOpen(false); onOpenWaitlistModal('audit'); }}
               className="w-full py-2.5 text-center text-xs font-bold text-zinc-950 bg-white rounded-xl"
             >
               Get Started

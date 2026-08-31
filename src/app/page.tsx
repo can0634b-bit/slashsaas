@@ -13,18 +13,16 @@ import { Pricing } from '@/components/Pricing';
 import { FaqSection } from '@/components/FaqSection';
 import { CtaSection } from '@/components/CtaSection';
 import { Footer } from '@/components/Footer';
-import { AuthModal } from '@/components/AuthModal';
 import { WaitlistModal } from '@/components/WaitlistModal';
 import { LemonSqueezyModal } from '@/components/LemonSqueezyModal';
 import { CookieBanner } from '@/components/CookieBanner';
 
 export default function LandingPage() {
-  const [authModalMode, setAuthModalMode] = useState<'signin' | 'signup' | null>(null);
-  const [waitlistPlan, setWaitlistPlan] = useState<'growth' | 'scale' | 'audit' | null>(null);
+  const [waitlistPlan, setWaitlistPlan] = useState<'growth' | 'scale' | 'audit' | 'signin' | null>(null);
   const [isWaitlistOpen, setIsWaitlistOpen] = useState(false);
   const [isLemonModalOpen, setIsLemonModalOpen] = useState(false);
 
-  const handleOpenWaitlist = (plan: 'growth' | 'scale' | 'audit' = 'audit') => {
+  const handleOpenWaitlist = (plan: 'growth' | 'scale' | 'audit' | 'signin' = 'audit') => {
     setWaitlistPlan(plan);
     setIsWaitlistOpen(true);
   };
@@ -46,8 +44,7 @@ export default function LandingPage() {
     <div className="min-h-screen bg-black text-white selection:bg-white selection:text-black">
       {/* Floating Glass Navigation */}
       <Navbar
-        onOpenAuthModal={(mode) => setAuthModalMode(mode)}
-        onOpenWaitlistModal={() => handleOpenWaitlist('audit')}
+        onOpenWaitlistModal={handleOpenWaitlist}
       />
 
       {/* Main Sections */}
@@ -78,13 +75,6 @@ export default function LandingPage() {
         isOpen={isWaitlistOpen}
         onClose={() => setIsWaitlistOpen(false)}
         initialPlan={waitlistPlan}
-      />
-
-      {/* Auth Modal for Sign In */}
-      <AuthModal
-        isOpen={!!authModalMode}
-        mode={authModalMode || 'signin'}
-        onClose={() => setAuthModalMode(null)}
       />
 
       {/* LemonSqueezy Checkout Modal */}
