@@ -1,9 +1,10 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useEffect } from 'react';
 import { X, ArrowRight, CheckCircle2, Sparkles, ShieldCheck, Mail, Building, User } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SlashLogoIcon } from './Logo';
+import { track } from '@vercel/analytics';
 
 interface WaitlistModalProps {
   isOpen: boolean;
@@ -73,6 +74,16 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({
 
       if (!res.ok) {
         throw new Error(data.error || 'Failed to submit. Please try again.');
+      }
+
+      // Track key conversion in Vercel Analytics
+      try {
+        track('waitlist_signup', {
+          plan: initialPlan || 'early_access',
+          source: 'landing_modal',
+        });
+      } catch (trackErr) {
+        console.error('Analytics tracking error:', trackErr);
       }
 
       setIsSubmitted(true);

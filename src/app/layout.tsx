@@ -2,6 +2,8 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { JsonLd } from "@/components/JsonLd";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -98,6 +100,8 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col bg-black text-zinc-100 selection:bg-white selection:text-black">
         {children}
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

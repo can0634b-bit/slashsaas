@@ -1,7 +1,8 @@
-﻿'use client';
+'use client';
 
 import React, { useState } from 'react';
 import { Check, Zap, Sparkles, ArrowRight, ShieldCheck, Lock, Calendar } from 'lucide-react';
+import { track } from '@vercel/analytics';
 
 interface PricingProps {
   onSelectPlan: (plan: 'growth' | 'scale') => void;
@@ -51,6 +52,16 @@ export const Pricing: React.FC<PricingProps> = ({ onSelectPlan, onBookDemo }) =>
   ];
 
   const handlePlanClick = (planId: 'growth' | 'scale') => {
+    // Track checkout click in Vercel Analytics
+    try {
+      track('checkout_click', {
+        plan: planId,
+        billing: annualBilling ? 'annual' : 'monthly',
+      });
+    } catch (trackErr) {
+      console.error('Analytics tracking error:', trackErr);
+    }
+
     const growthUrl = process.env.NEXT_PUBLIC_LEMONSQUEEZY_GROWTH_URL;
     const scaleUrl = process.env.NEXT_PUBLIC_LEMONSQUEEZY_SCALE_URL;
     const checkoutUrl = planId === 'growth' ? growthUrl : scaleUrl;
