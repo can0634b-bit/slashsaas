@@ -33,13 +33,12 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenWaitlistModal }) => {
 
         {/* Right Action Buttons */}
         <div className="hidden md:flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => onOpenWaitlistModal('signin')}
+          <Link
+            href="/login"
             className="text-xs font-medium text-zinc-300 hover:text-white px-3 py-2 rounded-lg hover:bg-white/5 transition-colors"
           >
             Sign In
-          </button>
+          </Link>
           
           <button
             type="button"
@@ -74,13 +73,13 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenWaitlistModal }) => {
           <a href="#faq" onClick={() => setMobileMenuOpen(false)} className="block text-zinc-300 hover:text-white py-1">FAQ</a>
 
           <div className="pt-4 border-t border-white/10 flex flex-col gap-2.5">
-            <button
-              type="button"
-              onClick={() => { setMobileMenuOpen(false); onOpenWaitlistModal('signin'); }}
-              className="w-full py-2.5 text-center text-xs font-semibold text-zinc-300 border border-white/10 rounded-xl"
+            <Link
+              href="/login"
+              onClick={() => setMobileMenuOpen(false)}
+              className="w-full py-2.5 text-center text-xs font-semibold text-zinc-300 border border-white/10 rounded-xl block"
             >
               Sign In
-            </button>
+            </Link>
             <button
               type="button"
               onClick={() => { setMobileMenuOpen(false); onOpenWaitlistModal('audit'); }}
