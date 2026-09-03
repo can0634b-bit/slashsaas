@@ -23,7 +23,7 @@ export default async function AppDashboardPage() {
     redirect('/login?redirect=/app');
   }
 
-  // Ensure organization exists for this user
+  // Ensure organization exists for this user (canonical org)
   const organization = await getOrCreateUserOrganization(user);
   if (!organization) {
     redirect('/login');
@@ -34,14 +34,19 @@ export default async function AppDashboardPage() {
     supabase
       .from('detected_apps')
       .select('*')
-      .eq('org_id', organization.id)
-      .order('created_at', { ascending: false }),
+      .eq('org_id', organization.id),
     supabase
       .from('seats')
       .select('*')
-      .eq('org_id', organization.id)
-      .order('created_at', { ascending: false }),
+      .eq('org_id', organization.id),
   ]);
+
+  if (appsRes.error) {
+    console.error('[APPS_READ_ERROR]', appsRes.error);
+  }
+  if (seatsRes.error) {
+    console.error('[SEATS_READ_ERROR]', seatsRes.error);
+  }
 
   const rawApps = (appsRes.data || []) as DetectedApp[];
   const rawSeats = (seatsRes.data || []) as Seat[];
