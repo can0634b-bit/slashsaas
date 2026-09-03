@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useRef, useEffect, useState } from 'react';
 import { Shield } from 'lucide-react';
@@ -191,7 +191,7 @@ export const Interactive3DModel: React.FC = () => {
           <Shield className="h-3.5 w-3.5 text-[#8ce04a]" />
           <div>
             <span className="text-[10px] font-bold text-white block">Read-Only OAuth</span>
-            <span className="text-[9px] text-emerald-400 font-semibold">SOC 2 Controls</span>
+            <span className="text-[9px] text-[#8ce04a] font-semibold">Privacy-by-Design</span>
           </div>
         </div>
       </div>

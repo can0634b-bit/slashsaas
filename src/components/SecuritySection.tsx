@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
 import { ShieldCheck, Lock, EyeOff, Server, CheckCircle2 } from 'lucide-react';
@@ -17,8 +17,8 @@ export const SecuritySection: React.FC = () => {
     },
     {
       icon: Server,
-      title: 'Built to SOC 2 Controls & GDPR',
-      desc: 'End-to-end 256-bit AES encryption at rest and in transit. Hosted on enterprise-grade cloud infrastructure with complete data residency controls.',
+      title: 'Privacy-by-Design & Strong Encryption',
+      desc: 'End-to-end 256-bit AES encryption at rest and TLS 1.3 in transit via tier-1 cloud hosting infrastructure. Complete data deletion controls available at any time.',
     },
     {
       icon: ShieldCheck,

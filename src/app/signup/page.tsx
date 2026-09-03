@@ -264,7 +264,7 @@ export default function SignupPage() {
 
       {/* Bottom Footer */}
       <footer className="p-6 text-center text-xs text-zinc-600">
-        <p>© 2026 SlashSaaS. Built to SOC 2 Controls & 100% Read-Only OAuth.</p>
+        <p>© 2026 SlashSaaS. Privacy-by-Design & 100% Read-Only OAuth.</p>
       </footer>
     </div>
   );

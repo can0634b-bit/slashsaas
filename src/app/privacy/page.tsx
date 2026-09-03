@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ShieldCheck, Lock, EyeOff, Server, FileText } from 'lucide-react';
 import { SlashLogo } from '@/components/Logo';
@@ -32,13 +32,13 @@ export default function PrivacyPage() {
         <div className="mb-12 border-b border-white/[0.08] pb-8">
           <div className="inline-flex items-center gap-2 rounded-full border border-[#8ce04a]/30 bg-[#8ce04a]/10 px-3.5 py-1 text-xs font-bold text-[#a3e635] mb-4">
             <ShieldCheck className="h-3.5 w-3.5" />
-            <span>Google API Limited Use & GDPR Compliant</span>
+            <span>Google API Limited Use & Privacy-by-Design</span>
           </div>
           <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
             Privacy Policy
           </h1>
           <p className="text-sm text-zinc-400 mt-2">
-            Last Updated: August 30, 2026 • Effective Immediately
+            Last Updated: September 4, 2026 • Effective Immediately
           </p>
         </div>
 
@@ -49,10 +49,10 @@ export default function PrivacyPage() {
               <span className="text-[#8ce04a]">1.</span> Overview & Scope
             </h2>
             <p>
-              SlashSaaS (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) operates <strong>slashsaas.com</strong> and provides autonomous software license optimization and FinOps auditing services for organizations. We are deeply committed to protecting the privacy of your organization and team members.
+              SlashSaaS (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) is an independent software project operated at <strong>slashsaas.com</strong> providing software license optimization and FinOps auditing tools for organizations and teams.
             </p>
             <p>
-              This Privacy Policy explains what information we collect, how it is used, and the rigorous safeguards we maintain when you connect Google Workspace, Slack, Microsoft 365, or other Single Sign-On (SSO) providers.
+              This Privacy Policy explains what information we collect, how it is used, and the safeguards we maintain when you connect Google Workspace, Slack, Microsoft 365, or other Single Sign-On (SSO) providers. We follow strict privacy-by-design principles and adhere to Google API Limited Use requirements.
             </p>
           </section>
 
@@ -131,10 +131,10 @@ export default function PrivacyPage() {
           <section className="rounded-3xl border border-white/[0.08] bg-zinc-950 p-6 space-y-2">
             <h3 className="text-base font-bold text-white">6. Contact Information</h3>
             <p className="text-xs text-zinc-400">
-              If you have any questions regarding this Privacy Policy or our security protocols, please contact our Data Protection Officer:
+              If you have any questions regarding this Privacy Policy, your rights, or our security protocols, please contact:
             </p>
             <p className="text-xs text-[#8ce04a] font-mono">
-              Email: privacy@slashsaas.com / support@slashsaas.com<br />
+              Privacy Contact: privacy@slashsaas.com / support@slashsaas.com<br />
               Website: https://slashsaas.com
             </p>
           </section>

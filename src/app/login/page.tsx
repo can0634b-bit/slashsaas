@@ -242,7 +242,7 @@ export default function LoginPage() {
 
       {/* Bottom Footer */}
       <footer className="p-6 text-center text-xs text-zinc-600">
-        <p>© 2026 SlashSaaS. 100% Read-Only OAuth & Enterprise Security.</p>
+        <p>© 2026 SlashSaaS. 100% Read-Only OAuth & Privacy-by-Design.</p>
       </footer>
     </div>
   );

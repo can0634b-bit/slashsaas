@@ -1,4 +1,4 @@
-﻿export interface FaqItem {
+export interface FaqItem {
   q: string;
   a: string;
 }
@@ -26,7 +26,7 @@ export const FAQS_DATA: FaqItem[] = [
   },
   {
     q: 'What is your cancellation and refund policy?',
-    a: 'You can cancel your subscription at any time with a single click inside your dashboard—no retention calls or hoops. If you are not satisfied within the first 14 days of your purchase, contact support@slashsaas.com for a full, prompt refund.',
+    a: 'You can cancel your subscription at any time with a single click inside your dashboard—no retention calls or hoops. Cancellation stops all future billing immediately. When billing is active through our Merchant of Record (LemonSqueezy), refund requests follow LemonSqueezy\'s standard customer terms.',
   },
   {
     q: 'What is your contract length and commitment?',
@@ -41,8 +41,8 @@ export const FAQS_DATA: FaqItem[] = [
     a: 'We maintain a 30-day rolling window of login timestamp telemetry. If you disconnect your integration or request account deletion, all organization records, token mappings, and user data are purged immediately and permanently.',
   },
   {
-    q: 'Are you GDPR compliant and is a Data Processing Agreement (DPA) available?',
-    a: 'Yes. We are fully compliant with GDPR and CCPA requirements. We never sell customer data and never use customer data to train AI models. You can execute a standard DPA by contacting privacy@slashsaas.com.',
+    q: 'How do you handle GDPR and data privacy?',
+    a: 'SlashSaaS is designed around strict privacy-by-design and GDPR principles. We strictly request read-only authentication timestamps, never access emails or private files, never sell user data, and never use customer data to train AI models. You can disconnect integrations or request full data erasure at any time.',
   },
   {
     q: 'How are subscription payments processed?',

@@ -48,7 +48,7 @@ export const Features: React.FC = () => {
     },
     {
       icon: ShieldCheck,
-      title: 'Built to SOC 2 Controls & Zero Password Access',
+      title: 'Privacy-by-Design & Zero Password Access',
       description: 'Built with enterprise-grade privacy. We never access your documents, files, or message contents. We only read user identity metadata.',
       badge: 'Privacy First'
     }

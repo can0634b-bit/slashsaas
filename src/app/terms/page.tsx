@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ShieldCheck } from 'lucide-react';
 import { SlashLogo } from '@/components/Logo';
@@ -32,7 +32,7 @@ export default function TermsPage() {
             Terms of Service
           </h1>
           <p className="text-sm text-zinc-400 mt-2">
-            Last Updated: August 30, 2026 • Effective Immediately
+            Last Updated: September 4, 2026 • Effective Immediately
           </p>
         </div>
 
@@ -40,21 +40,21 @@ export default function TermsPage() {
           <section className="space-y-3">
             <h2 className="text-lg font-bold text-white">1. Acceptance of Terms</h2>
             <p>
-              By accessing or using <strong>SlashSaaS (slashsaas.com)</strong>, you agree to be bound by these Terms of Service. If you are entering into this agreement on behalf of a company, you represent that you have the authority to bind such entity.
+              By accessing or using <strong>SlashSaaS (slashsaas.com)</strong>, an independent software service, you agree to be bound by these Terms of Service. If you are entering into this agreement on behalf of a company or team, you represent that you have the authority to connect the corresponding workspace.
             </p>
           </section>
 
           <section className="space-y-3">
-            <h2 className="text-lg font-bold text-white">2. Subscription & Billing (LemonSqueezy)</h2>
+            <h2 className="text-lg font-bold text-white">2. Subscription & Billing (Merchant of Record)</h2>
             <p>
-              Our order process is conducted by our online reseller and Merchant of Record, <strong>LemonSqueezy</strong>. LemonSqueezy handles all customer service inquiries and returns. Subscriptions renew automatically unless cancelled before the renewal date through your dashboard or by contacting support.
+              When paid subscription billing is active, order processing and payment collection are conducted by our online reseller and Merchant of Record, <strong>LemonSqueezy</strong>. LemonSqueezy manages all compliance, global tax handling, and customer billing inquiries in accordance with their standard terms. You can cancel your subscription at any time with a single click inside your dashboard to prevent future charges.
             </p>
           </section>
 
           <section className="space-y-3">
             <h2 className="text-lg font-bold text-white">3. Acceptable Use & Security</h2>
             <p>
-              You agree not to misuse SlashSaaS or help anyone else do so. You may only connect organizations, Google Workspace domains, and Slack workspaces that you own or have explicit administrative authorization to audit.
+              You agree not to misuse SlashSaaS or attempt unauthorized access. You may only connect organizations, Google Workspace domains, and Slack workspaces that you own or have explicit administrative authorization to audit.
             </p>
           </section>
 
