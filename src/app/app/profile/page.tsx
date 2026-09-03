@@ -1,18 +1,15 @@
-import React from 'react';
+﻿import React from 'react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getOrCreateUserOrganization } from '@/lib/supabase/organizations';
-import { computeWasteMetrics } from '@/lib/engine/wasteCalculator';
-import { recordScanAudit } from '@/lib/actions/dashboard';
 import { SlashLogo } from '@/components/Logo';
-import { DashboardClient } from '@/components/dashboard/DashboardClient';
-import { DetectedApp, Seat } from '@/lib/types/dashboard';
-import { LogOut, Building2 } from 'lucide-react';
+import { ProfileEditor } from '@/components/dashboard/ProfileEditor';
+import { LogOut, Building2, LayoutDashboard } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
-export default async function AppDashboardPage() {
+export default async function ProfilePage() {
   const supabase = await createClient();
 
   const {
@@ -20,52 +17,12 @@ export default async function AppDashboardPage() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect('/login?redirect=/app');
+    redirect('/login?redirect=/app/profile');
   }
 
-  // Ensure organization exists for this user (canonical org)
   const organization = await getOrCreateUserOrganization(user);
   if (!organization) {
     redirect('/login');
-  }
-
-  // Fetch real apps and seats for this organization from Supabase
-  const [appsRes, seatsRes] = await Promise.all([
-    supabase
-      .from('detected_apps')
-      .select('*')
-      .eq('org_id', organization.id),
-    supabase
-      .from('seats')
-      .select('*')
-      .eq('org_id', organization.id),
-  ]);
-
-  if (appsRes.error) {
-    console.error('[APPS_READ_ERROR]', appsRes.error);
-  }
-  if (seatsRes.error) {
-    console.error('[SEATS_READ_ERROR]', seatsRes.error);
-  }
-
-  const rawApps = (appsRes.data || []) as DetectedApp[];
-  const rawSeats = (seatsRes.data || []) as Seat[];
-
-  // Compute real mathematical metrics from actual rows
-  const metrics = computeWasteMetrics(rawApps, rawSeats, 45);
-
-  // Persist scan audit summary in scans table (non-blocking)
-  if (rawApps.length > 0 || rawSeats.length > 0) {
-    try {
-      await recordScanAudit({
-        total_annual_waste: metrics.totalAnnualWaste,
-        total_monthly_waste: metrics.totalMonthlyWaste,
-        monitored_seats: metrics.totalMonitoredSeats,
-        dormant_seats: metrics.dormantSeatsCount,
-        detected_apps: metrics.totalDetectedApps,
-        computed_at: new Date().toISOString(),
-      });
-    } catch {}
   }
 
   const userDisplayName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User';
@@ -83,6 +40,15 @@ export default async function AppDashboardPage() {
 
             <span className="text-zinc-700 hidden sm:inline">|</span>
 
+            {/* Dashboard Link */}
+            <Link
+              href="/app"
+              className="hidden sm:flex items-center gap-1.5 text-xs font-semibold text-zinc-400 hover:text-white transition-colors"
+            >
+              <LayoutDashboard className="h-3.5 w-3.5 text-[#8ce04a]" />
+              <span>Radar Dashboard</span>
+            </Link>
+
             {/* Organization Selector / Label */}
             <div className="hidden sm:flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1 text-xs font-semibold text-zinc-300">
               <Building2 className="h-3.5 w-3.5 text-[#8ce04a]" />
@@ -90,17 +56,11 @@ export default async function AppDashboardPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             {/* User Profile info */}
-            <Link
-              href="/app/profile"
-              className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-zinc-300 hover:text-white hover:bg-white/[0.08] transition-colors"
-            >
-              <div className="flex h-5 w-5 items-center justify-center rounded-full bg-[#8ce04a]/20 text-[#8ce04a] text-[10px] font-bold">
-                {user.email ? user.email[0].toUpperCase() : 'U'}
-              </div>
-              <span className="font-semibold max-w-[130px] truncate">{user.email}</span>
-            </Link>
+            <div className="flex items-center gap-2 text-right text-xs">
+              <span className="font-semibold text-zinc-300">{user.email}</span>
+            </div>
 
             {/* Sign Out Form */}
             <form action="/api/auth/signout" method="POST">
@@ -109,24 +69,33 @@ export default async function AppDashboardPage() {
                 className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-medium text-zinc-400 hover:text-white hover:bg-white/[0.08] transition-colors"
               >
                 <LogOut className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">Sign Out</span>
+                <span>Sign Out</span>
               </button>
             </form>
           </div>
         </div>
       </header>
 
-      {/* Main App Content */}
+      {/* Main Profile Content */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
-        <DashboardClient
-          apps={rawApps}
-          seats={rawSeats}
-          metrics={metrics}
-          orgName={orgDisplayName}
+        <ProfileEditor
+          user={{
+            id: user.id,
+            email: user.email,
+            fullName: user.user_metadata?.full_name,
+            companyName: user.user_metadata?.company_name,
+            createdAt: user.created_at,
+          }}
+          organization={{
+            id: organization.id,
+            name: organization.name,
+            role: 'Owner',
+            createdAt: organization.created_at,
+          }}
         />
       </main>
 
-      {/* App Footer */}
+      {/* Footer */}
       <footer className="border-t border-white/[0.06] py-6 text-center text-xs text-zinc-600">
         <p>SlashSaaS Product Engine v1.0 • Connected to Supabase PostgreSQL & Auth</p>
       </footer>

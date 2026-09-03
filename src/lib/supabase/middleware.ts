@@ -1,4 +1,4 @@
-﻿import { createServerClient } from '@supabase/ssr';
+import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
 export async function updateSession(request: NextRequest) {
@@ -15,6 +15,13 @@ export async function updateSession(request: NextRequest) {
   }
 
   const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+    cookieOptions: {
+      name: 'sb-auth-token',
+      maxAge: 60 * 60 * 24 * 30, // 30 days
+      domain: '',
+      path: '/',
+      sameSite: 'lax',
+    },
     cookies: {
       getAll() {
         return request.cookies.getAll();
@@ -25,7 +32,12 @@ export async function updateSession(request: NextRequest) {
           request,
         });
         cookiesToSet.forEach(({ name, value, options }) =>
-          supabaseResponse.cookies.set(name, value, options)
+          supabaseResponse.cookies.set(name, value, {
+            ...options,
+            maxAge: options?.maxAge ?? 60 * 60 * 24 * 30,
+            path: '/',
+            sameSite: 'lax',
+          })
         );
       },
     },

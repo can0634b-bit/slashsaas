@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
@@ -15,15 +15,24 @@ function LoginForm() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(true);
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
+    // Check if user is already logged in
+    const supabase = createClient();
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        router.push(redirectPath);
+      }
+    });
+
     if (errorParam === 'auth_callback_failed') {
       setErrorMessage('Authentication failed or was cancelled. Please try again.');
     }
-  }, [errorParam]);
+  }, [errorParam, redirectPath, router]);
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -170,6 +179,19 @@ function LoginForm() {
               className="w-full rounded-xl border border-white/10 bg-white/[0.03] pl-10 pr-3.5 py-2.5 text-xs text-white placeholder-zinc-500 focus:border-white/30 focus:outline-none"
             />
           </div>
+        </div>
+
+        {/* Remember Me Checkbox */}
+        <div className="flex items-center justify-between text-xs pt-1">
+          <label className="flex items-center gap-2 cursor-pointer text-zinc-300 hover:text-white select-none">
+            <input
+              type="checkbox"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              className="h-4 w-4 rounded border-white/20 bg-zinc-900 text-[#8ce04a] focus:ring-[#8ce04a] focus:ring-offset-black accent-[#8ce04a]"
+            />
+            <span className="font-medium text-xs">Remember me on this device</span>
+          </label>
         </div>
 
         <button
