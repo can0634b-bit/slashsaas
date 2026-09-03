@@ -110,13 +110,47 @@ export async function createSeat(data: {
     email: data.email.trim().toLowerCase(),
     name: data.name?.trim() || null,
     department: data.department?.trim() || null,
-    app_id: data.app_id || null,
+    app_id: data.app_id ? data.app_id : null,
     last_active_at: data.last_active_at ? new Date(data.last_active_at).toISOString() : null,
     source: 'manual',
   });
 
   if (error) {
     console.error('createSeat error:', error);
+    throw new Error(error.message);
+  }
+
+  revalidatePath('/app');
+  return { success: true };
+}
+
+export async function updateSeat(
+  seatId: string,
+  data: {
+    email: string;
+    name?: string | null;
+    department?: string | null;
+    app_id?: string | null;
+    last_active_at?: string | null;
+  }
+) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('Unauthorized');
+
+  const { error } = await supabase
+    .from('seats')
+    .update({
+      email: data.email.trim().toLowerCase(),
+      name: data.name?.trim() || null,
+      department: data.department?.trim() || null,
+      app_id: data.app_id ? data.app_id : null,
+      last_active_at: data.last_active_at ? new Date(data.last_active_at).toISOString() : null,
+    })
+    .eq('id', seatId);
+
+  if (error) {
+    console.error('updateSeat error:', error);
     throw new Error(error.message);
   }
 
@@ -165,7 +199,7 @@ export async function bulkImportSeats(
     email: s.email.trim().toLowerCase(),
     name: s.name?.trim() || null,
     department: s.department?.trim() || null,
-    app_id: s.app_id || null,
+    app_id: s.app_id ? s.app_id : null,
     last_active_at: s.last_active_at ? new Date(s.last_active_at).toISOString() : null,
     source: 'csv_import',
   }));

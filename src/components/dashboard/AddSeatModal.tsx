@@ -1,29 +1,55 @@
 ﻿'use client';
 
-import React, { useState } from 'react';
-import { X, UserPlus, Mail, User, Building, Layers, Calendar, AlertCircle } from 'lucide-react';
-import { DetectedApp } from '@/lib/types/dashboard';
-import { createSeat } from '@/lib/actions/dashboard';
+import React, { useState, useEffect } from 'react';
+import { X, UserPlus, Mail, User, Building, Layers, Calendar, AlertCircle, Edit2 } from 'lucide-react';
+import { DetectedApp, Seat } from '@/lib/types/dashboard';
+import { createSeat, updateSeat } from '@/lib/actions/dashboard';
 
 interface AddSeatModalProps {
   isOpen: boolean;
   onClose: () => void;
   apps: DetectedApp[];
+  editingSeat?: Seat | null;
 }
 
 export const AddSeatModal: React.FC<AddSeatModalProps> = ({
   isOpen,
   onClose,
   apps,
+  editingSeat = null,
 }) => {
-  const [email, setEmail] = useState('');
-  const [name, setName] = useState('');
-  const [department, setDepartment] = useState('Engineering');
-  const [appId, setAppId] = useState(apps[0]?.id || '');
-  const [lastActiveDate, setLastActiveDate] = useState('');
+  const [email, setEmail] = useState(editingSeat?.email || '');
+  const [name, setName] = useState(editingSeat?.name || '');
+  const [department, setDepartment] = useState(editingSeat?.department || 'Engineering');
+  const [appId, setAppId] = useState(editingSeat?.app_id || '');
+  const [lastActiveDate, setLastActiveDate] = useState(
+    editingSeat?.last_active_at ? editingSeat.last_active_at.split('T')[0] : ''
+  );
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Sync state whenever modal opens or editingSeat changes
+  useEffect(() => {
+    if (isOpen) {
+      if (editingSeat) {
+        setEmail(editingSeat.email || '');
+        setName(editingSeat.name || '');
+        setDepartment(editingSeat.department || 'Engineering');
+        setAppId(editingSeat.app_id || '');
+        setLastActiveDate(
+          editingSeat.last_active_at ? editingSeat.last_active_at.split('T')[0] : ''
+        );
+      } else {
+        setEmail('');
+        setName('');
+        setDepartment('Engineering');
+        setAppId(apps[0]?.id || '');
+        setLastActiveDate('');
+      }
+      setError(null);
+    }
+  }, [isOpen, editingSeat, apps]);
 
   if (!isOpen) return null;
 
@@ -31,25 +57,35 @@ export const AddSeatModal: React.FC<AddSeatModalProps> = ({
     e.preventDefault();
     setError(null);
 
-    if (!email.trim()) {
-      setError('Employee email is required.');
+    if (!email.trim() || !email.includes('@')) {
+      setError('Please enter a valid employee email address.');
       return;
     }
 
     setLoading(true);
 
     try {
-      await createSeat({
-        email: email.trim(),
-        name: name.trim() || undefined,
-        department: department.trim() || undefined,
-        app_id: appId || null,
-        last_active_at: lastActiveDate ? lastActiveDate : null,
-      });
+      if (editingSeat) {
+        await updateSeat(editingSeat.id, {
+          email: email.trim(),
+          name: name.trim() || undefined,
+          department: department.trim() || undefined,
+          app_id: appId ? appId : null,
+          last_active_at: lastActiveDate ? lastActiveDate : null,
+        });
+      } else {
+        await createSeat({
+          email: email.trim(),
+          name: name.trim() || undefined,
+          department: department.trim() || undefined,
+          app_id: appId ? appId : null,
+          last_active_at: lastActiveDate ? lastActiveDate : null,
+        });
+      }
 
       onClose();
     } catch (err: any) {
-      setError(err.message || 'Failed to add seat.');
+      setError(err.message || 'Failed to save seat.');
     } finally {
       setLoading(false);
     }
@@ -72,14 +108,14 @@ export const AddSeatModal: React.FC<AddSeatModalProps> = ({
 
         <div className="flex items-center gap-3 mb-6">
           <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
-            <UserPlus className="h-5 w-5" />
+            {editingSeat ? <Edit2 className="h-5 w-5" /> : <UserPlus className="h-5 w-5" />}
           </div>
           <div>
             <h2 className="text-lg font-bold text-white tracking-tight">
-              Add Monitored Employee Seat
+              {editingSeat ? 'Edit Employee Seat & Assignment' : 'Add Monitored Employee Seat'}
             </h2>
             <p className="text-xs text-zinc-400">
-              Assign a license to an employee and track login activity.
+              Assign a SaaS/AI tool to calculate exact monthly waste.
             </p>
           </div>
         </div>
@@ -160,15 +196,20 @@ export const AddSeatModal: React.FC<AddSeatModalProps> = ({
                 id="seat-app"
                 value={appId}
                 onChange={(e) => setAppId(e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-zinc-900 px-3 py-2.5 text-white focus:border-white/30 focus:outline-none"
+                className="w-full rounded-xl border border-[#8ce04a]/30 bg-zinc-900 px-3 py-2.5 text-white focus:border-[#8ce04a] focus:outline-none font-medium"
               >
-                <option value="">-- Select Tool --</option>
+                <option value="">-- Unassigned ($0/mo) --</option>
                 {apps.map((app) => (
                   <option key={app.id} value={app.id}>
-                    {app.app_name} (${app.monthly_seat_cost}/mo)
+                    {app.app_name} (${app.monthly_seat_cost}/seat/mo)
                   </option>
                 ))}
               </select>
+              {apps.length === 0 && (
+                <p className="text-[10px] text-amber-400 mt-1">
+                  No tools created yet. Add a tool in the Subscriptions section below.
+                </p>
+              )}
             </div>
 
             <div>
@@ -191,7 +232,7 @@ export const AddSeatModal: React.FC<AddSeatModalProps> = ({
               disabled={loading}
               className="w-full flex items-center justify-center gap-2 rounded-xl bg-white py-3 font-bold text-zinc-950 hover:bg-zinc-200 transition-all shadow-xl active:scale-[0.99] disabled:opacity-50"
             >
-              {loading ? <span>Saving Seat...</span> : <span>Assign Seat</span>}
+              {loading ? <span>Saving Seat...</span> : <span>{editingSeat ? 'Update Seat' : 'Assign Seat'}</span>}
             </button>
           </div>
         </form>

@@ -10,7 +10,7 @@ import { AppsManager } from './AppsManager';
 import { AddAppModal } from './AddAppModal';
 import { AddSeatModal } from './AddSeatModal';
 import { CsvImportModal } from './CsvImportModal';
-import { Plus, UploadCloud, UserPlus, Layers, ShieldCheck, Zap } from 'lucide-react';
+import { Plus, UploadCloud, UserPlus } from 'lucide-react';
 
 interface DashboardClientProps {
   apps: DetectedApp[];
@@ -29,6 +29,7 @@ export const DashboardClient: React.FC<DashboardClientProps> = ({
   const [isAddSeatOpen, setIsAddSeatOpen] = useState(false);
   const [isCsvImportOpen, setIsCsvImportOpen] = useState(false);
   const [editingApp, setEditingApp] = useState<DetectedApp | null>(null);
+  const [editingSeat, setEditingSeat] = useState<Seat | null>(null);
 
   const handleEditApp = (app: DetectedApp) => {
     setEditingApp(app);
@@ -38,6 +39,16 @@ export const DashboardClient: React.FC<DashboardClientProps> = ({
   const handleCloseAppModal = () => {
     setEditingApp(null);
     setIsAddAppOpen(false);
+  };
+
+  const handleEditSeat = (seat: Seat) => {
+    setEditingSeat(seat);
+    setIsAddSeatOpen(true);
+  };
+
+  const handleCloseSeatModal = () => {
+    setEditingSeat(null);
+    setIsAddSeatOpen(false);
   };
 
   return (
@@ -66,7 +77,7 @@ export const DashboardClient: React.FC<DashboardClientProps> = ({
 
           <button
             type="button"
-            onClick={() => setIsAddSeatOpen(true)}
+            onClick={() => { setEditingSeat(null); setIsAddSeatOpen(true); }}
             className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2 text-xs font-semibold text-zinc-300 hover:text-white hover:bg-white/[0.08] transition-colors shadow-sm"
           >
             <UserPlus className="h-4 w-4 text-cyan-400" />
@@ -88,12 +99,15 @@ export const DashboardClient: React.FC<DashboardClientProps> = ({
       <OverviewMetrics
         metrics={metrics}
         onOpenAddApp={() => { setEditingApp(null); setIsAddAppOpen(true); }}
-        onOpenAddSeat={() => setIsAddSeatOpen(true)}
+        onOpenAddSeat={() => { setEditingSeat(null); setIsAddSeatOpen(true); }}
         onOpenCsvImport={() => setIsCsvImportOpen(true)}
       />
 
       {/* Dormant Seats Audit & Evidence Table */}
-      <DormantSeatsTable dormantSeats={metrics.dormantSeats} />
+      <DormantSeatsTable
+        dormantSeats={metrics.dormantSeats}
+        onEditSeat={handleEditSeat}
+      />
 
       {/* 2-Column Grid: Department Matrix & Renewal Radar */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
@@ -123,8 +137,9 @@ export const DashboardClient: React.FC<DashboardClientProps> = ({
 
       <AddSeatModal
         isOpen={isAddSeatOpen}
-        onClose={() => setIsAddSeatOpen(false)}
+        onClose={handleCloseSeatModal}
         apps={apps}
+        editingSeat={editingSeat}
       />
 
       <CsvImportModal

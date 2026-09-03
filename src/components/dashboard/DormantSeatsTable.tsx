@@ -4,13 +4,17 @@ import React, { useState } from 'react';
 import { Seat } from '@/lib/types/dashboard';
 import { formatUSD } from '@/lib/utils';
 import { deleteSeat } from '@/lib/actions/dashboard';
-import { Trash2, AlertTriangle, CheckCircle2, ShieldCheck, Zap } from 'lucide-react';
+import { Trash2, AlertTriangle, CheckCircle2, Edit2, PlusCircle } from 'lucide-react';
 
 interface DormantSeatsTableProps {
   dormantSeats: Seat[];
+  onEditSeat: (seat: Seat) => void;
 }
 
-export const DormantSeatsTable: React.FC<DormantSeatsTableProps> = ({ dormantSeats }) => {
+export const DormantSeatsTable: React.FC<DormantSeatsTableProps> = ({
+  dormantSeats,
+  onEditSeat,
+}) => {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const handleDelete = async (seatId: string) => {
@@ -62,7 +66,7 @@ export const DormantSeatsTable: React.FC<DormantSeatsTableProps> = ({ dormantSea
               <tr className="border-b border-white/[0.06] text-zinc-500 font-semibold uppercase tracking-wider text-[10px]">
                 <th className="pb-3 font-semibold">Employee</th>
                 <th className="pb-3 font-semibold">Department</th>
-                <th className="pb-3 font-semibold">Tool & Cost</th>
+                <th className="pb-3 font-semibold">Assigned Tool</th>
                 <th className="pb-3 font-semibold">Dormancy Evidence</th>
                 <th className="pb-3 font-semibold">Annual Waste</th>
                 <th className="pb-3 font-semibold text-right">Actions</th>
@@ -70,6 +74,7 @@ export const DormantSeatsTable: React.FC<DormantSeatsTableProps> = ({ dormantSea
             </thead>
             <tbody className="divide-y divide-white/[0.04]">
               {dormantSeats.map((seat) => {
+                const hasApp = Boolean(seat.app);
                 const monthlyCost = Number(seat.app?.monthly_seat_cost || 0);
                 const annualCost = monthlyCost * 12;
 
@@ -90,8 +95,26 @@ export const DormantSeatsTable: React.FC<DormantSeatsTableProps> = ({ dormantSea
 
                     {/* Tool & Cost */}
                     <td className="py-4 pr-4">
-                      <p className="font-semibold text-white">{seat.app?.app_name || 'Generic License'}</p>
-                      <p className="text-zinc-400 text-[10px]">${monthlyCost}/mo</p>
+                      {hasApp ? (
+                        <div>
+                          <p className="font-semibold text-white">{seat.app!.app_name}</p>
+                          <p className="text-[#a3e635] text-[10px] font-medium">${monthlyCost} / mo</p>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <span className="rounded-md bg-amber-500/10 border border-amber-500/25 px-2 py-0.5 text-[10px] font-bold text-amber-300">
+                            Unassigned
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => onEditSeat(seat)}
+                            className="text-[#8ce04a] hover:underline text-[11px] font-semibold flex items-center gap-0.5"
+                          >
+                            <PlusCircle className="h-3 w-3" />
+                            <span>Assign Tool</span>
+                          </button>
+                        </div>
+                      )}
                     </td>
 
                     {/* Evidence */}
@@ -107,26 +130,42 @@ export const DormantSeatsTable: React.FC<DormantSeatsTableProps> = ({ dormantSea
                               day: 'numeric',
                               year: 'numeric',
                             })
-                          : 'Zero recorded logins'}
+                          : 'Never logged in'}
                       </p>
                     </td>
 
                     {/* Annual Waste */}
-                    <td className="py-4 pr-4 font-bold text-[#8ce04a]">
-                      +{formatUSD(annualCost)} / yr
+                    <td className="py-4 pr-4">
+                      {hasApp && annualCost > 0 ? (
+                        <span className="font-bold text-[#8ce04a] text-sm">
+                          +{formatUSD(annualCost)} / yr
+                        </span>
+                      ) : (
+                        <span className="text-zinc-500 font-mono text-[11px]">$0 / yr</span>
+                      )}
                     </td>
 
                     {/* Actions */}
                     <td className="py-4 text-right">
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(seat.id)}
-                        disabled={deletingId === seat.id}
-                        title="Remove seat from tracking"
-                        className="inline-flex items-center gap-1 text-zinc-500 hover:text-rose-400 p-1.5 rounded-lg hover:bg-rose-500/10 transition-colors disabled:opacity-50"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
+                      <div className="flex items-center justify-end gap-1">
+                        <button
+                          type="button"
+                          onClick={() => onEditSeat(seat)}
+                          title="Edit seat & tool assignment"
+                          className="inline-flex items-center text-zinc-400 hover:text-white p-1.5 rounded-lg hover:bg-white/5 transition-colors"
+                        >
+                          <Edit2 className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(seat.id)}
+                          disabled={deletingId === seat.id}
+                          title="Remove seat from tracking"
+                          className="inline-flex items-center text-zinc-500 hover:text-rose-400 p-1.5 rounded-lg hover:bg-rose-500/10 transition-colors disabled:opacity-50"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );

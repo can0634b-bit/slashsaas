@@ -50,12 +50,14 @@ export function computeWasteMetrics(
     totalMonthlyWaste += cost;
     totalAnnualWaste += annualCost;
 
-    const dept = seat.department?.trim() || 'General / Unassigned';
-    const current = departmentWasteMap.get(dept) || { dormantCount: 0, annualWaste: 0 };
-    departmentWasteMap.set(dept, {
-      dormantCount: current.dormantCount + 1,
-      annualWaste: current.annualWaste + annualCost,
-    });
+    if (annualCost > 0 || seat.department) {
+      const dept = seat.department?.trim() || 'General';
+      const current = departmentWasteMap.get(dept) || { dormantCount: 0, annualWaste: 0 };
+      departmentWasteMap.set(dept, {
+        dormantCount: current.dormantCount + 1,
+        annualWaste: current.annualWaste + annualCost,
+      });
+    }
   });
 
   // 3. Department Breakdown
