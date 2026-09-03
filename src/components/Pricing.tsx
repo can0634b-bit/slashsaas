@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState } from 'react';
 import { Check, Zap, Sparkles, ArrowRight, ShieldCheck, Lock } from 'lucide-react';
@@ -45,7 +45,7 @@ export const Pricing: React.FC<PricingProps> = ({ onSelectPlan }) => {
         'Custom Slack bot branding & workflows',
         'Automated pre-renewal budget alerts',
         'Direct finance accounting sync',
-        'Dedicated account manager & SLA',
+        'Dedicated support & custom onboarding',
       ],
     },
   ];

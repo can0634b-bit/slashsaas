@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
 import Link from 'next/link';
@@ -48,7 +48,7 @@ export const Footer: React.FC = () => {
               className="flex items-center gap-1.5 text-[#8ce04a] hover:opacity-90 transition-opacity"
             >
               <span className="h-2 w-2 rounded-full bg-[#8ce04a] animate-ping" />
-              <span>Platform Status: All Systems Operational (100% Uptime SLA)</span>
+              <span>Platform Status: All Systems Operational</span>
             </a>
             <span className="text-zinc-700">•</span>
             <Link href="/privacy" className="hover:text-zinc-300 transition-colors">

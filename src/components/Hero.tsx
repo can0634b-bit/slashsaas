@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
 import { ArrowRight, ShieldCheck, Zap, CheckCircle2 } from 'lucide-react';
@@ -112,21 +112,21 @@ export const Hero: React.FC<HeroProps> = ({ onOpenWaitlistModal }) => {
             {/* 3 Value Pillars */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 my-6">
               <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
-                <span className="text-[11px] font-medium uppercase tracking-wider text-zinc-500">Typical Identified Waste</span>
-                <p className="text-2xl font-extrabold text-white mt-1">22.4% <span className="text-xs font-normal text-rose-400 font-sans">average excess</span></p>
-                <p className="text-[11px] text-zinc-400 mt-1">40+ dormant licenses detected per 50 seats</p>
+                <span className="text-[11px] font-medium uppercase tracking-wider text-zinc-500">Industry Benchmark Estimate</span>
+                <p className="text-2xl font-extrabold text-white mt-1">~20–30% <span className="text-xs font-normal text-rose-400 font-sans">illustrative excess</span></p>
+                <p className="text-[11px] text-zinc-400 mt-1">Illustrative industry benchmark based on typical SaaS audits</p>
               </div>
 
               <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
-                <span className="text-[11px] font-medium uppercase tracking-wider text-zinc-500">Projected Recoverable Budget</span>
+                <span className="text-[11px] font-medium uppercase tracking-wider text-zinc-500">Modeled Recoverable Budget</span>
                 <p className="text-2xl font-extrabold text-[#a3e635] mt-1">+$24,600 / yr</p>
-                <p className="text-[11px] text-zinc-400 mt-1">Direct bottom-line profit back to your bank</p>
+                <p className="text-[11px] text-zinc-400 mt-1">Example projected savings for a 50-seat team</p>
               </div>
 
               <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
                 <span className="text-[11px] font-medium uppercase tracking-wider text-zinc-500">Slack Nudge Target Resolution</span>
                 <p className="text-2xl font-extrabold text-cyan-400 mt-1">90%+ Target</p>
-                <p className="text-[11px] text-zinc-400 mt-1">Team members voluntarily relinquish seats</p>
+                <p className="text-[11px] text-zinc-400 mt-1">Target for team members voluntarily relinquishing seats</p>
               </div>
             </div>
 

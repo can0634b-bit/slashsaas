@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
 import { ArrowRight, Zap, ShieldCheck } from 'lucide-react';
@@ -22,7 +22,7 @@ export const CtaSection: React.FC<CtaSectionProps> = ({ onOpenWaitlistModal }) =
         </h2>
 
         <p className="mx-auto mt-4 max-w-xl text-sm sm:text-base text-zinc-400 leading-relaxed">
-          Join high-growth tech companies reclaiming thousands of dollars every quarter with automated zombie seat detection.
+          Built for high-growth tech teams ready to eliminate subscription waste with automated zombie seat detection.
         </p>
 
         <div className="mt-8 flex items-center justify-center">

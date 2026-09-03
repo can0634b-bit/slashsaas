@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
 import { 
@@ -48,7 +48,7 @@ export const Features: React.FC = () => {
     },
     {
       icon: ShieldCheck,
-      title: 'SOC2 Compliant & Zero Password Access',
+      title: 'Built to SOC 2 Controls & Zero Password Access',
       description: 'Built with enterprise-grade privacy. We never access your documents, files, or message contents. We only read user identity metadata.',
       badge: 'Privacy First'
     }
