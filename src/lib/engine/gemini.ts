@@ -19,27 +19,51 @@ function getGeminiClient(): GoogleGenAI {
 // Global cached working model to avoid repeated 404 lookups
 let cachedWorkingModel: string | null = null;
 
-function getCandidateModels(): string[] {
+// Official active 2026 model hierarchy for @google/genai (prohibited: gemini-1.5-*)
+const PRIMARY_CANDIDATE_MODELS = [
+  'gemini-3-flash-preview',
+  'gemini-2.5-flash-lite',
+  'gemini-2.0-flash',
+  'gemini-2.0-flash-lite',
+  'gemini-3-pro-preview',
+];
+
+async function getCandidateModels(ai: GoogleGenAI): Promise<string[]> {
   const envModel = process.env.GEMINI_MODEL;
-  const defaults = [
-    'gemini-2.5-flash',
-    'gemini-2.0-flash',
-    'gemini-1.5-flash',
-    'gemini-2.0-flash-001',
-    'gemini-1.5-flash-latest',
-    'gemini-2.5-pro',
-    'gemini-1.5-pro',
-  ];
 
   if (cachedWorkingModel) {
-    return [cachedWorkingModel, ...defaults.filter((m) => m !== cachedWorkingModel)];
+    return [cachedWorkingModel, ...PRIMARY_CANDIDATE_MODELS.filter((m) => m !== cachedWorkingModel)];
   }
 
   if (envModel) {
-    return [envModel, ...defaults.filter((m) => m !== envModel)];
+    return [envModel, ...PRIMARY_CANDIDATE_MODELS.filter((m) => m !== envModel)];
   }
 
-  return defaults;
+  // Try dynamic model resolution from the user's API key
+  try {
+    const list = await ai.models.list({ config: { pageSize: 30 } });
+    const discovered: string[] = [];
+    for await (const m of list) {
+      const name = m.name?.replace(/^models\//, '');
+      if (
+        name &&
+        !name.includes('1.5') &&
+        !name.includes('embedding') &&
+        !name.includes('aqa') &&
+        (name.includes('flash') || name.includes('gemini-3') || name.includes('gemini-2'))
+      ) {
+        discovered.push(name);
+      }
+    }
+    if (discovered.length > 0) {
+      console.log('[GEMINI_DISCOVERED_ACTIVE_MODELS]', discovered);
+      return discovered;
+    }
+  } catch (listErr) {
+    console.warn('[GEMINI_LIST_MODELS_FALLBACK_USING_DEFAULTS]', listErr);
+  }
+
+  return PRIMARY_CANDIDATE_MODELS;
 }
 
 export class GeminiSearchEngine implements AiSearchEngine {
@@ -48,11 +72,11 @@ export class GeminiSearchEngine implements AiSearchEngine {
 
   /**
    * Samples a single user query against Gemini to simulate an AI search engine response.
-   * Automatically falls back across active Gemini model versions if one is deprecated/unavailable.
+   * Automatically resolves and cascades across active 2026 Gemini model versions.
    */
   async sampleQuery(queryText: string): Promise<{ rawAnswer: string; sources: string[] }> {
     const ai = getGeminiClient();
-    const candidateModels = getCandidateModels();
+    const candidateModels = await getCandidateModels(ai);
 
     let lastError: any = null;
 
@@ -70,7 +94,7 @@ export class GeminiSearchEngine implements AiSearchEngine {
 
         const rawAnswer = response.text || '';
         if (!rawAnswer) {
-          throw new Error(`Empty response from ${modelName}`);
+          throw new Error(`Empty response from model ${modelName}`);
         }
 
         // Cache working model for fast subsequent calls
@@ -84,7 +108,7 @@ export class GeminiSearchEngine implements AiSearchEngine {
         };
       } catch (err: any) {
         lastError = err;
-        console.warn(`[GEMINI_MODEL_${modelName}_FAILED]`, err?.message || err);
+        console.warn(`[GEMINI_MODEL_${modelName}_ATTEMPT_FAILED]`, err?.message || err);
         // Continue to next candidate model
       }
     }
@@ -103,7 +127,7 @@ export async function extractGroundedMentions(
   competitorNames: string[]
 ): Promise<ExtractionOutput> {
   const ai = getGeminiClient();
-  const candidateModels = getCandidateModels();
+  const candidateModels = await getCandidateModels(ai);
 
   const prompt = `You are a strict, objective brand audit extractor. Analyze the following AI-generated text and extract factual entity mentions strictly grounded in the text.
 
@@ -195,7 +219,7 @@ STRICT GROUNDING RULES:
         sources: combinedSources,
       };
     } catch (err) {
-      console.warn(`[GROUNDED_EXTRACTION_MODEL_${modelName}_FAILED]`, err);
+      console.warn(`[GROUNDED_EXTRACTION_MODEL_${modelName}_ATTEMPT_FAILED]`, err);
       // Try next model or fallback
     }
   }
