@@ -8,12 +8,21 @@ export interface ExtractionOutput {
   sources: string[];
 }
 
-function getGeminiClient(): GoogleGenAI {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey || apiKey.trim().length === 0) {
-    throw new Error('GEMINI_API_KEY environment variable is missing.');
+function getGeminiApiKey(): string {
+  const rawKey =
+    process.env.GEMINI_API_KEY ||
+    process.env.GOOGLE_API_KEY ||
+    process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+
+  if (!rawKey || rawKey.trim().length === 0) {
+    throw new Error('GEMINI_API_KEY ortam değişkeni bulunamadı. Lütfen Vercel ayarlarından GEMINI_API_KEY ekleyin.');
   }
-  return new GoogleGenAI({ apiKey });
+
+  return rawKey.trim().replace(/^["']|["']$/g, '');
+}
+
+function getGeminiClient(): GoogleGenAI {
+  return new GoogleGenAI({ apiKey: getGeminiApiKey() });
 }
 
 // Resilient candidate models ordered by priority
@@ -28,6 +37,51 @@ const CANDIDATE_MODELS = [
   'gemini-3.7-flash',
 ].filter(Boolean) as string[];
 
+async function callGoogleRestApi(model: string, apiKey: string, promptText: string): Promise<string> {
+  const cleanModel = model.replace(/^models\//, '');
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${cleanModel}:generateContent?key=${apiKey}`;
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 12000);
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [
+        {
+          role: 'user',
+          parts: [
+            {
+              text: `You are an intelligent AI search assistant. Answer the user prompt directly, objectively, and comprehensively. Provide specific product, software, brand, or service recommendations with clear rationale where relevant. Format clearly with markdown headings or numbered lists.\n\nSearch prompt: ${promptText}`,
+            },
+          ],
+        },
+      ],
+      generationConfig: {
+        temperature: 0.7,
+        maxOutputTokens: 1200,
+      },
+    }),
+    signal: controller.signal,
+  });
+
+  clearTimeout(timeoutId);
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData?.error?.message || `Google API HTTP ${res.status}: ${res.statusText}`);
+  }
+
+  const data = await res.json();
+  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text || text.trim().length === 0) {
+    throw new Error(`Empty answer received from Google API for model ${model}`);
+  }
+
+  return text;
+}
+
 export class GeminiSearchEngine implements AiSearchEngine {
   name = 'gemini';
   displayName = 'Google Gemini';
@@ -37,10 +91,12 @@ export class GeminiSearchEngine implements AiSearchEngine {
    * Automatically falls back across active Gemini models and Groq if configured.
    */
   async sampleQuery(queryText: string): Promise<{ rawAnswer: string; sources: string[] }> {
+    const apiKey = getGeminiApiKey();
     const ai = getGeminiClient();
     let lastError: any = null;
 
     for (const model of CANDIDATE_MODELS) {
+      // 1. Try official SDK
       try {
         const generatePromise = ai.models.generateContent({
           model,
@@ -53,32 +109,38 @@ export class GeminiSearchEngine implements AiSearchEngine {
         });
 
         const timeoutPromise = new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error(`Gemini request timed out on ${model} after 12s`)), 12000)
+          setTimeout(() => reject(new Error(`Gemini SDK request timed out on ${model} after 10s`)), 10000)
         );
 
         const response = (await Promise.race([generatePromise, timeoutPromise])) as any;
         const rawAnswer = response.text || '';
 
-        if (!rawAnswer || rawAnswer.trim().length === 0) {
-          throw new Error(`Empty response received from ${model}`);
+        if (rawAnswer && rawAnswer.trim().length > 0) {
+          const sources = extractUrlsAndDomains(rawAnswer);
+          return { rawAnswer, sources };
         }
+      } catch (sdkErr: any) {
+        lastError = sdkErr;
+        console.warn(`[GeminiSearchEngine] SDK call failed for ${model}, attempting REST fallback:`, sdkErr?.message || sdkErr);
+      }
 
-        const sources = extractUrlsAndDomains(rawAnswer);
-
-        return {
-          rawAnswer,
-          sources,
-        };
-      } catch (err: any) {
-        lastError = err;
-        console.warn(`[GeminiSearchEngine] Model "${model}" failed, trying next candidate:`, err?.message || err);
+      // 2. Direct REST fallback
+      try {
+        const rawAnswer = await callGoogleRestApi(model, apiKey, queryText);
+        if (rawAnswer && rawAnswer.trim().length > 0) {
+          const sources = extractUrlsAndDomains(rawAnswer);
+          return { rawAnswer, sources };
+        }
+      } catch (restErr: any) {
+        lastError = restErr;
+        console.warn(`[GeminiSearchEngine] REST call failed for ${model}:`, restErr?.message || restErr);
       }
     }
 
-    // Failover to Groq if configured in environment
+    // 3. Failover to Groq if configured in environment
     if (process.env.GROQ_API_KEY && process.env.GROQ_API_KEY.trim().length > 0) {
       try {
-        console.info('[GeminiSearchEngine] Gemini exhausted, failing over to Groq...');
+        console.info('[GeminiSearchEngine] Gemini candidate models exhausted, failing over to Groq Llama 3.3...');
         const { GroqSearchEngine } = await import('./groq');
         const groqEngine = new GroqSearchEngine();
         return await groqEngine.sampleQuery(queryText);

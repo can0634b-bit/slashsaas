@@ -207,6 +207,9 @@ export async function triggerProjectScan(projectId: string, engineName: string =
     return result;
   } catch (err: any) {
     console.error('triggerProjectScan server action error:', err);
-    throw new Error(err.message || 'Scan execution failed');
+    return {
+      success: false as const,
+      error: err?.message || 'Tarama yürütülürken bir hata oluştu.',
+    };
   }
 }

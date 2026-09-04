@@ -92,11 +92,13 @@ export const ProjectScanRunner: React.FC<ProjectScanRunnerProps> = ({
       if (res.success) {
         setSuccess(true);
         router.refresh();
+      } else {
+        setError(res.error || 'Tarama yürütülürken hata oluştu.');
       }
     } catch (err: any) {
       console.error('Scan error:', err);
       setError(
-        err.message ||
+        err?.message ||
           'Tarama tamamlanamadı. Lütfen API anahtarınızın yapılandırıldığından emin olun.'
       );
     } finally {

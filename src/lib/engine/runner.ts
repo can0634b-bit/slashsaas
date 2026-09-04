@@ -96,8 +96,11 @@ export async function runProjectScan(options: RunScanOptions) {
         // Run samples concurrently for this query
         const samplePromises = Array.from({ length: sampleCount }, async (_, idx) => {
           const sIdx = idx + 1;
+          if (idx > 0) {
+            await new Promise((r) => setTimeout(r, idx * 350));
+          }
           try {
-            // a. Collector (Gemini)
+            // a. Collector (Gemini / Groq)
             const { rawAnswer, sources: rawSources } = await engine.sampleQuery(query.query_text);
 
             // b. Extractor (Fast Grounded Matching)
@@ -223,7 +226,7 @@ export async function runProjectScan(options: RunScanOptions) {
     }
 
     return {
-      success: true,
+      success: true as const,
       scanId,
       summary,
       diff,
