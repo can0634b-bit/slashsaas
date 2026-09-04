@@ -34,8 +34,13 @@ create table if not exists public.scans (
   project_id uuid not null references public.projects(id) on delete cascade,
   engine text not null default 'gemini',
   status text not null default 'running' check (status in ('running', 'done', 'failed')),
+  overall_score numeric null default 0,
+  brand_mention_rate numeric null default 0,
+  share_of_voice numeric null default 0,
+  error_message text null,
   started_at timestamptz not null default now(),
   finished_at timestamptz,
+  created_at timestamptz not null default now(),
   summary_json jsonb not null default '{}'::jsonb
 );
 
@@ -138,4 +143,5 @@ create index if not exists idx_projects_org on public.projects(org_id);
 create index if not exists idx_tracked_queries_project on public.tracked_queries(project_id);
 create index if not exists idx_competitors_project on public.competitors(project_id);
 create index if not exists idx_scans_project on public.scans(project_id);
+create index if not exists idx_scans_created_at on public.scans(project_id, created_at desc);
 create index if not exists idx_scan_results_scan on public.scan_results(scan_id);

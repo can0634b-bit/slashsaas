@@ -161,11 +161,14 @@ export async function runProjectScan(options: RunScanOptions) {
       console.error('[RESULTS_INSERT_ERROR]', resultsInsertError);
     }
 
-    // 8. Update Scan Record (status: 'done')
+    // 8. Update Scan Record (status: 'done' + top level summary scores)
     const { error: scanUpdateError } = await supabase
       .from('scans')
       .update({
         status: 'done',
+        overall_score: summary.overallVisibilityScore,
+        brand_mention_rate: summary.brandMentionRate,
+        share_of_voice: summary.shareOfVoice,
         finished_at: new Date().toISOString(),
         summary_json: summary,
       })
@@ -188,6 +191,7 @@ export async function runProjectScan(options: RunScanOptions) {
       .from('scans')
       .update({
         status: 'failed',
+        error_message: err.message || 'Scan execution failed',
         finished_at: new Date().toISOString(),
         summary_json: { error: err.message || 'Scan execution failed' },
       })

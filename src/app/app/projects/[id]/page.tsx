@@ -206,10 +206,10 @@ export default async function ProjectDetailPage({ params }: PageProps) {
                       </div>
                       <div className="flex items-center gap-3">
                         <span className="font-mono text-white font-bold">
-                          {Math.round(s.overall_score)}/100
+                          {Math.round(s.overall_score || s.summary_json?.overallVisibilityScore || 0)}/100
                         </span>
                         <span className="text-[10px] uppercase font-mono text-zinc-500">
-                          {s.engine_name}
+                          {s.engine || s.engine_name || 'gemini'}
                         </span>
                       </div>
                     </div>

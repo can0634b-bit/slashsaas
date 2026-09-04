@@ -17,34 +17,47 @@ import {
   Search,
 } from 'lucide-react';
 
+interface CompetitorMention {
+  name: string;
+  mentioned: boolean;
+  rank?: number | null;
+}
+
+interface QuerySample {
+  sampleIndex: number;
+  rawAnswer: string;
+  brandMentioned: boolean;
+  brandRank: number | null;
+  competitorsFound?: CompetitorMention[];
+  sources?: string[];
+  score?: number;
+}
+
 interface ScanResult {
   id: string;
   query_text: string;
   brand_mentioned: boolean;
   brand_rank: number | null;
   visibility_score: number;
-  competitors_mentioned: string[];
-  sources_cited: string[];
+  competitors_found?: CompetitorMention[] | string[];
+  sources?: string[];
+  sources_cited?: string[];
   raw_answer: string;
-  samples_data?: Array<{
-    sampleIndex: number;
-    rawAnswer: string;
-    brandMentioned: boolean;
-    brandRank: number | null;
-    competitorsMentioned: string[];
-    sourcesCited: string[];
-  }>;
+  samples_json?: QuerySample[];
+  samples_data?: QuerySample[];
   created_at: string;
 }
 
 interface Scan {
   id: string;
   status: string;
-  overall_score: number;
-  brand_mention_rate: number;
-  share_of_voice: number;
-  engine_name: string;
+  overall_score?: number | null;
+  brand_mention_rate?: number | null;
+  share_of_voice?: number | null;
+  engine?: string;
+  engine_name?: string;
   created_at: string;
+  summary_json?: any;
   error_message?: string | null;
 }
 
@@ -73,9 +86,15 @@ export const ScanResultsView: React.FC<ScanResultsViewProps> = ({ scan, results,
     );
   }
 
-  const overallScore = Math.round(scan.overall_score || 0);
-  const mentionRate = Math.round((scan.brand_mention_rate || 0) * 100);
-  const shareOfVoice = Math.round((scan.share_of_voice || 0) * 100);
+  // Calculate scores gracefully whether stored as integer (80) or ratio (0.8)
+  const rawOverall = scan.overall_score ?? scan.summary_json?.overallVisibilityScore ?? 0;
+  const overallScore = Math.round(rawOverall);
+
+  const rawMentionRate = scan.brand_mention_rate ?? scan.summary_json?.brandMentionRate ?? 0;
+  const mentionRate = Math.round(rawMentionRate > 1 ? rawMentionRate : rawMentionRate * 100);
+
+  const rawSoV = scan.share_of_voice ?? scan.summary_json?.shareOfVoice ?? 0;
+  const shareOfVoice = Math.round(rawSoV > 1 ? rawSoV : rawSoV * 100);
 
   const getScoreRating = (score: number) => {
     if (score >= 80) return { label: 'Dominant Visibility', color: 'text-[#8ce04a] bg-[#8ce04a]/15 border-[#8ce04a]/30' };
@@ -166,7 +185,10 @@ export const ScanResultsView: React.FC<ScanResultsViewProps> = ({ scan, results,
         {results.map((result) => {
           const isExpanded = expandedQueryId === result.id;
           const currentSampleIdx = selectedSampleMap[result.id] || 0;
-          const samples = result.samples_data && result.samples_data.length > 0
+          
+          const samples = (result.samples_json && result.samples_json.length > 0)
+            ? result.samples_json
+            : (result.samples_data && result.samples_data.length > 0)
             ? result.samples_data
             : [
                 {
@@ -174,12 +196,27 @@ export const ScanResultsView: React.FC<ScanResultsViewProps> = ({ scan, results,
                   rawAnswer: result.raw_answer,
                   brandMentioned: result.brand_mentioned,
                   brandRank: result.brand_rank,
-                  competitorsMentioned: result.competitors_mentioned || [],
-                  sourcesCited: result.sources_cited || [],
+                  competitorsFound: Array.isArray(result.competitors_found)
+                    ? (result.competitors_found as any[]).map((c) =>
+                        typeof c === 'string' ? { name: c, mentioned: true, rank: null } : c
+                      )
+                    : [],
+                  sources: result.sources || result.sources_cited || [],
                 },
               ];
 
           const activeSample = samples[currentSampleIdx] || samples[0];
+
+          // Normalize competitors list
+          const competitorList: CompetitorMention[] = Array.isArray(result.competitors_found)
+            ? (result.competitors_found as any[]).map((c) =>
+                typeof c === 'string' ? { name: c, mentioned: true, rank: null } : c
+              )
+            : [];
+          const mentionedCompetitors = competitorList.filter((c) => c.mentioned);
+
+          // Normalize sources
+          const sourcesList: string[] = result.sources || result.sources_cited || [];
 
           return (
             <div
@@ -240,19 +277,19 @@ export const ScanResultsView: React.FC<ScanResultsViewProps> = ({ scan, results,
                     <span className="text-[10px] uppercase font-mono tracking-wider text-zinc-500 block mb-1">
                       Competitors Cited by AI
                     </span>
-                    {result.competitors_mentioned && result.competitors_mentioned.length > 0 ? (
+                    {mentionedCompetitors.length > 0 ? (
                       <div className="flex flex-wrap gap-1.5">
-                        {result.competitors_mentioned.map((comp, idx) => (
+                        {mentionedCompetitors.map((comp, idx) => (
                           <span
                             key={idx}
                             className="rounded-lg border border-white/10 bg-white/[0.03] px-2 py-0.5 text-[11px] text-zinc-300 font-medium"
                           >
-                            {comp}
+                            {comp.name} {comp.rank ? `(#${comp.rank})` : ''}
                           </span>
                         ))}
                       </div>
                     ) : (
-                      <span className="text-zinc-500 text-[11px] italic">None identified</span>
+                      <span className="text-zinc-500 text-[11px] italic">None identified in responses</span>
                     )}
                   </div>
 
@@ -261,9 +298,9 @@ export const ScanResultsView: React.FC<ScanResultsViewProps> = ({ scan, results,
                     <span className="text-[10px] uppercase font-mono tracking-wider text-zinc-500 block mb-1">
                       Sources & Citations
                     </span>
-                    {result.sources_cited && result.sources_cited.length > 0 ? (
+                    {sourcesList.length > 0 ? (
                       <div className="flex flex-wrap gap-1.5">
-                        {result.sources_cited.map((src, idx) => (
+                        {sourcesList.map((src, idx) => (
                           <span
                             key={idx}
                             className="inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/[0.03] px-2 py-0.5 text-[10px] text-zinc-300 font-mono truncate max-w-[200px]"
@@ -332,10 +369,15 @@ export const ScanResultsView: React.FC<ScanResultsViewProps> = ({ scan, results,
                         <span className="text-white font-bold">#{activeSample.brandRank}</span>
                       </div>
                     )}
-                    {activeSample.competitorsMentioned && activeSample.competitorsMentioned.length > 0 && (
+                    {activeSample.competitorsFound && (
                       <div className="flex items-center gap-1.5">
                         <span className="text-zinc-500">Competitors:</span>
-                        <span className="text-zinc-300">{activeSample.competitorsMentioned.join(', ')}</span>
+                        <span className="text-zinc-300">
+                          {activeSample.competitorsFound
+                            .filter((c) => c.mentioned)
+                            .map((c) => c.name)
+                            .join(', ') || 'None'}
+                        </span>
                       </div>
                     )}
                   </div>
