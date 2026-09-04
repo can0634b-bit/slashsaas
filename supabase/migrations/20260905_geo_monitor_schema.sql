@@ -12,6 +12,12 @@ create table if not exists public.projects (
   created_at timestamptz not null default now()
 );
 
+alter table public.projects add column if not exists org_id uuid references public.organizations(id) on delete cascade;
+alter table public.projects add column if not exists name text;
+alter table public.projects add column if not exists brand_name text;
+alter table public.projects add column if not exists brand_domain text;
+alter table public.projects add column if not exists created_at timestamptz default now();
+
 -- 2. Tracked Queries (Search prompts monitored for AI engine recommendations)
 create table if not exists public.tracked_queries (
   id uuid primary key default gen_random_uuid(),
@@ -20,6 +26,10 @@ create table if not exists public.tracked_queries (
   created_at timestamptz not null default now()
 );
 
+alter table public.tracked_queries add column if not exists project_id uuid references public.projects(id) on delete cascade;
+alter table public.tracked_queries add column if not exists query_text text;
+alter table public.tracked_queries add column if not exists created_at timestamptz default now();
+
 -- 3. Competitors (Competitor brands to benchmark against)
 create table if not exists public.competitors (
   id uuid primary key default gen_random_uuid(),
@@ -27,6 +37,10 @@ create table if not exists public.competitors (
   name text not null,
   created_at timestamptz not null default now()
 );
+
+alter table public.competitors add column if not exists project_id uuid references public.projects(id) on delete cascade;
+alter table public.competitors add column if not exists name text;
+alter table public.competitors add column if not exists created_at timestamptz default now();
 
 -- 4. Scans (Audits per project)
 create table if not exists public.scans (
@@ -43,6 +57,18 @@ create table if not exists public.scans (
   created_at timestamptz not null default now(),
   summary_json jsonb not null default '{}'::jsonb
 );
+
+alter table public.scans add column if not exists project_id uuid references public.projects(id) on delete cascade;
+alter table public.scans add column if not exists engine text default 'gemini';
+alter table public.scans add column if not exists status text default 'running';
+alter table public.scans add column if not exists overall_score numeric default 0;
+alter table public.scans add column if not exists brand_mention_rate numeric default 0;
+alter table public.scans add column if not exists share_of_voice numeric default 0;
+alter table public.scans add column if not exists error_message text;
+alter table public.scans add column if not exists started_at timestamptz default now();
+alter table public.scans add column if not exists finished_at timestamptz;
+alter table public.scans add column if not exists created_at timestamptz default now();
+alter table public.scans add column if not exists summary_json jsonb default '{}'::jsonb;
 
 -- 5. Scan Results (Detailed per-query audit data with raw answer evidence)
 create table if not exists public.scan_results (
@@ -61,6 +87,20 @@ create table if not exists public.scan_results (
   samples_json jsonb not null default '[]'::jsonb,
   created_at timestamptz not null default now()
 );
+
+alter table public.scan_results add column if not exists scan_id uuid references public.scans(id) on delete cascade;
+alter table public.scan_results add column if not exists query_id uuid references public.tracked_queries(id) on delete set null;
+alter table public.scan_results add column if not exists query_text text;
+alter table public.scan_results add column if not exists engine text default 'gemini';
+alter table public.scan_results add column if not exists brand_mentioned boolean default false;
+alter table public.scan_results add column if not exists brand_rank integer;
+alter table public.scan_results add column if not exists competitors_found jsonb default '[]'::jsonb;
+alter table public.scan_results add column if not exists sources jsonb default '[]'::jsonb;
+alter table public.scan_results add column if not exists visibility_score numeric default 0;
+alter table public.scan_results add column if not exists raw_answer text;
+alter table public.scan_results add column if not exists sample_count integer default 1;
+alter table public.scan_results add column if not exists samples_json jsonb default '[]'::jsonb;
+alter table public.scan_results add column if not exists created_at timestamptz default now();
 
 -- Enable RLS
 alter table public.projects enable row level security;
