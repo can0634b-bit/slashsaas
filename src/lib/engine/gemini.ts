@@ -16,45 +16,80 @@ function getGeminiClient(): GoogleGenAI {
   return new GoogleGenAI({ apiKey });
 }
 
+// Resilient candidate models ordered by priority
+const CANDIDATE_MODELS = [
+  process.env.GEMINI_MODEL &&
+  !process.env.GEMINI_MODEL.includes('2.0') &&
+  !process.env.GEMINI_MODEL.includes('1.5')
+    ? process.env.GEMINI_MODEL
+    : null,
+  'gemini-2.5-flash',
+  'gemini-2.5-flash-lite',
+  'gemini-3.7-flash',
+].filter(Boolean) as string[];
+
 export class GeminiSearchEngine implements AiSearchEngine {
   name = 'gemini';
   displayName = 'Google Gemini';
 
   /**
    * Samples a single user query against Gemini with fast response & timeout guard.
+   * Automatically falls back across active Gemini models and Groq if configured.
    */
   async sampleQuery(queryText: string): Promise<{ rawAnswer: string; sources: string[] }> {
     const ai = getGeminiClient();
-    const modelName = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
+    let lastError: any = null;
 
-    // 10-second timeout guard to guarantee Next.js / Vercel responsiveness
-    const generatePromise = ai.models.generateContent({
-      model: modelName,
-      contents: queryText,
-      config: {
-        systemInstruction:
-          'You are an intelligent, helpful AI search assistant. Answer the user prompt directly, objectively, and comprehensively. Provide specific product, software, brand, or service recommendations with clear rationale where relevant. Format clearly with markdown headings or numbered lists.',
-        temperature: 0.7,
-      },
-    });
+    for (const model of CANDIDATE_MODELS) {
+      try {
+        const generatePromise = ai.models.generateContent({
+          model,
+          contents: queryText,
+          config: {
+            systemInstruction:
+              'You are an intelligent, helpful AI search assistant. Answer the user prompt directly, objectively, and comprehensively. Provide specific product, software, brand, or service recommendations with clear rationale where relevant. Format clearly with markdown headings or numbered lists.',
+            temperature: 0.7,
+          },
+        });
 
-    const timeoutPromise = new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error(`Gemini request timed out on ${modelName} after 10s`)), 10000)
-    );
+        const timeoutPromise = new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error(`Gemini request timed out on ${model} after 12s`)), 12000)
+        );
 
-    const response = (await Promise.race([generatePromise, timeoutPromise])) as any;
-    const rawAnswer = response.text || '';
+        const response = (await Promise.race([generatePromise, timeoutPromise])) as any;
+        const rawAnswer = response.text || '';
 
-    if (!rawAnswer) {
-      throw new Error(`Empty response received from ${modelName}`);
+        if (!rawAnswer || rawAnswer.trim().length === 0) {
+          throw new Error(`Empty response received from ${model}`);
+        }
+
+        const sources = extractUrlsAndDomains(rawAnswer);
+
+        return {
+          rawAnswer,
+          sources,
+        };
+      } catch (err: any) {
+        lastError = err;
+        console.warn(`[GeminiSearchEngine] Model "${model}" failed, trying next candidate:`, err?.message || err);
+      }
     }
 
-    const sources = extractUrlsAndDomains(rawAnswer);
+    // Failover to Groq if configured in environment
+    if (process.env.GROQ_API_KEY && process.env.GROQ_API_KEY.trim().length > 0) {
+      try {
+        console.info('[GeminiSearchEngine] Gemini exhausted, failing over to Groq...');
+        const { GroqSearchEngine } = await import('./groq');
+        const groqEngine = new GroqSearchEngine();
+        return await groqEngine.sampleQuery(queryText);
+      } catch (groqErr) {
+        console.warn('[GeminiSearchEngine] Groq failover also failed:', groqErr);
+      }
+    }
 
-    return {
-      rawAnswer,
-      sources,
-    };
+    throw new Error(
+      `Gemini AI motoru tüm modellerde (${CANDIDATE_MODELS.join(', ')}) hata verdi. Son hata: ${lastError?.message || 'Bilinmeyen hata'}`
+    );
   }
 }
 
@@ -136,7 +171,7 @@ export function extractGroundedMentions(
   };
 }
 
-function extractUrlsAndDomains(text: string): string[] {
+export function extractUrlsAndDomains(text: string): string[] {
   const urlRegex = /(https?:\/\/[^\s\)\],]+)/gi;
   const domainRegex = /([a-z0-9-]+\.(?:com|org|io|ai|net|co|app|dev|tech|me))/gi;
 

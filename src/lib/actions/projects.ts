@@ -194,11 +194,11 @@ export async function deleteCompetitor(competitorId: string, projectId: string) 
   return { success: true };
 }
 
-export async function triggerProjectScan(projectId: string) {
+export async function triggerProjectScan(projectId: string, engineName: string = 'gemini') {
   try {
     const result = await runProjectScan({
       projectId,
-      engineName: 'gemini',
+      engineName,
       sampleCount: 3,
     });
 

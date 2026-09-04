@@ -1,9 +1,17 @@
 import { createClient } from '../supabase/server';
 import { createAdminClient } from '../supabase/admin';
 import { GeminiSearchEngine, extractGroundedMentions } from './gemini';
+import { GroqSearchEngine } from './groq';
 import { calculateSampleScore, aggregateQuerySamples, computeProjectScanSummary } from './scorer';
 import { computeScanDiff } from './diff';
 import { AiSearchEngine, Competitor, Project, QuerySample, TrackedQuery } from './types';
+
+export function createSearchEngine(engineName: string = 'gemini'): AiSearchEngine {
+  if (engineName.toLowerCase() === 'groq') {
+    return new GroqSearchEngine();
+  }
+  return new GeminiSearchEngine();
+}
 
 export interface RunScanOptions {
   projectId: string;
@@ -60,7 +68,7 @@ export async function runProjectScan(options: RunScanOptions) {
   }
 
   // 4. Initialize Engine
-  const engine: AiSearchEngine = new GeminiSearchEngine();
+  const engine: AiSearchEngine = createSearchEngine(engineName);
 
   // 5. Create Scan Record in DB (status: 'running')
   const { data: scanRecord, error: scanInsertError } = await supabase
@@ -130,6 +138,23 @@ export async function runProjectScan(options: RunScanOptions) {
         return aggregateQuerySamples(query.id, query.query_text, engine.name, samples);
       })
     );
+
+    // Sanity check: detect if ALL samples failed due to API / engine errors
+    const totalSamples = aggregatedResults.reduce((sum, r) => sum + (r.samples_json?.length || 0), 0);
+    const failedSamples = aggregatedResults.reduce(
+      (sum, r) =>
+        sum +
+        (r.samples_json?.filter((s) => typeof s.rawAnswer === 'string' && s.rawAnswer.startsWith('Query sample error:'))
+          ?.length || 0),
+      0
+    );
+
+    if (totalSamples > 0 && failedSamples === totalSamples) {
+      const sampleErrDetail =
+        aggregatedResults[0]?.samples_json?.[0]?.rawAnswer?.replace('Query sample error: ', '') ||
+        'AI motorundan yanıt alınamadı.';
+      throw new Error(`Tarama başarısız: AI motoru (${engine.displayName}) yanıt vermedi. Detay: ${sampleErrDetail}`);
+    }
 
     // 7. Compute Project Scan Summary (Agent 4)
     const summary = computeProjectScanSummary(aggregatedResults, competitorNames, engine.name);

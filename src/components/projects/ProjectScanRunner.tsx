@@ -62,6 +62,7 @@ export const ProjectScanRunner: React.FC<ProjectScanRunnerProps> = ({
   queriesCount,
 }) => {
   const router = useRouter();
+  const [selectedEngine, setSelectedEngine] = useState<'gemini' | 'groq'>('gemini');
   const [running, setRunning] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -87,7 +88,7 @@ export const ProjectScanRunner: React.FC<ProjectScanRunnerProps> = ({
     setSuccess(false);
 
     try {
-      const res = await triggerProjectScan(projectId);
+      const res = await triggerProjectScan(projectId, selectedEngine);
       if (res.success) {
         setSuccess(true);
         router.refresh();
@@ -96,7 +97,7 @@ export const ProjectScanRunner: React.FC<ProjectScanRunnerProps> = ({
       console.error('Scan error:', err);
       setError(
         err.message ||
-          'Failed to complete scan. Please ensure GEMINI_API_KEY is configured in your environment.'
+          'Tarama tamamlanamadı. Lütfen API anahtarınızın yapılandırıldığından emin olun.'
       );
     } finally {
       setRunning(false);
@@ -142,7 +143,35 @@ export const ProjectScanRunner: React.FC<ProjectScanRunnerProps> = ({
           </p>
         </div>
 
-        <div className="w-full sm:w-auto shrink-0 flex flex-col items-center sm:items-end gap-2">
+        <div className="w-full sm:w-auto shrink-0 flex flex-col items-center sm:items-end gap-2.5">
+          {/* Engine Selector */}
+          <div className="flex items-center gap-1.5 p-1 rounded-xl bg-white/5 border border-white/10">
+            <button
+              type="button"
+              onClick={() => setSelectedEngine('gemini')}
+              disabled={running}
+              className={`px-3 py-1 rounded-lg text-[11px] font-semibold transition-all ${
+                selectedEngine === 'gemini'
+                  ? 'bg-[#8ce04a] text-zinc-950 font-bold shadow-sm'
+                  : 'text-zinc-400 hover:text-white'
+              }`}
+            >
+              Google Gemini 2.5
+            </button>
+            <button
+              type="button"
+              onClick={() => setSelectedEngine('groq')}
+              disabled={running}
+              className={`px-3 py-1 rounded-lg text-[11px] font-semibold transition-all ${
+                selectedEngine === 'groq'
+                  ? 'bg-amber-400 text-zinc-950 font-bold shadow-sm'
+                  : 'text-zinc-400 hover:text-white'
+              }`}
+            >
+              Groq (Llama 3.3)
+            </button>
+          </div>
+
           <button
             type="button"
             onClick={handleRunScan}
