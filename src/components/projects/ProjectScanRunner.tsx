@@ -141,7 +141,7 @@ export const ProjectScanRunner: React.FC<ProjectScanRunnerProps> = ({
             </span>
           </div>
           <p className="text-xs text-zinc-400 max-w-xl">
-            Her arama sorgusunu 3 bağımsız oturumda ({queriesCount * 3} toplam LLM etkileşimi) tarayıp; ayrıştırma, puanlama ve zaman serisi kıyaslamasını anlık tamamlar.
+            Her arama sorgusunu bağımsız AI oturumunda ({queriesCount} arama simülasyonu) tarayıp; ayrıştırma, puanlama ve zaman serisi kıyaslamasını anlık tamamlar.
           </p>
         </div>
 

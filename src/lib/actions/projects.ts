@@ -199,7 +199,7 @@ export async function triggerProjectScan(projectId: string, engineName: string =
     const result = await runProjectScan({
       projectId,
       engineName,
-      sampleCount: 3,
+      sampleCount: 1,
     });
 
     revalidatePath(`/app/projects/${projectId}`);

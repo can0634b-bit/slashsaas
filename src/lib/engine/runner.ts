@@ -90,57 +90,61 @@ export async function runProjectScan(options: RunScanOptions) {
   const scanId = scanRecord.id;
 
   try {
-    // 6. High-Speed Concurrent Execution across Queries & Samples
-    const aggregatedResults = await Promise.all(
-      queries.map(async (query) => {
-        // Run samples concurrently for this query
-        const samplePromises = Array.from({ length: sampleCount }, async (_, idx) => {
-          const sIdx = idx + 1;
-          if (idx > 0) {
-            await new Promise((r) => setTimeout(r, idx * 350));
-          }
-          try {
-            // a. Collector (Gemini / Groq)
-            const { rawAnswer, sources: rawSources } = await engine.sampleQuery(query.query_text);
+    // 6. Sequential Execution across Queries to respect Free-Tier RPM Rate Limits
+    const aggregatedResults = [];
+    for (let qIdx = 0; qIdx < queries.length; qIdx++) {
+      const query = queries[qIdx];
+      if (qIdx > 0) {
+        // 1s throttle between queries prevents triggering Google free tier 5 RPM limits
+        await new Promise((r) => setTimeout(r, 1000));
+      }
 
-            // b. Extractor (Fast Grounded Matching)
-            const extraction = extractGroundedMentions(
-              rawAnswer,
-              project.brand_name,
-              project.brand_domain,
-              competitorNames
-            );
+      const samplePromises = Array.from({ length: sampleCount }, async (_, idx) => {
+        const sIdx = idx + 1;
+        if (idx > 0) {
+          await new Promise((r) => setTimeout(r, idx * 350));
+        }
+        try {
+          // a. Collector (Gemini / Groq)
+          const { rawAnswer, sources: rawSources } = await engine.sampleQuery(query.query_text);
 
-            const allSources = Array.from(new Set([...extraction.sources, ...rawSources]));
-            const score = calculateSampleScore(extraction.brandMentioned, extraction.brandRank);
+          // b. Extractor (Fast Grounded Matching)
+          const extraction = extractGroundedMentions(
+            rawAnswer,
+            project.brand_name,
+            project.brand_domain,
+            competitorNames
+          );
 
-            return {
-              sampleIndex: sIdx,
-              rawAnswer,
-              brandMentioned: extraction.brandMentioned,
-              brandRank: extraction.brandRank,
-              competitorsFound: extraction.competitorsFound,
-              sources: allSources,
-              score,
-            };
-          } catch (sampleErr: any) {
-            console.warn(`[SAMPLE_FAILED] Query: "${query.query_text}", Sample: ${sIdx}:`, sampleErr?.message || sampleErr);
-            return {
-              sampleIndex: sIdx,
-              rawAnswer: `Query sample error: ${sampleErr?.message || 'Timeout or API limit'}`,
-              brandMentioned: false,
-              brandRank: null,
-              competitorsFound: competitorNames.map((n) => ({ name: n, mentioned: false, rank: null })),
-              sources: [],
-              score: 0,
-            };
-          }
-        });
+          const allSources = Array.from(new Set([...extraction.sources, ...rawSources]));
+          const score = calculateSampleScore(extraction.brandMentioned, extraction.brandRank);
 
-        const samples = await Promise.all(samplePromises);
-        return aggregateQuerySamples(query.id, query.query_text, engine.name, samples);
-      })
-    );
+          return {
+            sampleIndex: sIdx,
+            rawAnswer,
+            brandMentioned: extraction.brandMentioned,
+            brandRank: extraction.brandRank,
+            competitorsFound: extraction.competitorsFound,
+            sources: allSources,
+            score,
+          };
+        } catch (sampleErr: any) {
+          console.warn(`[SAMPLE_FAILED] Query: "${query.query_text}", Sample: ${sIdx}:`, sampleErr?.message || sampleErr);
+          return {
+            sampleIndex: sIdx,
+            rawAnswer: `Query sample error: ${sampleErr?.message || 'Timeout or API limit'}`,
+            brandMentioned: false,
+            brandRank: null,
+            competitorsFound: competitorNames.map((n) => ({ name: n, mentioned: false, rank: null })),
+            sources: [],
+            score: 0,
+          };
+        }
+      });
+
+      const samples = await Promise.all(samplePromises);
+      aggregatedResults.push(aggregateQuerySamples(query.id, query.query_text, engine.name, samples));
+    }
 
     // Sanity check: detect if ALL samples failed due to API / engine errors
     const totalSamples = aggregatedResults.reduce((sum, r) => sum + (r.samples_json?.length || 0), 0);
