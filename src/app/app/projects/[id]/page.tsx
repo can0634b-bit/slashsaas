@@ -189,6 +189,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
               scan={latestScan}
               results={scanResults}
               brandName={project.brand_name}
+              historyScans={scans || []}
             />
 
             {/* Scan History if multiple */}

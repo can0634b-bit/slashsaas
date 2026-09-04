@@ -11,11 +11,20 @@ import {
   FileText,
   Percent,
   TrendingUp,
+  TrendingDown,
   Award,
   Globe,
   Users,
   Search,
+  ArrowUpRight,
+  ArrowDownRight,
+  Minus,
+  AlertTriangle,
+  History,
+  Radio,
 } from 'lucide-react';
+import { TrendChart } from './TrendChart';
+import { ScanDiff } from '@/lib/engine/types';
 
 interface CompetitorMention {
   name: string;
@@ -35,6 +44,7 @@ interface QuerySample {
 
 interface ScanResult {
   id: string;
+  query_id?: string | null;
   query_text: string;
   brand_mentioned: boolean;
   brand_rank: number | null;
@@ -65,9 +75,15 @@ interface ScanResultsViewProps {
   scan: Scan | null;
   results: ScanResult[];
   brandName: string;
+  historyScans?: Scan[];
 }
 
-export const ScanResultsView: React.FC<ScanResultsViewProps> = ({ scan, results, brandName }) => {
+export const ScanResultsView: React.FC<ScanResultsViewProps> = ({
+  scan,
+  results,
+  brandName,
+  historyScans = [],
+}) => {
   const [expandedQueryId, setExpandedQueryId] = useState<string | null>(null);
   const [selectedSampleMap, setSelectedSampleMap] = useState<Record<string, number>>({});
 
@@ -96,6 +112,9 @@ export const ScanResultsView: React.FC<ScanResultsViewProps> = ({ scan, results,
   const rawSoV = scan.share_of_voice ?? scan.summary_json?.shareOfVoice ?? 0;
   const shareOfVoice = Math.round(rawSoV > 1 ? rawSoV : rawSoV * 100);
 
+  // Extract Diff Data if present
+  const diff: ScanDiff | undefined = scan.summary_json?.diff;
+
   const getScoreRating = (score: number) => {
     if (score >= 80) return { label: 'Dominant Visibility', color: 'text-[#8ce04a] bg-[#8ce04a]/15 border-[#8ce04a]/30' };
     if (score >= 50) return { label: 'Moderate Presence', color: 'text-emerald-400 bg-emerald-500/15 border-emerald-500/30' };
@@ -113,15 +132,72 @@ export const ScanResultsView: React.FC<ScanResultsViewProps> = ({ scan, results,
     setSelectedSampleMap((prev) => ({ ...prev, [queryId]: index }));
   };
 
+  // Helper for delta badge
+  const renderDelta = (delta: number | undefined, isPercentage = false) => {
+    if (delta === undefined || diff?.isBaseline) {
+      return (
+        <span className="inline-flex items-center gap-0.5 rounded-md border border-white/10 bg-white/[0.03] px-2 py-0.5 text-[10px] font-mono text-zinc-400">
+          <Radio className="h-2.5 w-2.5 text-zinc-500" />
+          <span>Baseline</span>
+        </span>
+      );
+    }
+
+    if (delta > 0) {
+      return (
+        <span className="inline-flex items-center gap-0.5 rounded-md border border-[#8ce04a]/30 bg-[#8ce04a]/10 px-2 py-0.5 text-[10px] font-mono font-bold text-[#8ce04a]">
+          <ArrowUpRight className="h-3 w-3" />
+          <span>+{delta}{isPercentage ? '%' : ' pts'}</span>
+        </span>
+      );
+    }
+
+    if (delta < 0) {
+      return (
+        <span className="inline-flex items-center gap-0.5 rounded-md border border-rose-500/30 bg-rose-500/10 px-2 py-0.5 text-[10px] font-mono font-bold text-rose-400">
+          <ArrowDownRight className="h-3 w-3" />
+          <span>{delta}{isPercentage ? '%' : ' pts'}</span>
+        </span>
+      );
+    }
+
+    return (
+      <span className="inline-flex items-center gap-0.5 rounded-md border border-white/10 bg-white/[0.03] px-2 py-0.5 text-[10px] font-mono text-zinc-400">
+        <Minus className="h-2.5 w-2.5" />
+        <span>No change</span>
+      </span>
+    );
+  };
+
   return (
     <div className="space-y-6">
-      {/* Metrics Row */}
+      {/* Historical Trend Chart (Recharts) */}
+      {historyScans && historyScans.length >= 2 && (
+        <TrendChart scans={historyScans} brandName={brandName} />
+      )}
+
+      {/* Critical Movement Alert Banner if Drop Detected */}
+      {diff && !diff.isBaseline && diff.isSignificantDrop && (
+        <div className="rounded-3xl border border-amber-500/30 bg-amber-500/10 p-5 backdrop-blur-xl flex items-start gap-3.5 text-xs text-amber-200">
+          <AlertTriangle className="h-5 w-5 shrink-0 text-amber-400 mt-0.5" />
+          <div className="space-y-1">
+            <p className="font-bold text-amber-100">
+              Significant Visibility Drop Detected ({diff.overallScoreDelta} pts vs. previous run)
+            </p>
+            <p className="text-zinc-400 leading-relaxed">
+              Google Gemini changed recommendations across {diff.queriesLostCount} tracked prompts. Review the query breakdowns below to see where positions shifted.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Metrics Row with Deltas */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* Overall Score */}
         <div className="rounded-3xl border border-white/10 bg-zinc-950/70 p-6 backdrop-blur-xl space-y-3 relative overflow-hidden">
           <div className="flex items-center justify-between text-zinc-400 text-xs">
             <span className="font-semibold uppercase tracking-wider font-mono text-[10px]">Overall GEO Score</span>
-            <Award className="h-4 w-4 text-[#8ce04a]" />
+            {renderDelta(diff?.overallScoreDelta)}
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-4xl sm:text-5xl font-black text-white tracking-tight">
@@ -138,7 +214,7 @@ export const ScanResultsView: React.FC<ScanResultsViewProps> = ({ scan, results,
         <div className="rounded-3xl border border-white/10 bg-zinc-950/70 p-6 backdrop-blur-xl space-y-3 relative overflow-hidden">
           <div className="flex items-center justify-between text-zinc-400 text-xs">
             <span className="font-semibold uppercase tracking-wider font-mono text-[10px]">Brand Mention Rate</span>
-            <Percent className="h-4 w-4 text-zinc-300" />
+            {renderDelta(diff?.mentionRateDelta, true)}
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-4xl sm:text-5xl font-black text-white tracking-tight">
@@ -154,7 +230,7 @@ export const ScanResultsView: React.FC<ScanResultsViewProps> = ({ scan, results,
         <div className="rounded-3xl border border-white/10 bg-zinc-950/70 p-6 backdrop-blur-xl space-y-3 relative overflow-hidden">
           <div className="flex items-center justify-between text-zinc-400 text-xs">
             <span className="font-semibold uppercase tracking-wider font-mono text-[10px]">Share of Voice</span>
-            <TrendingUp className="h-4 w-4 text-emerald-400" />
+            {renderDelta(diff?.shareOfVoiceDelta, true)}
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-4xl sm:text-5xl font-black text-white tracking-tight">
@@ -166,6 +242,35 @@ export const ScanResultsView: React.FC<ScanResultsViewProps> = ({ scan, results,
           </p>
         </div>
       </div>
+
+      {/* Diff / Movement Summary Bar if not baseline */}
+      {diff && !diff.isBaseline && (
+        <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-4 text-xs flex flex-wrap items-center justify-between gap-4 font-mono">
+          <div className="flex items-center gap-2">
+            <History className="h-4 w-4 text-[#8ce04a]" />
+            <span className="font-bold text-white">Movement vs Previous Run:</span>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-4 text-zinc-400 text-[11px]">
+            <div className="flex items-center gap-1.5">
+              <span className="text-zinc-500">Ranks Improved:</span>
+              <span className="text-[#8ce04a] font-bold">+{diff.ranksImprovedCount}</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="text-zinc-500">Ranks Dropped:</span>
+              <span className={diff.ranksDroppedCount > 0 ? 'text-rose-400 font-bold' : 'text-zinc-400'}>
+                -{diff.ranksDroppedCount}
+              </span>
+            </div>
+            {diff.newCompetitorsDetected && diff.newCompetitorsDetected.length > 0 && (
+              <div className="flex items-center gap-1.5">
+                <span className="text-amber-400 font-semibold">New Competitor Emerged:</span>
+                <span className="text-white">{diff.newCompetitorsDetected.join(', ')}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Results Header & Scan Metadata */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2">
@@ -206,6 +311,11 @@ export const ScanResultsView: React.FC<ScanResultsViewProps> = ({ scan, results,
               ];
 
           const activeSample = samples[currentSampleIdx] || samples[0];
+
+          // Check query diff item if available
+          const queryDiff = diff?.queryDiffs?.find(
+            (qd) => qd.queryId === result.query_id || qd.queryText.trim().toLowerCase() === result.query_text.trim().toLowerCase()
+          );
 
           // Normalize competitors list
           const competitorList: CompetitorMention[] = Array.isArray(result.competitors_found)
@@ -252,8 +362,39 @@ export const ScanResultsView: React.FC<ScanResultsViewProps> = ({ scan, results,
                             Not Mentioned
                           </span>
                         )}
+
+                        {/* Rank Shift Badge */}
+                        {queryDiff && !diff?.isBaseline && queryDiff.rankDelta !== null && queryDiff.rankDelta !== 0 && (
+                          <span
+                            className={`rounded-lg px-2 py-0.5 text-[10px] font-mono font-bold flex items-center gap-0.5 border ${
+                              queryDiff.rankDelta > 0
+                                ? 'bg-[#8ce04a]/10 text-[#8ce04a] border-[#8ce04a]/30'
+                                : 'bg-rose-500/10 text-rose-400 border-rose-500/30'
+                            }`}
+                          >
+                            {queryDiff.rankDelta > 0 ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
+                            <span>
+                              {queryDiff.rankDelta > 0
+                                ? `Rank +${queryDiff.rankDelta} pos`
+                                : `Rank ${queryDiff.rankDelta} pos`}
+                            </span>
+                          </span>
+                        )}
+
+                        {/* Status Change Tag */}
+                        {queryDiff && !diff?.isBaseline && queryDiff.statusChange === 'gained_mention' && (
+                          <span className="rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 text-[10px] font-semibold">
+                            + Newly Mentioned
+                          </span>
+                        )}
+                        {queryDiff && !diff?.isBaseline && queryDiff.statusChange === 'lost_mention' && (
+                          <span className="rounded-lg bg-rose-500/20 text-rose-300 border border-rose-500/30 px-2 py-0.5 text-[10px] font-semibold">
+                            - Lost Visibility
+                          </span>
+                        )}
+
                         <span className="text-zinc-500 font-mono text-[11px]">
-                          Visibility Score: {Math.round(result.visibility_score)}/100
+                          Score: {Math.round(result.visibility_score)}/100
                         </span>
                       </div>
                     </div>

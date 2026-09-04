@@ -60,6 +60,45 @@ export interface CompetitorShare {
   shareOfVoice: number;
 }
 
+export interface QueryDiff {
+  queryId?: string | null;
+  queryText: string;
+  previousScore: number | null;
+  currentScore: number;
+  scoreDelta: number;
+  previousRank: number | null;
+  currentRank: number | null;
+  rankDelta: number | null;
+  statusChange: 'gained_mention' | 'lost_mention' | 'retained_mention' | 'still_unmentioned';
+  newCompetitors: string[];
+  droppedCompetitors: string[];
+}
+
+export interface CompetitorShift {
+  name: string;
+  previousSoV: number;
+  currentSoV: number;
+  sovDelta: number;
+  isNewEmergence: boolean;
+}
+
+export interface ScanDiff {
+  isBaseline: boolean;
+  previousScanId: string | null;
+  previousScanDate: string | null;
+  overallScoreDelta: number;
+  mentionRateDelta: number;
+  shareOfVoiceDelta: number;
+  queriesGainedCount: number;
+  queriesLostCount: number;
+  ranksImprovedCount: number;
+  ranksDroppedCount: number;
+  newCompetitorsDetected: string[];
+  isSignificantDrop: boolean;
+  queryDiffs: QueryDiff[];
+  competitorShifts: CompetitorShift[];
+}
+
 export interface ProjectScanSummary {
   totalQueries: number;
   overallVisibilityScore: number;
@@ -68,6 +107,7 @@ export interface ProjectScanSummary {
   competitorBreakdown: CompetitorShare[];
   engine: string;
   scannedAt: string;
+  diff?: ScanDiff;
 }
 
 export interface Scan {
@@ -75,8 +115,13 @@ export interface Scan {
   project_id: string;
   engine: string;
   status: 'running' | 'done' | 'failed';
+  overall_score?: number | null;
+  brand_mention_rate?: number | null;
+  share_of_voice?: number | null;
+  error_message?: string | null;
   started_at: string;
   finished_at?: string | null;
+  created_at: string;
   summary_json: ProjectScanSummary;
 }
 

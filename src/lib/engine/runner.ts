@@ -2,6 +2,7 @@ import { createClient } from '../supabase/server';
 import { createAdminClient } from '../supabase/admin';
 import { GeminiSearchEngine, extractGroundedMentions } from './gemini';
 import { calculateSampleScore, aggregateQuerySamples, computeProjectScanSummary } from './scorer';
+import { computeScanDiff } from './diff';
 import { AiSearchEngine, Competitor, Project, QuerySample, TrackedQuery } from './types';
 
 export interface RunScanOptions {
@@ -95,10 +96,10 @@ export async function runProjectScan(options: RunScanOptions) {
       // Sample query N times (default: 3x) to handle non-determinism
       for (let sIdx = 1; sIdx <= sampleCount; sIdx++) {
         try {
-          // a. Collector
+          // a. Collector (Agent 2)
           const { rawAnswer, sources: rawSources } = await engine.sampleQuery(query.query_text);
 
-          // b. Extractor (Strict Grounding)
+          // b. Extractor (Agent 3 - Strict Grounding)
           const extraction = await extractGroundedMentions(
             rawAnswer,
             project.brand_name,
@@ -109,7 +110,7 @@ export async function runProjectScan(options: RunScanOptions) {
           // Combined unique sources
           const allSources = Array.from(new Set([...extraction.sources, ...rawSources]));
 
-          // c. Scorer (Sample Level)
+          // c. Scorer (Agent 4 - Sample Level)
           const score = calculateSampleScore(extraction.brandMentioned, extraction.brandRank);
 
           samples.push({
@@ -140,10 +141,34 @@ export async function runProjectScan(options: RunScanOptions) {
       aggregatedResults.push(queryResult);
     }
 
-    // 7. Compute Project Scan Summary
+    // 7. Compute Project Scan Summary (Agent 4)
     const summary = computeProjectScanSummary(aggregatedResults, competitorNames, engine.name);
 
-    // 8. Store Scan Results in DB
+    // 8. Compute History & Diff (Agent 5)
+    const { data: previousScanRows } = await supabase
+      .from('scans')
+      .select('id, created_at, overall_score, summary_json')
+      .eq('project_id', project.id)
+      .eq('status', 'done')
+      .neq('id', scanId)
+      .order('created_at', { ascending: false })
+      .limit(1);
+
+    const previousScan = previousScanRows && previousScanRows.length > 0 ? previousScanRows[0] : null;
+
+    let previousResults: any[] = [];
+    if (previousScan) {
+      const { data: prevRes } = await supabase
+        .from('scan_results')
+        .select('query_id, query_text, brand_mentioned, brand_rank, visibility_score, competitors_found')
+        .eq('scan_id', previousScan.id);
+      previousResults = prevRes || [];
+    }
+
+    const diff = computeScanDiff(summary, aggregatedResults, previousScan, previousResults);
+    summary.diff = diff;
+
+    // 9. Store Scan Results in DB
     const scanResultsToInsert = aggregatedResults.map((r) => ({
       scan_id: scanId,
       query_id: r.query_id || null,
@@ -165,7 +190,7 @@ export async function runProjectScan(options: RunScanOptions) {
       console.error('[RESULTS_INSERT_ERROR]', resultsInsertError);
     }
 
-    // 9. Update Scan Record (status: 'done')
+    // 10. Update Scan Record (status: 'done' + summary + diff)
     const { error: scanUpdateError } = await supabase
       .from('scans')
       .update({
@@ -186,6 +211,7 @@ export async function runProjectScan(options: RunScanOptions) {
       success: true,
       scanId,
       summary,
+      diff,
       resultsCount: scanResultsToInsert.length,
     };
   } catch (err: any) {
