@@ -33,7 +33,7 @@ const AGENT_PIPELINE_STEPS = [
   {
     agentId: 2,
     name: 'Ajan 2 (Toplayıcı)',
-    desc: 'Google Gemini 2.5 motoru her sorgu için 3x bağımsız oturumda sorgulanıyor...',
+    desc: 'Google Gemini 3.7 motoru her sorgu için bağımsız arama simülasyonunu çalıştırıyor...',
     icon: Search,
   },
   {
@@ -158,7 +158,7 @@ export const ProjectScanRunner: React.FC<ProjectScanRunnerProps> = ({
                   : 'text-zinc-400 hover:text-white'
               }`}
             >
-              Google Gemini 2.5
+              Google Gemini 3.7
             </button>
             <button
               type="button"

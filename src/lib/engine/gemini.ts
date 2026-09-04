@@ -25,16 +25,16 @@ function getGeminiClient(): GoogleGenAI {
   return new GoogleGenAI({ apiKey: getGeminiApiKey() });
 }
 
-// Resilient candidate models ordered by priority
+// Resilient candidate models ordered by priority (Gemini 3.7 is the active generation)
 const CANDIDATE_MODELS = [
   process.env.GEMINI_MODEL &&
   !process.env.GEMINI_MODEL.includes('2.0') &&
+  !process.env.GEMINI_MODEL.includes('2.5') &&
   !process.env.GEMINI_MODEL.includes('1.5')
     ? process.env.GEMINI_MODEL
     : null,
-  'gemini-2.5-flash',
-  'gemini-2.5-flash-lite',
   'gemini-3.7-flash',
+  'gemini-3.5-flash-lite',
 ].filter(Boolean) as string[];
 
 async function callGoogleRestApi(model: string, apiKey: string, promptText: string): Promise<string> {
@@ -109,7 +109,7 @@ export class GeminiSearchEngine implements AiSearchEngine {
         });
 
         const timeoutPromise = new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error(`Gemini SDK request timed out on ${model} after 10s`)), 10000)
+          setTimeout(() => reject(new Error(`Gemini SDK request timed out on ${model} after 7s`)), 7000)
         );
 
         const response = (await Promise.race([generatePromise, timeoutPromise])) as any;
