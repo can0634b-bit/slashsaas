@@ -1,4 +1,4 @@
-import { GoogleGenAI, Type } from '@google/genai';
+import { GoogleGenAI } from '@google/genai';
 import { AiSearchEngine, CompetitorMention } from './types';
 
 export interface ExtractionOutput {
@@ -16,244 +16,121 @@ function getGeminiClient(): GoogleGenAI {
   return new GoogleGenAI({ apiKey });
 }
 
-// Global cached working model to avoid repeated 404 lookups
-let cachedWorkingModel: string | null = null;
-
-// Official active 2026 model hierarchy for @google/genai (prohibited: gemini-1.5-*)
-const PRIMARY_CANDIDATE_MODELS = [
-  'gemini-3-flash-preview',
-  'gemini-2.5-flash-lite',
-  'gemini-2.0-flash',
-  'gemini-2.0-flash-lite',
-  'gemini-3-pro-preview',
-];
-
-async function getCandidateModels(ai: GoogleGenAI): Promise<string[]> {
-  const envModel = process.env.GEMINI_MODEL;
-
-  if (cachedWorkingModel) {
-    return [cachedWorkingModel, ...PRIMARY_CANDIDATE_MODELS.filter((m) => m !== cachedWorkingModel)];
-  }
-
-  if (envModel) {
-    return [envModel, ...PRIMARY_CANDIDATE_MODELS.filter((m) => m !== envModel)];
-  }
-
-  // Try dynamic model resolution from the user's API key
-  try {
-    const list = await ai.models.list({ config: { pageSize: 30 } });
-    const discovered: string[] = [];
-    for await (const m of list) {
-      const name = m.name?.replace(/^models\//, '');
-      if (
-        name &&
-        !name.includes('1.5') &&
-        !name.includes('embedding') &&
-        !name.includes('aqa') &&
-        (name.includes('flash') || name.includes('gemini-3') || name.includes('gemini-2'))
-      ) {
-        discovered.push(name);
-      }
-    }
-    if (discovered.length > 0) {
-      console.log('[GEMINI_DISCOVERED_ACTIVE_MODELS]', discovered);
-      return discovered;
-    }
-  } catch (listErr) {
-    console.warn('[GEMINI_LIST_MODELS_FALLBACK_USING_DEFAULTS]', listErr);
-  }
-
-  return PRIMARY_CANDIDATE_MODELS;
-}
-
 export class GeminiSearchEngine implements AiSearchEngine {
   name = 'gemini';
   displayName = 'Google Gemini';
 
   /**
-   * Samples a single user query against Gemini to simulate an AI search engine response.
-   * Automatically resolves and cascades across active 2026 Gemini model versions.
+   * Samples a single user query against Gemini with fast response & timeout guard.
    */
   async sampleQuery(queryText: string): Promise<{ rawAnswer: string; sources: string[] }> {
     const ai = getGeminiClient();
-    const candidateModels = await getCandidateModels(ai);
+    const modelName = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
 
-    let lastError: any = null;
+    // 10-second timeout guard to guarantee Next.js / Vercel responsiveness
+    const generatePromise = ai.models.generateContent({
+      model: modelName,
+      contents: queryText,
+      config: {
+        systemInstruction:
+          'You are an intelligent, helpful AI search assistant. Answer the user prompt directly, objectively, and comprehensively. Provide specific product, software, brand, or service recommendations with clear rationale where relevant. Format clearly with markdown headings or numbered lists.',
+        temperature: 0.7,
+      },
+    });
 
-    for (const modelName of candidateModels) {
-      try {
-        const response = await ai.models.generateContent({
-          model: modelName,
-          contents: queryText,
-          config: {
-            systemInstruction:
-              'You are an intelligent, helpful AI search assistant. Answer the user prompt directly, objectively, and comprehensively. Provide specific product, software, brand, or service recommendations with clear rationale where relevant. Format clearly with markdown headings or lists.',
-            temperature: 0.7,
-          },
-        });
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error(`Gemini request timed out on ${modelName} after 10s`)), 10000)
+    );
 
-        const rawAnswer = response.text || '';
-        if (!rawAnswer) {
-          throw new Error(`Empty response from model ${modelName}`);
-        }
+    const response = (await Promise.race([generatePromise, timeoutPromise])) as any;
+    const rawAnswer = response.text || '';
 
-        // Cache working model for fast subsequent calls
-        cachedWorkingModel = modelName;
-
-        const sources = extractUrlsAndDomains(rawAnswer);
-
-        return {
-          rawAnswer,
-          sources,
-        };
-      } catch (err: any) {
-        lastError = err;
-        console.warn(`[GEMINI_MODEL_${modelName}_ATTEMPT_FAILED]`, err?.message || err);
-        // Continue to next candidate model
-      }
+    if (!rawAnswer) {
+      throw new Error(`Empty response received from ${modelName}`);
     }
 
-    throw new Error(`Failed to query Gemini AI engine: ${lastError?.message || 'All candidate models failed'}`);
+    const sources = extractUrlsAndDomains(rawAnswer);
+
+    return {
+      rawAnswer,
+      sources,
+    };
   }
 }
 
 /**
- * Strictly grounded AI extractor using Gemini Structured Output with anti-hallucination verification.
+ * Ultra-fast deterministic, 100% grounded extractor (0ms latency, zero hallucination).
+ * Checks physical presence in verbatim text, parses numbered ranking lists, and extracts citations.
  */
-export async function extractGroundedMentions(
-  rawAnswer: string,
-  brandName: string,
-  brandDomain: string,
-  competitorNames: string[]
-): Promise<ExtractionOutput> {
-  const ai = getGeminiClient();
-  const candidateModels = await getCandidateModels(ai);
-
-  const prompt = `You are a strict, objective brand audit extractor. Analyze the following AI-generated text and extract factual entity mentions strictly grounded in the text.
-
-=== TEXT TO ANALYZE ===
-${rawAnswer}
-=== END OF TEXT ===
-
-TARGET BRAND: "${brandName}" (domain: "${brandDomain}")
-COMPETITORS TO CHECK: ${JSON.stringify(competitorNames)}
-
-STRICT GROUNDING RULES:
-1. brand_mentioned MUST be true ONLY if the brand name "${brandName}" or domain "${brandDomain}" is explicitly present in the text. If not in the text, it MUST be false.
-2. brand_rank: If the text contains a numbered list, ordered ranking, or sequential recommendation of tools/services, provide the 1-based integer rank of "${brandName}". If mentioned but not in an explicit ranked order, set to null. If not mentioned, set to null.
-3. competitors_found: For each competitor in the list, determine if they are mentioned (true/false) and their 1-based rank if in a ranked list.
-4. sources: List any external websites, domain names (e.g. "g2.com", "techradar.com"), or URLs referenced in the text.
-`;
-
-  for (const modelName of candidateModels) {
-    try {
-      const response = await ai.models.generateContent({
-        model: modelName,
-        contents: prompt,
-        config: {
-          responseMimeType: 'application/json',
-          responseSchema: {
-            type: Type.OBJECT,
-            properties: {
-              brand_mentioned: { type: Type.BOOLEAN },
-              brand_rank: { type: Type.INTEGER, nullable: true },
-              competitors_found: {
-                type: Type.ARRAY,
-                items: {
-                  type: Type.OBJECT,
-                  properties: {
-                    name: { type: Type.STRING },
-                    mentioned: { type: Type.BOOLEAN },
-                    rank: { type: Type.INTEGER, nullable: true },
-                  },
-                  required: ['name', 'mentioned'],
-                },
-              },
-              sources: {
-                type: Type.ARRAY,
-                items: { type: Type.STRING },
-              },
-            },
-            required: ['brand_mentioned', 'competitors_found', 'sources'],
-          },
-          temperature: 0.1,
-        },
-      });
-
-      const parsed = JSON.parse(response.text || '{}');
-
-      // Post-verification check to ensure no hallucination
-      const normalizedRaw = rawAnswer.toLowerCase();
-      const brandNameLower = brandName.toLowerCase();
-      const brandDomainLower = brandDomain.toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '');
-
-      let verifiedMention = Boolean(parsed.brand_mentioned);
-      if (!normalizedRaw.includes(brandNameLower) && !normalizedRaw.includes(brandDomainLower)) {
-        // Force false if the brand string is physically not in the text
-        verifiedMention = false;
-      }
-
-      const verifiedCompetitors: CompetitorMention[] = competitorNames.map((compName) => {
-        const foundItem = (parsed.competitors_found || []).find(
-          (c: any) => c.name?.toLowerCase() === compName.toLowerCase()
-        );
-        const isMentioned = Boolean(foundItem?.mentioned) && normalizedRaw.includes(compName.toLowerCase());
-        return {
-          name: compName,
-          mentioned: isMentioned,
-          rank: isMentioned && typeof foundItem?.rank === 'number' ? foundItem.rank : null,
-        };
-      });
-
-      const combinedSources = Array.from(
-        new Set([
-          ...(parsed.sources || []),
-          ...extractUrlsAndDomains(rawAnswer),
-        ])
-      ).filter((s) => typeof s === 'string' && s.trim().length > 0);
-
-      return {
-        brandMentioned: verifiedMention,
-        brandRank: verifiedMention && typeof parsed.brand_rank === 'number' ? parsed.brand_rank : null,
-        competitorsFound: verifiedCompetitors,
-        sources: combinedSources,
-      };
-    } catch (err) {
-      console.warn(`[GROUNDED_EXTRACTION_MODEL_${modelName}_ATTEMPT_FAILED]`, err);
-      // Try next model or fallback
-    }
-  }
-
-  // Fallback heuristic extraction if structured output API fails across all models
-  return fallbackExtraction(rawAnswer, brandName, brandDomain, competitorNames);
-}
-
-/**
- * Deterministic fallback regex extractor if structured output API fails.
- */
-function fallbackExtraction(
+export function extractGroundedMentions(
   rawAnswer: string,
   brandName: string,
   brandDomain: string,
   competitorNames: string[]
 ): ExtractionOutput {
-  const normalized = rawAnswer.toLowerCase();
-  const brandNameLower = brandName.toLowerCase();
-  const brandDomainLower = brandDomain.toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '');
+  const normalizedRaw = rawAnswer.toLowerCase();
+  const brandLower = brandName.toLowerCase();
+  const domainClean = brandDomain
+    .toLowerCase()
+    .replace(/^https?:\/\//, '')
+    .replace(/^www\./, '')
+    .split('/')[0];
 
-  const brandMentioned = normalized.includes(brandNameLower) || normalized.includes(brandDomainLower);
+  const brandMentioned =
+    normalizedRaw.includes(brandLower) || (domainClean.length > 3 && normalizedRaw.includes(domainClean));
 
-  const competitorsFound: CompetitorMention[] = competitorNames.map((c) => ({
-    name: c,
-    mentioned: normalized.includes(c.toLowerCase()),
-    rank: null,
-  }));
+  // Determine brand rank if mentioned in an ordered list
+  let brandRank: number | null = null;
+  if (brandMentioned) {
+    const lines = rawAnswer.split(/\r?\n/);
+    for (const line of lines) {
+      const lineLower = line.toLowerCase();
+      if (lineLower.includes(brandLower) || (domainClean.length > 3 && lineLower.includes(domainClean))) {
+        // Matches "1. Brand", "1) Brand", "#1 Brand", "**1. Brand**"
+        const m = line.match(/^[\s*#-]*(\d+)[\.\)\s]/);
+        if (m) {
+          const r = parseInt(m[1], 10);
+          if (r >= 1 && r <= 20) {
+            brandRank = brandRank === null ? r : Math.min(brandRank, r);
+          }
+        }
+      }
+    }
+  }
+
+  // Determine competitor mentions & ranks
+  const competitorsFound: CompetitorMention[] = competitorNames.map((compName) => {
+    const compLower = compName.toLowerCase();
+    const isMentioned = normalizedRaw.includes(compLower);
+    let compRank: number | null = null;
+
+    if (isMentioned) {
+      const lines = rawAnswer.split(/\r?\n/);
+      for (const line of lines) {
+        if (line.toLowerCase().includes(compLower)) {
+          const m = line.match(/^[\s*#-]*(\d+)[\.\)\s]/);
+          if (m) {
+            const r = parseInt(m[1], 10);
+            if (r >= 1 && r <= 20) {
+              compRank = compRank === null ? r : Math.min(compRank, r);
+            }
+          }
+        }
+      }
+    }
+
+    return {
+      name: compName,
+      mentioned: isMentioned,
+      rank: compRank,
+    };
+  });
 
   const sources = extractUrlsAndDomains(rawAnswer);
 
   return {
     brandMentioned,
-    brandRank: brandMentioned ? 1 : null,
+    brandRank,
     competitorsFound,
     sources,
   };

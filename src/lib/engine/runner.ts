@@ -15,7 +15,7 @@ export interface RunScanOptions {
 export async function runProjectScan(options: RunScanOptions) {
   const { projectId, engineName = 'gemini', sampleCount = 3, isAutonomous = false } = options;
 
-  // 1. Initialize Supabase Client (Admin client for autonomous cron scans, user client for web sessions)
+  // 1. Initialize Supabase Client
   const supabase = isAutonomous ? createAdminClient() : await createClient();
 
   if (!isAutonomous) {
@@ -59,13 +59,8 @@ export async function runProjectScan(options: RunScanOptions) {
     throw new Error('Please add at least one tracked query prompt before initiating a scan.');
   }
 
-  // 4. Initialize Swappable Engine
-  let engine: AiSearchEngine;
-  if (engineName === 'gemini') {
-    engine = new GeminiSearchEngine();
-  } else {
-    engine = new GeminiSearchEngine();
-  }
+  // 4. Initialize Engine
+  const engine: AiSearchEngine = new GeminiSearchEngine();
 
   // 5. Create Scan Record in DB (status: 'running')
   const { data: scanRecord, error: scanInsertError } = await supabase
@@ -87,59 +82,54 @@ export async function runProjectScan(options: RunScanOptions) {
   const scanId = scanRecord.id;
 
   try {
-    const aggregatedResults = [];
+    // 6. High-Speed Concurrent Execution across Queries & Samples
+    const aggregatedResults = await Promise.all(
+      queries.map(async (query) => {
+        // Run samples concurrently for this query
+        const samplePromises = Array.from({ length: sampleCount }, async (_, idx) => {
+          const sIdx = idx + 1;
+          try {
+            // a. Collector (Gemini)
+            const { rawAnswer, sources: rawSources } = await engine.sampleQuery(query.query_text);
 
-    // 6. Execute Collector, Extractor & Scorer per Query
-    for (const query of queries) {
-      const samples: QuerySample[] = [];
+            // b. Extractor (Fast Grounded Matching)
+            const extraction = extractGroundedMentions(
+              rawAnswer,
+              project.brand_name,
+              project.brand_domain,
+              competitorNames
+            );
 
-      // Sample query N times (default: 3x) to handle non-determinism
-      for (let sIdx = 1; sIdx <= sampleCount; sIdx++) {
-        try {
-          // a. Collector (Agent 2)
-          const { rawAnswer, sources: rawSources } = await engine.sampleQuery(query.query_text);
+            const allSources = Array.from(new Set([...extraction.sources, ...rawSources]));
+            const score = calculateSampleScore(extraction.brandMentioned, extraction.brandRank);
 
-          // b. Extractor (Agent 3 - Strict Grounding)
-          const extraction = await extractGroundedMentions(
-            rawAnswer,
-            project.brand_name,
-            project.brand_domain,
-            competitorNames
-          );
+            return {
+              sampleIndex: sIdx,
+              rawAnswer,
+              brandMentioned: extraction.brandMentioned,
+              brandRank: extraction.brandRank,
+              competitorsFound: extraction.competitorsFound,
+              sources: allSources,
+              score,
+            };
+          } catch (sampleErr: any) {
+            console.warn(`[SAMPLE_FAILED] Query: "${query.query_text}", Sample: ${sIdx}:`, sampleErr?.message || sampleErr);
+            return {
+              sampleIndex: sIdx,
+              rawAnswer: `Query sample error: ${sampleErr?.message || 'Timeout or API limit'}`,
+              brandMentioned: false,
+              brandRank: null,
+              competitorsFound: competitorNames.map((n) => ({ name: n, mentioned: false, rank: null })),
+              sources: [],
+              score: 0,
+            };
+          }
+        });
 
-          // Combined unique sources
-          const allSources = Array.from(new Set([...extraction.sources, ...rawSources]));
-
-          // c. Scorer (Agent 4 - Sample Level)
-          const score = calculateSampleScore(extraction.brandMentioned, extraction.brandRank);
-
-          samples.push({
-            sampleIndex: sIdx,
-            rawAnswer,
-            brandMentioned: extraction.brandMentioned,
-            brandRank: extraction.brandRank,
-            competitorsFound: extraction.competitorsFound,
-            sources: allSources,
-            score,
-          });
-        } catch (sampleErr: any) {
-          console.warn(`[SAMPLE_FAILED] Query: "${query.query_text}", Sample: ${sIdx}`, sampleErr?.message || sampleErr);
-          samples.push({
-            sampleIndex: sIdx,
-            rawAnswer: `Query sample execution failed: ${sampleErr?.message || 'Timeout or API limit'}`,
-            brandMentioned: false,
-            brandRank: null,
-            competitorsFound: competitorNames.map((n) => ({ name: n, mentioned: false, rank: null })),
-            sources: [],
-            score: 0,
-          });
-        }
-      }
-
-      // Aggregate query samples
-      const queryResult = aggregateQuerySamples(query.id, query.query_text, engine.name, samples);
-      aggregatedResults.push(queryResult);
-    }
+        const samples = await Promise.all(samplePromises);
+        return aggregateQuerySamples(query.id, query.query_text, engine.name, samples);
+      })
+    );
 
     // 7. Compute Project Scan Summary (Agent 4)
     const summary = computeProjectScanSummary(aggregatedResults, competitorNames, engine.name);
