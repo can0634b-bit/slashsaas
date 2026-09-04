@@ -4,7 +4,8 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getOrCreateUserOrganization } from '@/lib/supabase/organizations';
 import { SlashLogo } from '@/components/Logo';
-import { LogOut, Building2, User, Sparkles, CheckCircle2 } from 'lucide-react';
+import { LogOut, Building2, User } from 'lucide-react';
+import { ProjectsDashboardView } from '@/components/projects/ProjectsDashboardView';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,11 +20,57 @@ export default async function AppDashboardPage() {
     redirect('/login?redirect=/app');
   }
 
-  // Ensure organization exists for this user (canonical org)
+  // Ensure organization exists for this user
   const organization = await getOrCreateUserOrganization(user);
   if (!organization) {
     redirect('/login');
   }
+
+  // Fetch projects belonging to this organization
+  const { data: rawProjects, error } = await supabase
+    .from('projects')
+    .select(`
+      id,
+      name,
+      brand_name,
+      brand_domain,
+      created_at,
+      tracked_queries ( id ),
+      competitors ( id ),
+      scans (
+        id,
+        overall_score,
+        brand_mention_rate,
+        share_of_voice,
+        created_at,
+        status
+      )
+    `)
+    .eq('org_id', organization.id)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching projects:', error);
+  }
+
+  const projects = (rawProjects || []).map((p: any) => {
+    const scans = Array.isArray(p.scans) ? p.scans : [];
+    const sortedScans = scans.sort(
+      (a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
+    const latestScan = sortedScans.length > 0 ? sortedScans[0] : null;
+
+    return {
+      id: p.id,
+      name: p.name,
+      brand_name: p.brand_name,
+      brand_domain: p.brand_domain,
+      created_at: p.created_at,
+      tracked_queries_count: Array.isArray(p.tracked_queries) ? p.tracked_queries.length : 0,
+      competitors_count: Array.isArray(p.competitors) ? p.competitors.length : 0,
+      latest_scan: latestScan,
+    };
+  });
 
   const userDisplayName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User';
   const orgDisplayName = organization.name || `${userDisplayName}'s Organization`;
@@ -73,64 +120,19 @@ export default async function AppDashboardPage() {
         </div>
       </header>
 
-      {/* Main Workspace Content (Clean Empty State) */}
-      <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 flex flex-col items-center justify-center">
-        <div className="w-full max-w-2xl rounded-3xl border border-white/10 bg-zinc-950/70 backdrop-blur-xl p-8 sm:p-12 shadow-2xl relative overflow-hidden text-center space-y-8 animate-in fade-in zoom-in-95 duration-300">
-          {/* Ambient Glow */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-32 bg-[#8ce04a]/10 blur-3xl pointer-events-none -z-10" />
-
-          {/* Icon Badge */}
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#8ce04a]/15 text-[#8ce04a] border border-[#8ce04a]/30 shadow-[0_0_25px_rgba(140,224,74,0.2)]">
-            <Sparkles className="h-8 w-8" />
-          </div>
-
-          <div className="space-y-3">
-            <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-white">
-              Your workspace is ready
-            </h1>
-            <p className="text-xs sm:text-sm text-zinc-400 max-w-md mx-auto leading-relaxed">
-              Welcome to <span className="text-white font-semibold">{orgDisplayName}</span>. Your multi-tenant account and organization infrastructure are actively provisioned.
-            </p>
-          </div>
-
-          {/* Quick Info Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
-            <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-4 space-y-1">
-              <span className="text-[10px] uppercase font-mono tracking-wider text-zinc-500">
-                Organization
-              </span>
-              <p className="text-xs font-bold text-zinc-200 truncate">{orgDisplayName}</p>
-              <p className="text-[10px] text-zinc-500 font-mono truncate">ID: {organization.id}</p>
-            </div>
-
-            <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-4 space-y-1">
-              <span className="text-[10px] uppercase font-mono tracking-wider text-zinc-500">
-                Authenticated User
-              </span>
-              <p className="text-xs font-bold text-zinc-200 truncate">{user.email}</p>
-              <div className="flex items-center gap-1.5 text-[10px] text-[#8ce04a]">
-                <CheckCircle2 className="h-3 w-3" />
-                <span>Session Active & Verified</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Bottom CTA */}
-          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Link
-              href="/app/profile"
-              className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-xs font-bold text-zinc-950 hover:bg-zinc-200 transition-all shadow-md active:scale-95"
-            >
-              <User className="h-3.5 w-3.5" />
-              <span>Manage Account & Organization</span>
-            </Link>
-          </div>
-        </div>
+      {/* Main Workspace Content */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <ProjectsDashboardView
+          orgName={orgDisplayName}
+          orgId={organization.id}
+          userEmail={user.email || ''}
+          projects={projects}
+        />
       </main>
 
       {/* App Footer */}
       <footer className="border-t border-white/[0.06] py-6 text-center text-xs text-zinc-600">
-        <p>SlashSaaS Foundation v2.0 • Supabase PostgreSQL & Multi-Tenant Core</p>
+        <p>SlashSaaS GEO Monitor v1.0 • Powered by Google Gemini & Supabase</p>
       </footer>
     </div>
   );
