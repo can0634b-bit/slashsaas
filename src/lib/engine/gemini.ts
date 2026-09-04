@@ -16,20 +16,47 @@ function getGeminiClient(): GoogleGenAI {
   return new GoogleGenAI({ apiKey });
 }
 
+// Global cached working model to avoid repeated 404 lookups
+let cachedWorkingModel: string | null = null;
+
+function getCandidateModels(): string[] {
+  const envModel = process.env.GEMINI_MODEL;
+  const defaults = [
+    'gemini-2.5-flash',
+    'gemini-2.0-flash',
+    'gemini-1.5-flash',
+    'gemini-2.0-flash-001',
+    'gemini-1.5-flash-latest',
+    'gemini-2.5-pro',
+    'gemini-1.5-pro',
+  ];
+
+  if (cachedWorkingModel) {
+    return [cachedWorkingModel, ...defaults.filter((m) => m !== cachedWorkingModel)];
+  }
+
+  if (envModel) {
+    return [envModel, ...defaults.filter((m) => m !== envModel)];
+  }
+
+  return defaults;
+}
+
 export class GeminiSearchEngine implements AiSearchEngine {
   name = 'gemini';
   displayName = 'Google Gemini';
 
   /**
    * Samples a single user query against Gemini to simulate an AI search engine response.
+   * Automatically falls back across active Gemini model versions if one is deprecated/unavailable.
    */
   async sampleQuery(queryText: string): Promise<{ rawAnswer: string; sources: string[] }> {
     const ai = getGeminiClient();
-    const modelName = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+    const candidateModels = getCandidateModels();
 
     let lastError: any = null;
-    // Retry up to 2 times with backoff
-    for (let attempt = 1; attempt <= 2; attempt++) {
+
+    for (const modelName of candidateModels) {
       try {
         const response = await ai.models.generateContent({
           model: modelName,
@@ -43,10 +70,12 @@ export class GeminiSearchEngine implements AiSearchEngine {
 
         const rawAnswer = response.text || '';
         if (!rawAnswer) {
-          throw new Error('Empty response received from Gemini model.');
+          throw new Error(`Empty response from ${modelName}`);
         }
 
-        // Extract any raw URLs/domains present in the text
+        // Cache working model for fast subsequent calls
+        cachedWorkingModel = modelName;
+
         const sources = extractUrlsAndDomains(rawAnswer);
 
         return {
@@ -55,14 +84,12 @@ export class GeminiSearchEngine implements AiSearchEngine {
         };
       } catch (err: any) {
         lastError = err;
-        console.warn(`[GEMINI_SAMPLE_ATTEMPT_${attempt}_FAILED]`, err?.message || err);
-        if (attempt < 2) {
-          await new Promise((r) => setTimeout(r, 1000 * attempt));
-        }
+        console.warn(`[GEMINI_MODEL_${modelName}_FAILED]`, err?.message || err);
+        // Continue to next candidate model
       }
     }
 
-    throw new Error(`Failed to query Gemini AI engine: ${lastError?.message || 'Unknown error'}`);
+    throw new Error(`Failed to query Gemini AI engine: ${lastError?.message || 'All candidate models failed'}`);
   }
 }
 
@@ -76,7 +103,7 @@ export async function extractGroundedMentions(
   competitorNames: string[]
 ): Promise<ExtractionOutput> {
   const ai = getGeminiClient();
-  const modelName = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+  const candidateModels = getCandidateModels();
 
   const prompt = `You are a strict, objective brand audit extractor. Analyze the following AI-generated text and extract factual entity mentions strictly grounded in the text.
 
@@ -94,83 +121,87 @@ STRICT GROUNDING RULES:
 4. sources: List any external websites, domain names (e.g. "g2.com", "techradar.com"), or URLs referenced in the text.
 `;
 
-  try {
-    const response = await ai.models.generateContent({
-      model: modelName,
-      contents: prompt,
-      config: {
-        responseMimeType: 'application/json',
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            brand_mentioned: { type: Type.BOOLEAN },
-            brand_rank: { type: Type.INTEGER, nullable: true },
-            competitors_found: {
-              type: Type.ARRAY,
-              items: {
-                type: Type.OBJECT,
-                properties: {
-                  name: { type: Type.STRING },
-                  mentioned: { type: Type.BOOLEAN },
-                  rank: { type: Type.INTEGER, nullable: true },
+  for (const modelName of candidateModels) {
+    try {
+      const response = await ai.models.generateContent({
+        model: modelName,
+        contents: prompt,
+        config: {
+          responseMimeType: 'application/json',
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              brand_mentioned: { type: Type.BOOLEAN },
+              brand_rank: { type: Type.INTEGER, nullable: true },
+              competitors_found: {
+                type: Type.ARRAY,
+                items: {
+                  type: Type.OBJECT,
+                  properties: {
+                    name: { type: Type.STRING },
+                    mentioned: { type: Type.BOOLEAN },
+                    rank: { type: Type.INTEGER, nullable: true },
+                  },
+                  required: ['name', 'mentioned'],
                 },
-                required: ['name', 'mentioned'],
+              },
+              sources: {
+                type: Type.ARRAY,
+                items: { type: Type.STRING },
               },
             },
-            sources: {
-              type: Type.ARRAY,
-              items: { type: Type.STRING },
-            },
+            required: ['brand_mentioned', 'competitors_found', 'sources'],
           },
-          required: ['brand_mentioned', 'competitors_found', 'sources'],
+          temperature: 0.1,
         },
-        temperature: 0.1,
-      },
-    });
+      });
 
-    const parsed = JSON.parse(response.text || '{}');
+      const parsed = JSON.parse(response.text || '{}');
 
-    // Post-verification check to ensure no hallucination
-    const normalizedRaw = rawAnswer.toLowerCase();
-    const brandNameLower = brandName.toLowerCase();
-    const brandDomainLower = brandDomain.toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '');
+      // Post-verification check to ensure no hallucination
+      const normalizedRaw = rawAnswer.toLowerCase();
+      const brandNameLower = brandName.toLowerCase();
+      const brandDomainLower = brandDomain.toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '');
 
-    let verifiedMention = Boolean(parsed.brand_mentioned);
-    if (!normalizedRaw.includes(brandNameLower) && !normalizedRaw.includes(brandDomainLower)) {
-      // Force false if the brand string is physically not in the text
-      verifiedMention = false;
-    }
+      let verifiedMention = Boolean(parsed.brand_mentioned);
+      if (!normalizedRaw.includes(brandNameLower) && !normalizedRaw.includes(brandDomainLower)) {
+        // Force false if the brand string is physically not in the text
+        verifiedMention = false;
+      }
 
-    const verifiedCompetitors: CompetitorMention[] = competitorNames.map((compName) => {
-      const foundItem = (parsed.competitors_found || []).find(
-        (c: any) => c.name?.toLowerCase() === compName.toLowerCase()
-      );
-      const isMentioned = Boolean(foundItem?.mentioned) && normalizedRaw.includes(compName.toLowerCase());
+      const verifiedCompetitors: CompetitorMention[] = competitorNames.map((compName) => {
+        const foundItem = (parsed.competitors_found || []).find(
+          (c: any) => c.name?.toLowerCase() === compName.toLowerCase()
+        );
+        const isMentioned = Boolean(foundItem?.mentioned) && normalizedRaw.includes(compName.toLowerCase());
+        return {
+          name: compName,
+          mentioned: isMentioned,
+          rank: isMentioned && typeof foundItem?.rank === 'number' ? foundItem.rank : null,
+        };
+      });
+
+      const combinedSources = Array.from(
+        new Set([
+          ...(parsed.sources || []),
+          ...extractUrlsAndDomains(rawAnswer),
+        ])
+      ).filter((s) => typeof s === 'string' && s.trim().length > 0);
+
       return {
-        name: compName,
-        mentioned: isMentioned,
-        rank: isMentioned && typeof foundItem?.rank === 'number' ? foundItem.rank : null,
+        brandMentioned: verifiedMention,
+        brandRank: verifiedMention && typeof parsed.brand_rank === 'number' ? parsed.brand_rank : null,
+        competitorsFound: verifiedCompetitors,
+        sources: combinedSources,
       };
-    });
-
-    const combinedSources = Array.from(
-      new Set([
-        ...(parsed.sources || []),
-        ...extractUrlsAndDomains(rawAnswer),
-      ])
-    ).filter((s) => typeof s === 'string' && s.trim().length > 0);
-
-    return {
-      brandMentioned: verifiedMention,
-      brandRank: verifiedMention && typeof parsed.brand_rank === 'number' ? parsed.brand_rank : null,
-      competitorsFound: verifiedCompetitors,
-      sources: combinedSources,
-    };
-  } catch (err) {
-    console.error('[GROUNDED_EXTRACTION_ERROR]', err);
-    // Fallback heuristic extraction
-    return fallbackExtraction(rawAnswer, brandName, brandDomain, competitorNames);
+    } catch (err) {
+      console.warn(`[GROUNDED_EXTRACTION_MODEL_${modelName}_FAILED]`, err);
+      // Try next model or fallback
+    }
   }
+
+  // Fallback heuristic extraction if structured output API fails across all models
+  return fallbackExtraction(rawAnswer, brandName, brandDomain, competitorNames);
 }
 
 /**
@@ -206,7 +237,7 @@ function fallbackExtraction(
 
 function extractUrlsAndDomains(text: string): string[] {
   const urlRegex = /(https?:\/\/[^\s\)\],]+)/gi;
-  const domainRegex = /\b([a-z0-9-]+\.(?:com|org|io|ai|net|co|app|dev|tech|me))\b/gi;
+  const domainRegex = /([a-z0-9-]+\.(?:com|org|io|ai|net|co|app|dev|tech|me))/gi;
 
   const found = new Set<string>();
 
