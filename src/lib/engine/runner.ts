@@ -1,4 +1,5 @@
 import { createClient } from '../supabase/server';
+import { createAdminClient } from '../supabase/admin';
 import { GeminiSearchEngine, extractGroundedMentions } from './gemini';
 import { calculateSampleScore, aggregateQuerySamples, computeProjectScanSummary } from './scorer';
 import { AiSearchEngine, Competitor, Project, QuerySample, TrackedQuery } from './types';
@@ -7,21 +8,26 @@ export interface RunScanOptions {
   projectId: string;
   engineName?: string;
   sampleCount?: number;
+  isAutonomous?: boolean;
 }
 
 export async function runProjectScan(options: RunScanOptions) {
-  const { projectId, engineName = 'gemini', sampleCount = 3 } = options;
-  const supabase = await createClient();
+  const { projectId, engineName = 'gemini', sampleCount = 3, isAutonomous = false } = options;
 
-  // 1. Verify Authentication & Fetch Project
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // 1. Initialize Supabase Client (Admin client for autonomous cron scans, user client for web sessions)
+  const supabase = isAutonomous ? createAdminClient() : await createClient();
 
-  if (!user) {
-    throw new Error('Unauthorized: You must be signed in to execute a scan.');
+  if (!isAutonomous) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      throw new Error('Unauthorized: You must be signed in to execute a scan.');
+    }
   }
 
+  // 2. Fetch Project
   const { data: projectData, error: projectError } = await supabase
     .from('projects')
     .select('*')
@@ -34,7 +40,7 @@ export async function runProjectScan(options: RunScanOptions) {
 
   const project = projectData as Project;
 
-  // 2. Fetch Tracked Queries & Competitors
+  // 3. Fetch Tracked Queries & Competitors
   const [queriesRes, competitorsRes] = await Promise.all([
     supabase.from('tracked_queries').select('*').eq('project_id', project.id).order('created_at', { ascending: true }),
     supabase.from('competitors').select('*').eq('project_id', project.id).order('created_at', { ascending: true }),
@@ -52,16 +58,15 @@ export async function runProjectScan(options: RunScanOptions) {
     throw new Error('Please add at least one tracked query prompt before initiating a scan.');
   }
 
-  // 3. Initialize Swappable Engine
+  // 4. Initialize Swappable Engine
   let engine: AiSearchEngine;
   if (engineName === 'gemini') {
     engine = new GeminiSearchEngine();
   } else {
-    // Default fallback to Gemini
     engine = new GeminiSearchEngine();
   }
 
-  // 4. Create Scan Record in DB (status: 'running')
+  // 5. Create Scan Record in DB (status: 'running')
   const { data: scanRecord, error: scanInsertError } = await supabase
     .from('scans')
     .insert({
@@ -83,7 +88,7 @@ export async function runProjectScan(options: RunScanOptions) {
   try {
     const aggregatedResults = [];
 
-    // 5. Execute Collector, Extractor & Scorer per Query
+    // 6. Execute Collector, Extractor & Scorer per Query
     for (const query of queries) {
       const samples: QuerySample[] = [];
 
@@ -118,7 +123,6 @@ export async function runProjectScan(options: RunScanOptions) {
           });
         } catch (sampleErr: any) {
           console.warn(`[SAMPLE_FAILED] Query: "${query.query_text}", Sample: ${sIdx}`, sampleErr?.message || sampleErr);
-          // If sample failed, still record a fallback sample so we don't abort entire scan
           samples.push({
             sampleIndex: sIdx,
             rawAnswer: `Query sample execution failed: ${sampleErr?.message || 'Timeout or API limit'}`,
@@ -136,10 +140,10 @@ export async function runProjectScan(options: RunScanOptions) {
       aggregatedResults.push(queryResult);
     }
 
-    // 6. Compute Project Scan Summary
+    // 7. Compute Project Scan Summary
     const summary = computeProjectScanSummary(aggregatedResults, competitorNames, engine.name);
 
-    // 7. Store Scan Results in DB
+    // 8. Store Scan Results in DB
     const scanResultsToInsert = aggregatedResults.map((r) => ({
       scan_id: scanId,
       query_id: r.query_id || null,
@@ -161,7 +165,7 @@ export async function runProjectScan(options: RunScanOptions) {
       console.error('[RESULTS_INSERT_ERROR]', resultsInsertError);
     }
 
-    // 8. Update Scan Record (status: 'done' + top level summary scores)
+    // 9. Update Scan Record (status: 'done')
     const { error: scanUpdateError } = await supabase
       .from('scans')
       .update({
@@ -186,7 +190,6 @@ export async function runProjectScan(options: RunScanOptions) {
     };
   } catch (err: any) {
     console.error('[RUN_SCAN_FATAL_ERROR]', err);
-    // Mark scan as failed in DB
     await supabase
       .from('scans')
       .update({

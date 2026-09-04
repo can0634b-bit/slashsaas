@@ -13,6 +13,7 @@ import {
   History,
   Calendar,
   Layers,
+  Clock,
 } from 'lucide-react';
 import { QueryManager } from '@/components/projects/QueryManager';
 import { CompetitorManager } from '@/components/projects/CompetitorManager';
@@ -159,6 +160,11 @@ export default async function ProjectDetailPage({ params }: PageProps) {
               <span>•</span>
               <span className="text-zinc-500 font-mono text-[11px]">
                 Created {new Date(project.created_at).toLocaleDateString()}
+              </span>
+              <span>•</span>
+              <span className="inline-flex items-center gap-1 rounded-md border border-[#8ce04a]/30 bg-[#8ce04a]/10 px-2 py-0.5 text-[10px] font-mono text-[#8ce04a]">
+                <Clock className="h-3 w-3" />
+                <span>Autonomous Cron: Daily at 02:00 UTC</span>
               </span>
             </div>
           </div>
