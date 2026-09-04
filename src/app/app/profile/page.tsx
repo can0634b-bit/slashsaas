@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
@@ -40,13 +40,13 @@ export default async function ProfilePage() {
 
             <span className="text-zinc-700 hidden sm:inline">|</span>
 
-            {/* Dashboard Link */}
+            {/* Workspace Link */}
             <Link
               href="/app"
               className="hidden sm:flex items-center gap-1.5 text-xs font-semibold text-zinc-400 hover:text-white transition-colors"
             >
               <LayoutDashboard className="h-3.5 w-3.5 text-[#8ce04a]" />
-              <span>Radar Dashboard</span>
+              <span>Workspace</span>
             </Link>
 
             {/* Organization Selector / Label */}
@@ -97,7 +97,7 @@ export default async function ProfilePage() {
 
       {/* Footer */}
       <footer className="border-t border-white/[0.06] py-6 text-center text-xs text-zinc-600">
-        <p>SlashSaaS Product Engine v1.0 • Connected to Supabase PostgreSQL & Auth</p>
+        <p>SlashSaaS Foundation v2.0 • Supabase PostgreSQL & Auth</p>
       </footer>
     </div>
   );

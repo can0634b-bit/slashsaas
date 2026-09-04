@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useEffect } from 'react';
 import { X, ArrowRight, CheckCircle2, ShieldCheck, Mail, Building, User } from 'lucide-react';
@@ -9,13 +9,11 @@ import { track } from '@vercel/analytics';
 interface WaitlistModalProps {
   isOpen: boolean;
   onClose: () => void;
-  initialPlan?: 'growth' | 'scale' | 'audit' | 'signin' | null;
 }
 
 export const WaitlistModal: React.FC<WaitlistModalProps> = ({
   isOpen,
   onClose,
-  initialPlan = 'audit',
 }) => {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
@@ -31,7 +29,6 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({
     }
   }, [isOpen]);
 
-  // Keyboard accessibility: Escape key closes modal
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen) {
@@ -48,7 +45,6 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({
     e.preventDefault();
     setError(null);
 
-    // Basic client validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email.trim() || !emailRegex.test(email.trim())) {
       setError('Please enter a valid work email address.');
@@ -65,8 +61,8 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({
           email: email.trim(),
           name: name.trim() || undefined,
           company: company.trim() || undefined,
-          planInterest: initialPlan || 'early_access',
-          source: initialPlan === 'signin' ? 'signin_redirect' : 'landing_modal',
+          planInterest: 'early_access',
+          source: 'waitlist_modal',
         }),
       });
 
@@ -76,11 +72,9 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({
         throw new Error(data.error || 'Failed to submit. Please try again.');
       }
 
-      // Track key conversion in Vercel Analytics
       try {
         track('waitlist_signup', {
-          plan: initialPlan || 'early_access',
-          source: initialPlan === 'signin' ? 'signin_redirect' : 'landing_modal',
+          source: 'waitlist_modal',
         });
       } catch (trackErr) {
         console.error('Analytics tracking error:', trackErr);
@@ -102,20 +96,6 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({
     }
   };
 
-  const getTitle = () => {
-    if (initialPlan === 'signin') return 'Private Early Access';
-    if (initialPlan === 'growth') return 'Request Early Access: Growth Plan';
-    if (initialPlan === 'scale') return 'Request Early Access: Scale Plan';
-    return 'Get Early Access to SlashSaaS';
-  };
-
-  const getSubtitle = () => {
-    if (initialPlan === 'signin') {
-      return 'SlashSaaS is currently in private early access — request priority access below.';
-    }
-    return 'Join our priority cohort. 100% read-only license waste elimination.';
-  };
-
   return (
     <div
       role="dialog"
@@ -124,7 +104,6 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200"
     >
       <div className="relative w-full max-w-md overflow-hidden rounded-3xl border border-white/10 bg-zinc-950 p-6 sm:p-8 shadow-2xl shadow-black/90">
-        {/* Close Button */}
         <button
           type="button"
           onClick={onClose}
@@ -136,15 +115,14 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({
 
         {!isSubmitted ? (
           <>
-            {/* Header */}
             <div className="flex items-center gap-3.5 mb-6">
               <SlashLogoIcon size={34} />
               <div>
                 <h3 id="waitlist-title" className="text-lg font-bold text-white tracking-tight">
-                  {getTitle()}
+                  Get Early Access
                 </h3>
                 <p className="text-xs text-zinc-400">
-                  {getSubtitle()}
+                  Be the first to experience what we are building.
                 </p>
               </div>
             </div>
@@ -215,7 +193,7 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({
               <div className="rounded-xl border border-white/[0.06] bg-black/40 p-3 text-[11px] text-zinc-400 flex items-start gap-2">
                 <ShieldCheck className="h-4 w-4 text-[#8ce04a] shrink-0 mt-0.5" />
                 <span>
-                  <strong>Strict Privacy:</strong> We will only email you regarding your access status. No spam, ever.
+                  <strong>Strict Privacy:</strong> We will only notify you when early access opens. No spam, ever.
                 </span>
               </div>
 
@@ -225,10 +203,10 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({
                 className="w-full flex items-center justify-center gap-2 rounded-xl bg-white py-3.5 text-xs sm:text-sm font-bold text-zinc-950 hover:bg-zinc-200 transition-all shadow-xl active:scale-[0.99] disabled:opacity-50"
               >
                 {loading ? (
-                  <span>Securing your spot...</span>
+                  <span>Submitting...</span>
                 ) : (
                   <>
-                    <span>Request Priority Access</span>
+                    <span>Request Early Access</span>
                     <ArrowRight className="h-3.5 w-3.5" />
                   </>
                 )}
@@ -241,10 +219,10 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({
               <CheckCircle2 className="h-6 w-6" />
             </div>
             <h3 className="text-xl font-bold text-white tracking-tight">
-              You&apos;re on the Priority List!
+              You&apos;re on the List!
             </h3>
             <p className="text-xs text-zinc-300 max-w-sm mx-auto leading-relaxed">
-              Thank you for requesting access for <strong>{email}</strong>. Our team is rolling out invitations in batches to ensure seamless onboarding.
+              Thank you for requesting early access for <strong>{email}</strong>. We will reach out as soon as new spots open up.
             </p>
             <div className="pt-2">
               <button

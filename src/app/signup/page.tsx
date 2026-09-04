@@ -48,7 +48,6 @@ export default function SignupPage() {
         throw error;
       }
 
-      // If Supabase requires email verification
       if (data.user && !data.session) {
         setSuccessMessage('Account created! Please check your email to confirm your account, then sign in.');
       } else if (data.session) {
@@ -87,7 +86,6 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col justify-between selection:bg-white selection:text-black">
-      {/* Top Brand Bar */}
       <header className="p-6 sm:p-8 flex justify-between items-center max-w-6xl mx-auto w-full">
         <Link href="/" className="hover:opacity-90 transition-opacity">
           <SlashLogo size="md" />
@@ -100,10 +98,8 @@ export default function SignupPage() {
         </Link>
       </header>
 
-      {/* Center Auth Card */}
       <main className="flex-1 flex items-center justify-center p-4">
         <div className="w-full max-w-md rounded-3xl border border-white/10 bg-zinc-950/80 backdrop-blur-xl p-8 sm:p-10 shadow-2xl shadow-black relative overflow-hidden">
-          {/* Ambient Glow */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-24 bg-[#8ce04a]/15 blur-3xl pointer-events-none -z-10" />
 
           <div className="text-center mb-8">
@@ -111,7 +107,7 @@ export default function SignupPage() {
               Create Your SlashSaaS Account
             </h1>
             <p className="mt-2 text-xs text-zinc-400">
-              Start eliminating software waste across your organization.
+              Get started with your multi-tenant organization workspace.
             </p>
           </div>
 
@@ -135,7 +131,6 @@ export default function SignupPage() {
             </div>
           )}
 
-          {/* Social Sign Up (Google Workspace) */}
           <button
             type="button"
             onClick={handleGoogleSignup}
@@ -160,7 +155,7 @@ export default function SignupPage() {
                 d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.2L1.9 16C3.7 19.7 7.5 23 12 23z"
               />
             </svg>
-            <span>{googleLoading ? 'Connecting Google...' : 'Sign up with Google Workspace'}</span>
+            <span>{googleLoading ? 'Connecting Google...' : 'Sign up with Google'}</span>
           </button>
 
           <div className="relative my-6 text-center text-xs text-zinc-500">
@@ -170,7 +165,6 @@ export default function SignupPage() {
             </div>
           </div>
 
-          {/* Email / Password Signup Form */}
           <form onSubmit={handleEmailSignup} className="space-y-3.5">
             <div>
               <label className="block text-xs font-semibold text-zinc-300 mb-1" htmlFor="signup-name">
@@ -253,7 +247,7 @@ export default function SignupPage() {
                 <span>Creating account...</span>
               ) : (
                 <>
-                  <span>Create Account & Start Audit</span>
+                  <span>Create Account</span>
                   <ArrowRight className="h-3.5 w-3.5" />
                 </>
               )}
@@ -262,9 +256,8 @@ export default function SignupPage() {
         </div>
       </main>
 
-      {/* Bottom Footer */}
       <footer className="p-6 text-center text-xs text-zinc-600">
-        <p>© 2026 SlashSaaS. Privacy-by-Design & 100% Read-Only OAuth.</p>
+        <p>© 2026 SlashSaaS. All rights reserved.</p>
       </footer>
     </div>
   );

@@ -1,11 +1,11 @@
 import React from 'react';
 import Link from 'next/link';
-import { ArrowLeft, ShieldCheck } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { SlashLogo } from '@/components/Logo';
 
 export const metadata = {
   title: 'Terms of Service — SlashSaaS',
-  description: 'Terms of Service for using the SlashSaaS SaaS optimization platform.',
+  description: 'Terms of Service for SlashSaaS.',
 };
 
 export default function TermsPage() {
@@ -40,28 +40,28 @@ export default function TermsPage() {
           <section className="space-y-3">
             <h2 className="text-lg font-bold text-white">1. Acceptance of Terms</h2>
             <p>
-              By accessing or using <strong>SlashSaaS (slashsaas.com)</strong>, an independent software service, you agree to be bound by these Terms of Service. If you are entering into this agreement on behalf of a company or team, you represent that you have the authority to connect the corresponding workspace.
+              By accessing or using <strong>SlashSaaS (slashsaas.com)</strong>, you agree to comply with and be bound by these Terms of Service. If you are using our services on behalf of an organization, you represent that you have authority to bind that entity.
             </p>
           </section>
 
           <section className="space-y-3">
-            <h2 className="text-lg font-bold text-white">2. Subscription & Billing (Merchant of Record)</h2>
+            <h2 className="text-lg font-bold text-white">2. Permitted Use & Account Responsibilities</h2>
             <p>
-              When paid subscription billing is active, order processing and payment collection are conducted by our online reseller and Merchant of Record, <strong>LemonSqueezy</strong>. LemonSqueezy manages all compliance, global tax handling, and customer billing inquiries in accordance with their standard terms. You can cancel your subscription at any time with a single click inside your dashboard to prevent future charges.
+              You agree to use our services in compliance with all applicable laws and regulations. You are responsible for safeguarding your login credentials and for any activity that occurs under your account.
             </p>
           </section>
 
           <section className="space-y-3">
-            <h2 className="text-lg font-bold text-white">3. Acceptable Use & Security</h2>
+            <h2 className="text-lg font-bold text-white">3. Intellectual Property</h2>
             <p>
-              You agree not to misuse SlashSaaS or attempt unauthorized access. You may only connect organizations, Google Workspace domains, and Slack workspaces that you own or have explicit administrative authorization to audit.
+              All software, design tokens, logos, and materials provided on SlashSaaS are the property of SlashSaaS and are protected by intellectual property laws.
             </p>
           </section>
 
           <section className="space-y-3">
-            <h2 className="text-lg font-bold text-white">4. Contact & Support</h2>
+            <h2 className="text-lg font-bold text-white">4. Contact & Inquiries</h2>
             <p>
-              For legal notices, terms inquiries, or billing assistance:
+              For legal notices, terms questions, or inquiries:
             </p>
             <p className="text-xs text-[#8ce04a] font-mono">
               Email: support@slashsaas.com<br />

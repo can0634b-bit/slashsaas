@@ -21,7 +21,6 @@ function LoginForm() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    // Check if user is already logged in
     const supabase = createClient();
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
@@ -86,7 +85,6 @@ function LoginForm() {
 
   return (
     <div className="w-full max-w-md rounded-3xl border border-white/10 bg-zinc-950/80 backdrop-blur-xl p-8 sm:p-10 shadow-2xl shadow-black relative overflow-hidden">
-      {/* Ambient Glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-24 bg-[#8ce04a]/15 blur-3xl pointer-events-none -z-10" />
 
       <div className="text-center mb-8">
@@ -94,7 +92,7 @@ function LoginForm() {
           Sign In to SlashSaaS
         </h1>
         <p className="mt-2 text-xs text-zinc-400">
-          Access your workspace audit engine and license radar.
+          Access your account and organization workspace.
         </p>
       </div>
 
@@ -108,7 +106,6 @@ function LoginForm() {
         </div>
       )}
 
-      {/* Social Sign In (Google Workspace) */}
       <button
         type="button"
         onClick={handleGoogleLogin}
@@ -143,7 +140,6 @@ function LoginForm() {
         </div>
       </div>
 
-      {/* Email / Password Form */}
       <form onSubmit={handleEmailLogin} className="space-y-4">
         <div>
           <label className="block text-xs font-semibold text-zinc-300 mb-1.5" htmlFor="login-email">
@@ -181,7 +177,6 @@ function LoginForm() {
           </div>
         </div>
 
-        {/* Remember Me Checkbox */}
         <div className="flex items-center justify-between text-xs pt-1">
           <label className="flex items-center gap-2 cursor-pointer text-zinc-300 hover:text-white select-none">
             <input
@@ -203,7 +198,7 @@ function LoginForm() {
             <span>Signing in...</span>
           ) : (
             <>
-              <span>Sign In to Dashboard</span>
+              <span>Sign In to Workspace</span>
               <ArrowRight className="h-3.5 w-3.5" />
             </>
           )}
@@ -216,7 +211,6 @@ function LoginForm() {
 export default function LoginPage() {
   return (
     <div className="min-h-screen bg-black text-white flex flex-col justify-between selection:bg-white selection:text-black">
-      {/* Top Brand Bar */}
       <header className="p-6 sm:p-8 flex justify-between items-center max-w-6xl mx-auto w-full">
         <Link href="/" className="hover:opacity-90 transition-opacity">
           <SlashLogo size="md" />
@@ -229,7 +223,6 @@ export default function LoginPage() {
         </Link>
       </header>
 
-      {/* Center Auth Card */}
       <main className="flex-1 flex items-center justify-center p-4">
         <Suspense fallback={
           <div className="w-full max-w-md rounded-3xl border border-white/10 bg-zinc-950/80 p-8 text-center text-xs text-zinc-400">
@@ -240,9 +233,8 @@ export default function LoginPage() {
         </Suspense>
       </main>
 
-      {/* Bottom Footer */}
       <footer className="p-6 text-center text-xs text-zinc-600">
-        <p>© 2026 SlashSaaS. 100% Read-Only OAuth & Privacy-by-Design.</p>
+        <p>© 2026 SlashSaaS. All rights reserved.</p>
       </footer>
     </div>
   );

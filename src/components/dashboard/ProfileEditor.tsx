@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -7,11 +7,9 @@ import {
   Building,
   Mail,
   ShieldCheck,
-  Zap,
   LogOut,
   CheckCircle2,
   AlertCircle,
-  Sparkles,
   ArrowLeft,
   Key,
 } from 'lucide-react';
@@ -85,14 +83,13 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({ user, organization
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in duration-200">
-      {/* Top Breadcrumb / Header */}
       <div className="flex items-center justify-between">
         <Link
           href="/app"
           className="inline-flex items-center gap-2 text-xs font-semibold text-zinc-400 hover:text-white transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
-          <span>Back to Radar Dashboard</span>
+          <span>Back to Workspace</span>
         </Link>
 
         <span className="text-xs text-zinc-500">
@@ -105,7 +102,7 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({ user, organization
           Account & Organization Profile
         </h1>
         <p className="mt-1 text-xs sm:text-sm text-zinc-400">
-          Manage your personal details, workspace identity, and active license tier.
+          Manage your personal details and workspace identity.
         </p>
       </div>
 
@@ -130,7 +127,6 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({ user, organization
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
-        {/* Left 2 Cols: Profile Form */}
         <div className="md:col-span-2 space-y-6">
           <form onSubmit={handleSave} className="rounded-3xl border border-white/[0.08] bg-zinc-950 p-6 sm:p-8 shadow-xl space-y-6">
             <h2 className="text-base font-bold text-white flex items-center gap-2">
@@ -139,7 +135,6 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({ user, organization
             </h2>
 
             <div className="space-y-4 text-xs">
-              {/* Work Email (Read-Only) */}
               <div>
                 <label className="block font-medium text-zinc-400 mb-1" htmlFor="prof-email">
                   Work Email (Primary Login)
@@ -157,7 +152,6 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({ user, organization
                 <p className="text-[10px] text-zinc-500 mt-1">Managed via Supabase Auth</p>
               </div>
 
-              {/* Full Name */}
               <div>
                 <label className="block font-medium text-zinc-300 mb-1" htmlFor="prof-name">
                   Full Name
@@ -175,7 +169,6 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({ user, organization
                 </div>
               </div>
 
-              {/* Company / Brand Name */}
               <div>
                 <label className="block font-medium text-zinc-300 mb-1" htmlFor="prof-company">
                   Company Name
@@ -193,7 +186,6 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({ user, organization
                 </div>
               </div>
 
-              {/* Organization Workspace Name */}
               <div>
                 <label className="block font-medium text-zinc-300 mb-1" htmlFor="prof-org">
                   Organization Workspace Name
@@ -220,7 +212,6 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({ user, organization
             </div>
           </form>
 
-          {/* Security & Credentials Card */}
           <div className="rounded-3xl border border-white/[0.08] bg-zinc-950 p-6 sm:p-8 shadow-xl space-y-4">
             <h2 className="text-base font-bold text-white flex items-center gap-2">
               <Key className="h-4 w-4 text-amber-400" />
@@ -228,7 +219,7 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({ user, organization
             </h2>
 
             <p className="text-xs text-zinc-400">
-              Need to change your password or update your login security credentials?
+              Need to change your password or update your login credentials?
             </p>
 
             {passwordResetSent ? (
@@ -247,52 +238,21 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({ user, organization
           </div>
         </div>
 
-        {/* Right Col: Plan & Workspace Metadata */}
         <div className="space-y-6">
-          {/* Active Plan Card */}
-          <div className="rounded-3xl border border-[#8ce04a]/30 bg-gradient-to-b from-[#8ce04a]/[0.08] via-zinc-950 to-zinc-950 p-6 shadow-xl space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] uppercase font-mono tracking-wider text-zinc-400">
-                Active Plan
-              </span>
-              <span className="rounded-full bg-[#8ce04a]/20 border border-[#8ce04a]/40 px-2.5 py-0.5 text-[10px] font-bold text-[#8ce04a]">
-                Active
-              </span>
-            </div>
-
-            <div>
-              <h3 className="text-xl font-black text-white tracking-tight">
-                Free License Radar
-              </h3>
-              <p className="text-xs text-zinc-400 mt-1">
-                Continuous waste telemetry, CSV bulk imports, and license tracking.
-              </p>
-            </div>
-
-            <div className="space-y-2 pt-2 border-t border-white/5 text-xs text-zinc-300">
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="h-3.5 w-3.5 text-[#8ce04a]" />
-                <span>Unlimited Monitored Tools</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="h-3.5 w-3.5 text-[#8ce04a]" />
-                <span>Full CSV Bulk Import</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="h-3.5 w-3.5 text-[#8ce04a]" />
-                <span>Executive Department Matrix</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Org & Session Card */}
           <div className="rounded-3xl border border-white/[0.08] bg-zinc-950 p-6 shadow-xl space-y-4 text-xs">
-            <h3 className="font-bold text-white">Workspace Role</h3>
+            <h3 className="font-bold text-white flex items-center gap-2">
+              <ShieldCheck className="h-4 w-4 text-[#8ce04a]" />
+              <span>Workspace Status</span>
+            </h3>
 
-            <div className="space-y-2 text-zinc-400">
+            <div className="space-y-2.5 text-zinc-400">
               <div className="flex justify-between">
                 <span>Role:</span>
                 <strong className="text-white capitalize">{organization.role}</strong>
+              </div>
+              <div className="flex justify-between">
+                <span>Organization:</span>
+                <span className="text-zinc-200 font-medium truncate max-w-[140px]">{organization.name}</span>
               </div>
               <div className="flex justify-between">
                 <span>Org ID:</span>

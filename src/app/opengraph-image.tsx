@@ -1,6 +1,6 @@
-﻿import { ImageResponse } from 'next/og';
+import { ImageResponse } from 'next/og';
 
-export const alt = 'SlashSaaS — Slash Your Software Waste in 60 Seconds';
+export const alt = 'SlashSaaS — Something New Is Coming';
 export const size = {
   width: 1200,
   height: 630,
@@ -26,7 +26,6 @@ export default async function Image() {
           position: 'relative',
         }}
       >
-        {/* Brand Header */}
         <div
           style={{
             display: 'flex',
@@ -35,7 +34,6 @@ export default async function Image() {
             marginBottom: '32px',
           }}
         >
-          {/* Dual Diamond Star Logo SVG representation */}
           <svg
             width="64"
             height="64"
@@ -62,7 +60,6 @@ export default async function Image() {
           </span>
         </div>
 
-        {/* Main Value Proposition */}
         <div
           style={{
             fontSize: '56px',
@@ -74,7 +71,7 @@ export default async function Image() {
             marginBottom: '24px',
           }}
         >
-          Stop Bleeding Money on SaaS Seats Your Team Forgot Existed.
+          Something New Is Coming.
         </div>
 
         <div
@@ -86,10 +83,9 @@ export default async function Image() {
             marginBottom: '40px',
           }}
         >
-          Detect inactive Figma, Notion, and AI tool seats in 60 seconds. Reclaim your budget with 1-click Slack nudges.
+          Engineered for modern teams. Lightning-fast multi-tenant architecture.
         </div>
 
-        {/* Feature Badges */}
         <div
           style={{
             display: 'flex',
@@ -109,7 +105,7 @@ export default async function Image() {
               color: '#f4f4f5',
             }}
           >
-            60-Second Setup
+            Multi-Tenant Platform
           </div>
           <div
             style={{
@@ -124,22 +120,7 @@ export default async function Image() {
               color: '#8ce04a',
             }}
           >
-            1-Click Slack Reclaim Bot
-          </div>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              backgroundColor: 'rgba(255, 255, 255, 0.06)',
-              border: '1px solid rgba(255, 255, 255, 0.12)',
-              borderRadius: '9999px',
-              padding: '10px 24px',
-              fontSize: '18px',
-              fontWeight: 600,
-              color: '#f4f4f5',
-            }}
-          >
-            100% Read-Only OAuth
+            Early Access
           </div>
         </div>
       </div>
