@@ -12,8 +12,10 @@ import {
   Award,
   ShieldCheck,
   Building2,
+  Bot,
 } from 'lucide-react';
 import { CreateProjectModal } from './CreateProjectModal';
+import { AgentFleetHub } from './AgentFleetHub';
 
 interface ProjectSummary {
   id: string;
@@ -60,6 +62,9 @@ export const ProjectsDashboardView: React.FC<ProjectsDashboardViewProps> = ({
             <span className="rounded-md border border-[#8ce04a]/30 bg-[#8ce04a]/10 px-2 py-0.5 text-[10px] font-mono uppercase tracking-wider text-[#8ce04a]">
               Generative Engine Optimization (GEO)
             </span>
+            <span className="rounded-md border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[10px] font-mono text-zinc-400">
+              5/7 Ajan Aktif
+            </span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
             AI Search Visibility Monitors
@@ -79,6 +84,28 @@ export const ProjectsDashboardView: React.FC<ProjectsDashboardViewProps> = ({
         </button>
       </div>
 
+      {/* Live Agent Fleet Hub Panel */}
+      <AgentFleetHub />
+
+      {/* Section Title */}
+      <div className="flex items-center justify-between pt-2">
+        <div>
+          <h2 className="text-lg font-bold text-white tracking-tight">Active Brand Monitors</h2>
+          <p className="text-xs text-zinc-400">Your monitored brands and real-time visibility scores</p>
+        </div>
+
+        {projects.length > 0 && (
+          <button
+            type="button"
+            onClick={() => setModalOpen(true)}
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#8ce04a] hover:underline"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            <span>Add Monitor</span>
+          </button>
+        )}
+      </div>
+
       {/* Projects Grid or Empty State */}
       {projects.length === 0 ? (
         <div className="rounded-3xl border border-white/10 bg-zinc-950/50 p-12 text-center backdrop-blur-xl space-y-6">
@@ -87,16 +114,16 @@ export const ProjectsDashboardView: React.FC<ProjectsDashboardViewProps> = ({
           </div>
 
           <div className="space-y-2 max-w-md mx-auto">
-            <h3 className="text-lg font-bold text-white tracking-tight">No active monitors yet</h3>
+            <h3 className="text-lg font-bold text-white tracking-tight">No active brand monitors yet</h3>
             <p className="text-xs text-zinc-400 leading-relaxed">
-              Create your first project to configure search prompts, benchmark competitors, and run deterministic 3× sampled scans across Google Gemini.
+              Create your first project monitor to configure search prompts, benchmark competitors, and start the autonomous 7-agent intelligence loop across Google Gemini.
             </p>
           </div>
 
           <button
             type="button"
             onClick={() => setModalOpen(true)}
-            className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-2.5 text-xs font-bold text-zinc-950 hover:bg-zinc-200 transition-all shadow-md active:scale-95"
+            className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-2.5 text-xs font-bold text-zinc-950 hover:bg-[#8ce04a] hover:text-black transition-all shadow-md active:scale-95"
           >
             <Plus className="h-3.5 w-3.5" />
             <span>Create Your First Project</span>

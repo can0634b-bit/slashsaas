@@ -2,7 +2,19 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Play, Sparkles, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
+import {
+  Play,
+  Sparkles,
+  Loader2,
+  AlertCircle,
+  CheckCircle2,
+  Bot,
+  Calendar,
+  Search,
+  Cpu,
+  Calculator,
+  TrendingUp,
+} from 'lucide-react';
 import { triggerProjectScan } from '@/lib/actions/projects';
 
 interface ProjectScanRunnerProps {
@@ -11,12 +23,37 @@ interface ProjectScanRunnerProps {
   queriesCount: number;
 }
 
-const SCAN_STEPS = [
-  'Querying Google Gemini engine (3× sampling per query)...',
-  'Analyzing generative answers for brand presence...',
-  'Extracting grounded competitor mentions & web citations...',
-  'Calculating deterministic GEO visibility score...',
-  'Persisting audit records and proof...',
+const AGENT_PIPELINE_STEPS = [
+  {
+    agentId: 1,
+    name: 'Ajan 1 (Orkestratör)',
+    desc: 'Tarama görevi başlatıldı ve arama kuyruğu hazırlandı...',
+    icon: Calendar,
+  },
+  {
+    agentId: 2,
+    name: 'Ajan 2 (Toplayıcı)',
+    desc: 'Google Gemini 2.5 motoru her sorgu için 3x bağımsız oturumda sorgulanıyor...',
+    icon: Search,
+  },
+  {
+    agentId: 3,
+    name: 'Ajan 3 (Ayrıştırıcı)',
+    desc: 'Ham yanıtlardan marka konumu, rakipler ve linkler halüsinasyonsuz ayıklanıyor...',
+    icon: Cpu,
+  },
+  {
+    agentId: 4,
+    name: 'Ajan 4 (Skorlayıcı)',
+    desc: '0-100 Deterministik Görünürlük Puanı ve Ses Payı (SoV) hesaplanıyor...',
+    icon: Calculator,
+  },
+  {
+    agentId: 5,
+    name: 'Ajan 5 (Geçmiş & Diff)',
+    desc: 'Önceki tarama ile kıyaslanıp sıra artış/azalışları ve yeni rakipler işleniyor...',
+    icon: TrendingUp,
+  },
 ];
 
 export const ProjectScanRunner: React.FC<ProjectScanRunnerProps> = ({
@@ -34,8 +71,8 @@ export const ProjectScanRunner: React.FC<ProjectScanRunnerProps> = ({
     let interval: any;
     if (running) {
       interval = setInterval(() => {
-        setStepIndex((prev) => (prev + 1) % SCAN_STEPS.length);
-      }, 3500);
+        setStepIndex((prev) => (prev + 1) % AGENT_PIPELINE_STEPS.length);
+      }, 3200);
     } else {
       setStepIndex(0);
     }
@@ -66,13 +103,16 @@ export const ProjectScanRunner: React.FC<ProjectScanRunnerProps> = ({
     }
   };
 
+  const currentStep = AGENT_PIPELINE_STEPS[stepIndex];
+  const StepIcon = currentStep.icon;
+
   return (
     <div className="space-y-3">
       {error && (
         <div className="rounded-2xl border border-rose-500/30 bg-rose-500/10 p-4 text-xs text-rose-300 flex items-start gap-3">
           <AlertCircle className="h-4 w-4 shrink-0 text-rose-400 mt-0.5" />
           <div className="space-y-1">
-            <p className="font-semibold text-rose-200">Scan Failed</p>
+            <p className="font-semibold text-rose-200">Ajan Döngüsü Hatası</p>
             <p className="text-zinc-400">{error}</p>
           </div>
         </div>
@@ -81,7 +121,7 @@ export const ProjectScanRunner: React.FC<ProjectScanRunnerProps> = ({
       {success && !running && (
         <div className="rounded-2xl border border-[#8ce04a]/30 bg-[#8ce04a]/10 p-3 text-xs text-[#8ce04a] flex items-center gap-2">
           <CheckCircle2 className="h-4 w-4 shrink-0" />
-          <span>Scan completed successfully! Results updated below.</span>
+          <span>5 Ajanlık tarama döngüsü başarıyla tamamlandı! Sonuçlar ve Diff güncellendi.</span>
         </div>
       )}
 
@@ -91,14 +131,14 @@ export const ProjectScanRunner: React.FC<ProjectScanRunnerProps> = ({
 
         <div className="space-y-1 text-center sm:text-left">
           <div className="flex items-center justify-center sm:justify-start gap-2">
-            <Sparkles className="h-4 w-4 text-[#8ce04a]" />
-            <span className="text-sm font-bold text-white tracking-tight">AI Visibility Scan Engine</span>
+            <Bot className="h-4 w-4 text-[#8ce04a]" />
+            <span className="text-sm font-bold text-white tracking-tight">Otonom Ajan İzleme Hattı</span>
             <span className="rounded-md border border-[#8ce04a]/30 bg-[#8ce04a]/10 px-2 py-0.5 text-[10px] font-mono text-[#8ce04a]">
-              Google Gemini 2.5
+              5 Ajan Devrede
             </span>
           </div>
           <p className="text-xs text-zinc-400 max-w-xl">
-            Runs 3 non-deterministic samples per tracked prompt ({queriesCount * 3} total engine interactions) to guarantee grounded visibility accuracy.
+            Her arama sorgusunu 3 bağımsız oturumda ({queriesCount * 3} toplam LLM etkileşimi) tarayıp; ayrıştırma, puanlama ve zaman serisi kıyaslamasını anlık tamamlar.
           </p>
         </div>
 
@@ -118,30 +158,51 @@ export const ProjectScanRunner: React.FC<ProjectScanRunnerProps> = ({
             {running ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin text-[#8ce04a]" />
-                <span>Running Scan...</span>
+                <span>Ajanlar Çalışıyor...</span>
               </>
             ) : (
               <>
                 <Play className="h-4 w-4 fill-current" />
-                <span>Run AI Search Scan</span>
+                <span>Otonom Taramayı Başlat</span>
               </>
             )}
           </button>
 
           {!hasQueries && (
-            <span className="text-[10px] text-zinc-500">Add at least 1 prompt to run scan</span>
+            <span className="text-[10px] text-zinc-500">Taramak için en az 1 arama promptu ekleyin</span>
           )}
         </div>
       </div>
 
       {running && (
-        <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-4 text-xs flex items-center gap-3 animate-in fade-in duration-300">
-          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#8ce04a]/20 text-[#8ce04a] shrink-0">
-            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+        <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-4 text-xs flex items-center justify-between gap-3 animate-in fade-in duration-300 font-mono">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="flex h-7 w-7 items-center justify-center rounded-xl bg-[#8ce04a]/20 text-[#8ce04a] shrink-0 border border-[#8ce04a]/30">
+              <StepIcon className="h-3.5 w-3.5" />
+            </div>
+            <div className="space-y-0.5 min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="text-white font-bold text-[11px]">{currentStep.name}</span>
+                <span className="text-[#8ce04a] text-[10px] animate-pulse">Çalışıyor</span>
+              </div>
+              <p className="text-zinc-400 text-[10px] truncate">{currentStep.desc}</p>
+            </div>
           </div>
-          <span className="text-zinc-300 font-mono text-[11px] animate-pulse">
-            {SCAN_STEPS[stepIndex]}
-          </span>
+
+          <div className="flex items-center gap-1.5 shrink-0">
+            {AGENT_PIPELINE_STEPS.map((s, idx) => (
+              <div
+                key={s.agentId}
+                className={`h-1.5 w-5 rounded-full transition-all ${
+                  idx === stepIndex
+                    ? 'bg-[#8ce04a]'
+                    : idx < stepIndex
+                    ? 'bg-emerald-600'
+                    : 'bg-white/10'
+                }`}
+              />
+            ))}
+          </div>
         </div>
       )}
     </div>
