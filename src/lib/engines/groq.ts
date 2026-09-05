@@ -22,7 +22,7 @@ export class GroqAdapter implements EngineAdapter {
     if (!apiKey) {
       throw new Error('GROQ_API_KEY is not configured on the server.');
     }
-    const model = resolveGroqModel();
+    const model = await resolveGroqModel(apiKey);
 
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 20000);

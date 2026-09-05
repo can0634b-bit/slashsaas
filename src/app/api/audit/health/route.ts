@@ -80,7 +80,7 @@ export async function GET(req: NextRequest) {
     }
 
     // 2. Test Groq
-    const groqModel = resolveGroqModel();
+    const groqModel = await resolveGroqModel(groqKey);
     let groqStatus: { reachable: boolean; model: string; error?: string };
 
     if (!groqKey) {

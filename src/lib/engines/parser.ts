@@ -127,10 +127,66 @@ function fallbackAnalyzeMentions(input: MentionAnalysisInput): BrandMentionExtra
   }));
 }
 
-export const DEFAULT_GROQ_MODEL = 'llama-3.3-70b-versatile';
+export const DEFAULT_GROQ_MODEL = 'llama-3.1-8b-instant';
 
-export function resolveGroqModel(): string {
-  return process.env.GROQ_MODEL?.trim() || DEFAULT_GROQ_MODEL;
+let cachedGroqModel: string | null = null;
+
+/**
+ * Resolves a currently-valid Groq chat model. Model ids on Groq change over
+ * time, so we never rely on a single hardcoded name:
+ * (a) GROQ_MODEL env override, else
+ * (b) runtime discovery via Groq's /models endpoint (cached), picking a general
+ *     chat LLM (prefers a large llama/instruct; excludes audio/guard/embedding), else
+ * (c) the DEFAULT_GROQ_MODEL fallback constant.
+ */
+export async function resolveGroqModel(apiKey?: string): Promise<string> {
+  const envModel = process.env.GROQ_MODEL?.trim();
+  if (envModel) return envModel;
+
+  if (cachedGroqModel) return cachedGroqModel;
+
+  const key = (apiKey || process.env.GROQ_API_KEY || '').trim();
+  if (!key) return DEFAULT_GROQ_MODEL;
+
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+    const res = await fetch('https://api.groq.com/openai/v1/models', {
+      headers: { Authorization: `Bearer ${key}` },
+      signal: controller.signal,
+    });
+    clearTimeout(timeout);
+
+    if (res.ok) {
+      const data = await res.json();
+      const ids: string[] = (data?.data || [])
+        .map((m: { id?: string }) => String(m?.id || ''))
+        .filter((id: string) => id.length > 0)
+        .filter((id: string) => !/whisper|tts|guard|embed|vision|prompt-guard|allam/i.test(id));
+
+      if (ids.length > 0) {
+        const score = (id: string): number => {
+          let s = 0;
+          if (/llama/i.test(id)) s += 100;
+          if (/versatile|instruct|instant/i.test(id)) s += 10;
+          const b = id.match(/(\d+)\s*b/i);
+          if (b) s += Math.min(parseInt(b[1], 10), 405);
+          return s;
+        };
+        ids.sort((a, b) => score(b) - score(a));
+        cachedGroqModel = ids[0];
+        console.log('[GROQ_RESOLVER] Using Groq model:', cachedGroqModel);
+        return cachedGroqModel;
+      }
+    } else {
+      console.warn(`[GROQ_RESOLVER] ListModels HTTP ${res.status}`);
+    }
+  } catch (err: unknown) {
+    console.warn('[GROQ_RESOLVER] Failed to discover Groq models:', (err as Error)?.message || err);
+  }
+
+  cachedGroqModel = DEFAULT_GROQ_MODEL;
+  return cachedGroqModel;
 }
 
 /**
@@ -139,7 +195,7 @@ export function resolveGroqModel(): string {
  */
 export async function analyzeMentions(input: MentionAnalysisInput): Promise<BrandMentionExtraction[]> {
   const apiKey = process.env.GROQ_API_KEY;
-  const groqModel = resolveGroqModel();
+  const groqModel = await resolveGroqModel(apiKey);
 
   if (!apiKey || apiKey.trim().length === 0) {
     console.warn('[PARSER] GROQ_API_KEY is not set. Executing fallback regex analyzer.');
