@@ -112,14 +112,20 @@ export default function Hero3D() {
       window.addEventListener('pointermove', onPointer, { passive: true });
 
       const onResize = () => {
-        if (!mount) return;
-        width = mount.clientWidth || window.innerWidth;
-        height = mount.clientHeight || 600;
+        const w = mount.clientWidth || window.innerWidth;
+        const h = mount.clientHeight || window.innerHeight || 600;
+        if (w < 2 || h < 2) return; // ignore degenerate (e.g. offscreen) sizes
+        width = w;
+        height = h;
         camera.aspect = width / height;
         camera.updateProjectionMatrix();
         renderer.setSize(width, height);
       };
       window.addEventListener('resize', onResize);
+      // A ResizeObserver corrects the canvas whenever the mount gets real
+      // dimensions — e.g. if the first measure happened before layout settled.
+      const ro = new ResizeObserver(onResize);
+      ro.observe(mount);
 
       const clock = new THREE.Clock();
       const render = () => {
@@ -167,6 +173,7 @@ export default function Hero3D() {
         cancelAnimationFrame(raf);
         window.removeEventListener('pointermove', onPointer);
         window.removeEventListener('resize', onResize);
+        ro.disconnect();
         document.removeEventListener('visibilitychange', onVisibility);
         core.geometry.dispose();
         (core.material as import('three').Material).dispose();
