@@ -4,7 +4,16 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import { REMEMBER_COOKIE, PERSISTENT_MAX_AGE, SHORT_MAX_AGE } from '@/lib/supabase/session';
 import { ArrowRight, Lock, Mail, AlertCircle } from 'lucide-react';
+
+// Record the remember-me choice in a cookie the server + middleware read to pick
+// the session lifetime (persistent vs. dropped after 3 days). Must run BEFORE the
+// auth cookie is written so browser-side writes adopt the same lifetime.
+function persistRememberChoice(remember: boolean) {
+  const maxAge = remember ? PERSISTENT_MAX_AGE : SHORT_MAX_AGE;
+  document.cookie = `${REMEMBER_COOKIE}=${remember ? '1' : '0'}; path=/; max-age=${maxAge}; samesite=lax`;
+}
 
 export function LoginForm() {
   const router = useRouter();
@@ -38,6 +47,7 @@ export function LoginForm() {
     setLoading(true);
 
     try {
+      persistRememberChoice(rememberMe);
       const supabase = createClient();
       const { data, error } = await supabase.auth.signInWithPassword({
         email: email.trim(),
@@ -69,6 +79,8 @@ export function LoginForm() {
     setGoogleLoading(true);
 
     try {
+      // Remember-me survives the OAuth round-trip via this cookie.
+      persistRememberChoice(rememberMe);
       const supabase = createClient();
       const origin = window.location.origin;
       const { error } = await supabase.auth.signInWithOAuth({

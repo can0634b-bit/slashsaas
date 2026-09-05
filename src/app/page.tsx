@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { CookieBanner } from '@/components/CookieBanner';
+import { MarketingAuthNav } from '@/components/marketing/MarketingAuthNav';
 import { track } from '@vercel/analytics';
 
 export default function LandingPage() {
@@ -66,15 +67,7 @@ export default function LandingPage() {
             <a className="font-nav-pill text-nav-pill text-on-surface-variant hover:text-on-surface transition-colors" href="#faq">FAQ</a>
           </nav>
           <div className="flex items-center gap-space-md">
-            <Link className="font-nav-pill text-nav-pill text-on-surface-variant hover:text-on-surface transition-colors hidden sm:inline-block" href="/login">
-              Sign in
-            </Link>
-            <Link
-              className="font-headline-sm text-headline-sm px-space-md py-space-xs rounded-lg bg-gradient-to-r from-primary-container via-secondary-container to-tertiary text-on-primary shadow-[0_0_20px_rgba(148,125,255,0.35)] hover:shadow-[0_0_25px_rgba(47,217,244,0.45)] hover:-translate-y-0.5 transition-all duration-200"
-              href="/signup"
-            >
-              Start free
-            </Link>
+            <MarketingAuthNav />
           </div>
         </div>
       </header>

@@ -1,8 +1,12 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import { REMEMBER_COOKIE, maxAgeFromRemember } from './session';
 
 export async function createClient() {
   const cookieStore = await cookies();
+  // Honor the remember-me choice so refreshed session cookies keep the same
+  // lifetime (persistent vs. 3-day) the user picked at sign-in.
+  const rememberMaxAge = maxAgeFromRemember(cookieStore.get(REMEMBER_COOKIE)?.value);
 
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL || '',
@@ -10,7 +14,7 @@ export async function createClient() {
     {
       cookieOptions: {
         name: 'sb-auth-token',
-        maxAge: 60 * 60 * 24 * 30, // 30 days
+        maxAge: rememberMaxAge,
         domain: '',
         path: '/',
         sameSite: 'lax',
@@ -24,7 +28,7 @@ export async function createClient() {
             cookiesToSet.forEach(({ name, value, options }) =>
               cookieStore.set(name, value, {
                 ...options,
-                maxAge: options?.maxAge ?? 60 * 60 * 24 * 30,
+                maxAge: rememberMaxAge,
                 path: '/',
                 sameSite: 'lax',
               })

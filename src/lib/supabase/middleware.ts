@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+import { REMEMBER_COOKIE, maxAgeFromRemember } from './session';
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -14,10 +15,15 @@ export async function updateSession(request: NextRequest) {
     return supabaseResponse;
   }
 
+  // Resolve the session lifetime from the remember-me marker BEFORE creating the
+  // client (no logic must sit between createServerClient and getUser below).
+  const rememberValue = request.cookies.get(REMEMBER_COOKIE)?.value;
+  const rememberMaxAge = maxAgeFromRemember(rememberValue);
+
   const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
     cookieOptions: {
       name: 'sb-auth-token',
-      maxAge: 60 * 60 * 24 * 30, // 30 days
+      maxAge: rememberMaxAge,
       domain: '',
       path: '/',
       sameSite: 'lax',
@@ -34,11 +40,20 @@ export async function updateSession(request: NextRequest) {
         cookiesToSet.forEach(({ name, value, options }) =>
           supabaseResponse.cookies.set(name, value, {
             ...options,
-            maxAge: options?.maxAge ?? 60 * 60 * 24 * 30,
+            maxAge: rememberMaxAge,
             path: '/',
             sameSite: 'lax',
           })
         );
+        // Slide the remember marker alongside the session it governs so a
+        // 3-day session is measured from the user's last activity.
+        if (rememberValue !== undefined) {
+          supabaseResponse.cookies.set(REMEMBER_COOKIE, rememberValue, {
+            maxAge: rememberMaxAge,
+            path: '/',
+            sameSite: 'lax',
+          });
+        }
       },
     },
   });
