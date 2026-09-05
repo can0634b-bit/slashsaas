@@ -64,6 +64,7 @@ export default function LandingPage() {
           <nav className="hidden md:flex items-center gap-space-lg">
             <a className="font-nav-pill text-nav-pill text-on-surface-variant hover:text-on-surface transition-colors" href="#how-it-works">How it works</a>
             <a className="font-nav-pill text-nav-pill text-on-surface-variant hover:text-on-surface transition-colors" href="#features">Features</a>
+            <Link className="font-nav-pill text-nav-pill text-on-surface-variant hover:text-on-surface transition-colors" href="/pricing">Pricing</Link>
             <a className="font-nav-pill text-nav-pill text-on-surface-variant hover:text-on-surface transition-colors" href="#faq">FAQ</a>
           </nav>
           <div className="flex items-center gap-space-md">
