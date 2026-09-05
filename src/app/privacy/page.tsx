@@ -36,7 +36,7 @@ export default function PrivacyPage() {
             Privacy Policy
           </h1>
           <p className="text-sm text-zinc-400 mt-2">
-            Last Updated: September 4, 2026 • Effective Immediately
+            Last Updated: September 5, 2026 • Effective Immediately
           </p>
         </div>
 
@@ -54,38 +54,87 @@ export default function PrivacyPage() {
             <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
               <span className="text-[#8ce04a]">2.</span> Information We Collect
             </h2>
-            <p>We may collect information you provide directly to us, including:</p>
+            <p>We only collect what we need to run the service:</p>
             <ul className="list-disc pl-5 space-y-2 text-zinc-400">
-              <li><strong>Account & Contact Info:</strong> Name, work email address, company name, and account credentials.</li>
-              <li><strong>Workspace Data:</strong> Organization name and settings configured within the application.</li>
-              <li><strong>Usage Telemetry:</strong> Anonymized usage data to help maintain performance and platform stability.</li>
+              <li><strong>Account &amp; contact info:</strong> Your name, work email, company name, and authentication credentials.</li>
+              <li><strong>Monitoring configuration:</strong> The public brand and competitor names you choose to track, and the prompts you ask us to run against AI assistants.</li>
+              <li><strong>Generated results:</strong> The public answers that AI assistants return to your prompts, stored over time so you can see how they change.</li>
+              <li><strong>Usage telemetry:</strong> Privacy-friendly, aggregated usage data to keep the platform fast and stable.</li>
             </ul>
           </section>
 
           <section className="space-y-3">
             <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
-              <span className="text-[#8ce04a]">3.</span> How We Use Your Information
-            </h2>
-            <p>We use the collected information to:</p>
-            <ul className="list-disc pl-5 space-y-2 text-zinc-400">
-              <li>Provide, maintain, and improve our services and authentication infrastructure.</li>
-              <li>Authenticate your account and preserve your active sessions.</li>
-              <li>Notify you regarding important product updates or early access invitations.</li>
-            </ul>
-          </section>
-
-          <section className="space-y-3">
-            <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
-              <span className="text-[#8ce04a]">4.</span> Security & Storage
+              <span className="text-[#8ce04a]">3.</span> What We Do <em>Not</em> Collect
             </h2>
             <p>
-              We implement industry-standard encryption protocols (TLS in transit and AES-256 at rest) to safeguard your data against unauthorized access, loss, or misuse.
+              SlashSaaS is built around data minimization. We never ask for, and never store:
+            </p>
+            <ul className="list-disc pl-5 space-y-2 text-zinc-400">
+              <li>Your customers&apos; or employees&apos; personal data.</li>
+              <li>Credentials, API keys, or tokens for your other accounts — the product requires no integrations to connect.</li>
+              <li>Any private or confidential business data. We only ever process public brand names, public prompts, and the public answers AI assistants give to them.</li>
+            </ul>
+          </section>
+
+          <section className="space-y-3">
+            <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
+              <span className="text-[#8ce04a]">4.</span> How We Use Your Information
+            </h2>
+            <p>We use the information above to:</p>
+            <ul className="list-disc pl-5 space-y-2 text-zinc-400">
+              <li>Run your configured prompts against AI assistants and record the results over time.</li>
+              <li>Provide, maintain, secure, and improve the service and your account.</li>
+              <li>Notify you about your monitoring results, important product updates, or early-access invitations.</li>
+            </ul>
+            <p>We do not sell your personal data, and we do not use it for third-party advertising.</p>
+          </section>
+
+          <section className="space-y-3">
+            <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
+              <span className="text-[#8ce04a]">5.</span> Service Providers
+            </h2>
+            <p>
+              We rely on a small set of trusted providers that process data only to deliver the service on our behalf:
+            </p>
+            <ul className="list-disc pl-5 space-y-2 text-zinc-400">
+              <li><strong>Supabase</strong> — database and authentication.</li>
+              <li><strong>Vercel</strong> — hosting and privacy-friendly analytics.</li>
+              <li><strong>AI providers</strong> (such as Google and Groq) — to run your prompts and analyze the public answers.</li>
+              <li><strong>LemonSqueezy</strong> — payment processing, if and when you subscribe.</li>
+            </ul>
+          </section>
+
+          <section className="space-y-3">
+            <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
+              <span className="text-[#8ce04a]">6.</span> Cookies
+            </h2>
+            <p>
+              We use essential cookies required to sign you in and keep your session active, plus privacy-friendly analytics to understand aggregate traffic. We do not use advertising or cross-site tracking cookies. You can choose &quot;Essential Only&quot; in our cookie banner.
             </p>
           </section>
 
           <section className="space-y-3">
             <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
-              <span className="text-[#8ce04a]">5.</span> Contact Us
+              <span className="text-[#8ce04a]">7.</span> Data Retention &amp; Your Rights
+            </h2>
+            <p>
+              We keep your account and monitoring history for as long as your account is active. You can access, correct, export, or delete your data at any time — delete your account or email us and we will remove your personal data.
+            </p>
+          </section>
+
+          <section className="space-y-3">
+            <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
+              <span className="text-[#8ce04a]">8.</span> Security &amp; Storage
+            </h2>
+            <p>
+              Data is encrypted in transit (TLS) and at rest by our infrastructure providers. We restrict access to your data and isolate each organization&apos;s records so they are only accessible to that organization.
+            </p>
+          </section>
+
+          <section className="space-y-3">
+            <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
+              <span className="text-[#8ce04a]">9.</span> Contact Us
             </h2>
             <p>
               If you have any questions or concerns about this Privacy Policy, please contact:
