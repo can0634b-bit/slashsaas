@@ -151,8 +151,9 @@ export default function LandingPage() {
         {/* ===================== HERO (3D) ===================== */}
         <section className="relative overflow-hidden min-h-[94vh] flex items-center">
           <Hero3D />
-          {/* legibility scrims over the 3D */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#08070f] via-[#08070f]/85 to-[#08070f]/20 sm:to-transparent" />
+          {/* legibility scrims over the 3D: opaque on the left for the copy,
+              clearing on the right so the crystal reads */}
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#08070f_0%,#08070f_46%,rgba(8,7,15,0.4)_70%,transparent_92%)]" />
           <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#08070f] to-transparent" />
 
           <div className="relative z-10 mx-auto max-w-6xl px-6 w-full pt-28 pb-16">

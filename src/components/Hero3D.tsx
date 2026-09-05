@@ -51,8 +51,10 @@ export default function Hero3D() {
       const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 100);
       camera.position.set(0, 0, 6);
 
-      // Crystal group (solid faceted core + wireframe shell)
+      // Crystal group (solid faceted core + wireframe shell), offset to the
+      // right so it sits beside the hero copy in the transparent scrim zone.
       const group = new THREE.Group();
+      group.position.x = 1.7;
       scene.add(group);
 
       const core = new THREE.Mesh(
