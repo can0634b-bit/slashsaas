@@ -164,7 +164,7 @@ export function SignupForm() {
           Create Your SlashSaaS Account
         </h1>
         <p className="mt-2 text-xs text-zinc-400">
-          Get started with your multi-tenant organization workspace.
+          Create your workspace and start tracking your AI search visibility.
         </p>
       </div>
 
