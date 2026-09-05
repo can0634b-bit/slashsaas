@@ -120,10 +120,10 @@ export function SignupForm() {
 
   if (verificationPending) {
     return (
-      <div className="w-full max-w-md rounded-3xl border border-white/10 bg-zinc-950/80 backdrop-blur-xl p-8 sm:p-10 shadow-2xl shadow-black relative text-center overflow-hidden animate-in fade-in">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-24 bg-[#8ce04a]/15 blur-3xl pointer-events-none -z-10" />
+      <div className="w-full max-w-md rounded-3xl border border-white/10 bg-surface-container-low/90 backdrop-blur-xl p-8 sm:p-10 shadow-2xl shadow-black relative text-center overflow-hidden animate-in fade-in">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-24 bg-[#947dff]/15 blur-3xl pointer-events-none -z-10" />
 
-        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#8ce04a]/10 border border-[#8ce04a]/30 text-[#8ce04a] mx-auto mb-5 shadow-lg shadow-[#8ce04a]/10">
+        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#947dff]/10 border border-[#947dff]/30 text-[#947dff] mx-auto mb-5 shadow-lg shadow-[#947dff]/10">
           <ShieldCheck className="h-7 w-7" />
         </div>
 
@@ -139,7 +139,7 @@ export function SignupForm() {
         <div className="space-y-3">
           <Link
             href={`/verify-email?email=${encodeURIComponent(email)}`}
-            className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-white py-3 text-xs font-bold text-zinc-950 hover:bg-zinc-200 transition-all shadow-xl active:scale-[0.99]"
+            className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary via-secondary to-tertiary py-3 text-xs font-bold text-surface-container-lowest hover:opacity-90 transition-all shadow-xl active:scale-[0.99]"
           >
             <span>Go to Email Verification</span>
             <ArrowRight className="h-3.5 w-3.5" />
@@ -156,8 +156,8 @@ export function SignupForm() {
   }
 
   return (
-    <div className="w-full max-w-md rounded-3xl border border-white/10 bg-zinc-950/80 backdrop-blur-xl p-8 sm:p-10 shadow-2xl shadow-black relative overflow-hidden">
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-24 bg-[#8ce04a]/15 blur-3xl pointer-events-none -z-10" />
+    <div className="w-full max-w-md rounded-3xl border border-white/10 bg-surface-container-low/90 backdrop-blur-xl p-8 sm:p-10 shadow-2xl shadow-black relative overflow-hidden">
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-24 bg-[#947dff]/15 blur-3xl pointer-events-none -z-10" />
 
       <div className="text-center mb-8">
         <h1 className="text-2xl font-black tracking-tight text-white">
@@ -206,7 +206,7 @@ export function SignupForm() {
       </button>
 
       <div className="relative my-6 text-center text-xs text-zinc-500">
-        <span className="bg-zinc-950 px-3 relative z-10 font-medium">Or register with email</span>
+        <span className="bg-surface-container-low px-3 relative z-10 font-medium">Or register with email</span>
         <div className="absolute inset-0 flex items-center">
           <div className="w-full border-t border-white/10" />
         </div>
@@ -297,7 +297,7 @@ export function SignupForm() {
                           ? 'bg-rose-500'
                           : strength <= 3
                           ? 'bg-amber-400'
-                          : 'bg-[#8ce04a]'
+                          : 'bg-[#947dff]'
                         : 'bg-white/10'
                     }`}
                   />
@@ -312,7 +312,7 @@ export function SignupForm() {
                         ? 'text-rose-400'
                         : strength <= 3
                         ? 'text-amber-400'
-                        : 'text-[#8ce04a]'
+                        : 'text-[#947dff]'
                     }
                   >
                     {strength <= 2 ? 'Weak' : strength <= 3 ? 'Medium' : 'Strong'}
@@ -344,7 +344,7 @@ export function SignupForm() {
             <p className="mt-1 text-[11px] text-rose-400">Passwords do not match.</p>
           )}
           {passwordsMatch && confirmPassword.length >= 8 && (
-            <p className="mt-1 text-[11px] text-[#8ce04a] flex items-center gap-1">
+            <p className="mt-1 text-[11px] text-[#947dff] flex items-center gap-1">
               <CheckCircle2 className="h-3 w-3" />
               <span>Passwords match</span>
             </p>
@@ -358,7 +358,7 @@ export function SignupForm() {
               required
               checked={agreedToTerms}
               onChange={(e) => setAgreedToTerms(e.target.checked)}
-              className="h-4 w-4 rounded border-white/20 bg-zinc-900 text-[#8ce04a] focus:ring-[#8ce04a] focus:ring-offset-black accent-[#8ce04a] mt-0.5 shrink-0"
+              className="h-4 w-4 rounded border-white/20 bg-zinc-900 text-[#947dff] focus:ring-[#947dff] focus:ring-offset-black accent-[#947dff] mt-0.5 shrink-0"
             />
             <span className="text-xs text-zinc-400 leading-tight">
               I agree to the{' '}
@@ -366,7 +366,7 @@ export function SignupForm() {
                 href="/terms"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-white underline hover:text-[#8ce04a] font-medium"
+                className="text-white underline hover:text-[#947dff] font-medium"
               >
                 Terms of Service
               </Link>{' '}
@@ -375,7 +375,7 @@ export function SignupForm() {
                 href="/privacy"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-white underline hover:text-[#8ce04a] font-medium"
+                className="text-white underline hover:text-[#947dff] font-medium"
               >
                 Privacy Policy
               </Link>
@@ -387,7 +387,7 @@ export function SignupForm() {
         <button
           type="submit"
           disabled={loading || googleLoading || !isFormValid}
-          className="w-full flex items-center justify-center gap-2 rounded-xl bg-white py-3 text-xs font-bold text-zinc-950 hover:bg-zinc-200 transition-all shadow-xl active:scale-[0.99] disabled:opacity-50 mt-4 cursor-pointer disabled:cursor-not-allowed"
+          className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary via-secondary to-tertiary py-3 text-xs font-bold text-surface-container-lowest hover:opacity-90 transition-all shadow-xl active:scale-[0.99] disabled:opacity-50 mt-4 cursor-pointer disabled:cursor-not-allowed"
         >
           {loading ? (
             <span>Creating account...</span>

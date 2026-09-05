@@ -29,9 +29,9 @@ export default async function ProfilePage() {
   const orgDisplayName = organization.name || `${userDisplayName}'s Organization`;
 
   return (
-    <div className="min-h-screen bg-black text-zinc-100 flex flex-col selection:bg-white selection:text-black">
+    <div className="min-h-screen bg-surface text-on-surface flex flex-col">
       {/* Top Application Header */}
-      <header className="border-b border-white/[0.08] bg-zinc-950/80 backdrop-blur-xl sticky top-0 z-40">
+      <header className="border-b border-white/[0.08] bg-surface-container-low/90 backdrop-blur-xl sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-6">
             <Link href="/app" className="hover:opacity-90 transition-opacity">
@@ -45,13 +45,13 @@ export default async function ProfilePage() {
               href="/app"
               className="hidden sm:flex items-center gap-1.5 text-xs font-semibold text-zinc-400 hover:text-white transition-colors"
             >
-              <LayoutDashboard className="h-3.5 w-3.5 text-[#8ce04a]" />
+              <LayoutDashboard className="h-3.5 w-3.5 text-[#947dff]" />
               <span>Workspace</span>
             </Link>
 
             {/* Organization Selector / Label */}
             <div className="hidden sm:flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1 text-xs font-semibold text-zinc-300">
-              <Building2 className="h-3.5 w-3.5 text-[#8ce04a]" />
+              <Building2 className="h-3.5 w-3.5 text-[#947dff]" />
               <span>{orgDisplayName}</span>
             </div>
           </div>

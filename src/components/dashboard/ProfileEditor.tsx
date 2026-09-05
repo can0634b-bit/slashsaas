@@ -109,9 +109,9 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({ user, organization
       {successMessage && (
         <div
           role="alert"
-          className="rounded-2xl border border-[#8ce04a]/30 bg-[#8ce04a]/10 p-4 text-xs text-[#a3e635] flex items-center gap-2.5 animate-in fade-in"
+          className="rounded-2xl border border-[#947dff]/30 bg-[#947dff]/10 p-4 text-xs text-[#cabeff] flex items-center gap-2.5 animate-in fade-in"
         >
-          <CheckCircle2 className="h-4 w-4 shrink-0 text-[#8ce04a]" />
+          <CheckCircle2 className="h-4 w-4 shrink-0 text-[#947dff]" />
           <span>{successMessage}</span>
         </div>
       )}
@@ -128,9 +128,9 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({ user, organization
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
         <div className="md:col-span-2 space-y-6">
-          <form onSubmit={handleSave} className="rounded-3xl border border-white/[0.08] bg-zinc-950 p-6 sm:p-8 shadow-xl space-y-6">
+          <form onSubmit={handleSave} className="rounded-3xl border border-white/[0.08] bg-surface-container-low p-6 sm:p-8 shadow-xl space-y-6">
             <h2 className="text-base font-bold text-white flex items-center gap-2">
-              <User className="h-4 w-4 text-[#8ce04a]" />
+              <User className="h-4 w-4 text-[#947dff]" />
               <span>Personal & Workspace Details</span>
             </h2>
 
@@ -212,7 +212,7 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({ user, organization
             </div>
           </form>
 
-          <div className="rounded-3xl border border-white/[0.08] bg-zinc-950 p-6 sm:p-8 shadow-xl space-y-4">
+          <div className="rounded-3xl border border-white/[0.08] bg-surface-container-low p-6 sm:p-8 shadow-xl space-y-4">
             <h2 className="text-base font-bold text-white flex items-center gap-2">
               <Key className="h-4 w-4 text-amber-400" />
               <span>Security & Password</span>
@@ -223,7 +223,7 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({ user, organization
             </p>
 
             {passwordResetSent ? (
-              <div className="rounded-xl border border-[#8ce04a]/30 bg-[#8ce04a]/10 p-3 text-xs text-[#a3e635]">
+              <div className="rounded-xl border border-[#947dff]/30 bg-[#947dff]/10 p-3 text-xs text-[#cabeff]">
                 Password reset link sent to <strong>{user.email}</strong>. Check your inbox!
               </div>
             ) : (
@@ -239,9 +239,9 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({ user, organization
         </div>
 
         <div className="space-y-6">
-          <div className="rounded-3xl border border-white/[0.08] bg-zinc-950 p-6 shadow-xl space-y-4 text-xs">
+          <div className="rounded-3xl border border-white/[0.08] bg-surface-container-low p-6 shadow-xl space-y-4 text-xs">
             <h3 className="font-bold text-white flex items-center gap-2">
-              <ShieldCheck className="h-4 w-4 text-[#8ce04a]" />
+              <ShieldCheck className="h-4 w-4 text-[#947dff]" />
               <span>Workspace Status</span>
             </h3>
 

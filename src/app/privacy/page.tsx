@@ -10,8 +10,8 @@ export const metadata = {
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen bg-black text-zinc-100 selection:bg-white selection:text-black">
-      <header className="border-b border-white/[0.08] bg-zinc-950/80 backdrop-blur-xl sticky top-0 z-50">
+    <div className="min-h-screen bg-surface text-on-surface">
+      <header className="border-b border-white/[0.08] bg-surface-container-low/90 backdrop-blur-xl sticky top-0 z-50">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 py-4 flex items-center justify-between">
           <Link href="/">
             <SlashLogo size="md" />
@@ -28,7 +28,7 @@ export default function PrivacyPage() {
 
       <main className="mx-auto max-w-4xl px-4 sm:px-6 py-16">
         <div className="mb-12 border-b border-white/[0.08] pb-8">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#8ce04a]/30 bg-[#8ce04a]/10 px-3.5 py-1 text-xs font-bold text-[#a3e635] mb-4">
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#947dff]/30 bg-[#947dff]/10 px-3.5 py-1 text-xs font-bold text-[#cabeff] mb-4">
             <ShieldCheck className="h-3.5 w-3.5" />
             <span>Privacy & Security</span>
           </div>
@@ -43,7 +43,7 @@ export default function PrivacyPage() {
         <div className="space-y-10 text-sm text-zinc-300 leading-relaxed font-normal">
           <section className="space-y-3">
             <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
-              <span className="text-[#8ce04a]">1.</span> Overview
+              <span className="text-[#947dff]">1.</span> Overview
             </h2>
             <p>
               SlashSaaS (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) operates <strong>slashsaas.com</strong>. We respect your privacy and are committed to protecting personal information you provide when using our services.
@@ -52,7 +52,7 @@ export default function PrivacyPage() {
 
           <section className="space-y-3">
             <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
-              <span className="text-[#8ce04a]">2.</span> Information We Collect
+              <span className="text-[#947dff]">2.</span> Information We Collect
             </h2>
             <p>We only collect what we need to run the service:</p>
             <ul className="list-disc pl-5 space-y-2 text-zinc-400">
@@ -65,7 +65,7 @@ export default function PrivacyPage() {
 
           <section className="space-y-3">
             <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
-              <span className="text-[#8ce04a]">3.</span> What We Do <em>Not</em> Collect
+              <span className="text-[#947dff]">3.</span> What We Do <em>Not</em> Collect
             </h2>
             <p>
               SlashSaaS is built around data minimization. We never ask for, and never store:
@@ -79,7 +79,7 @@ export default function PrivacyPage() {
 
           <section className="space-y-3">
             <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
-              <span className="text-[#8ce04a]">4.</span> How We Use Your Information
+              <span className="text-[#947dff]">4.</span> How We Use Your Information
             </h2>
             <p>We use the information above to:</p>
             <ul className="list-disc pl-5 space-y-2 text-zinc-400">
@@ -92,7 +92,7 @@ export default function PrivacyPage() {
 
           <section className="space-y-3">
             <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
-              <span className="text-[#8ce04a]">5.</span> Service Providers
+              <span className="text-[#947dff]">5.</span> Service Providers
             </h2>
             <p>
               We rely on a small set of trusted providers that process data only to deliver the service on our behalf:
@@ -107,7 +107,7 @@ export default function PrivacyPage() {
 
           <section className="space-y-3">
             <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
-              <span className="text-[#8ce04a]">6.</span> Cookies
+              <span className="text-[#947dff]">6.</span> Cookies
             </h2>
             <p>
               We use essential cookies required to sign you in and keep your session active, plus privacy-friendly analytics to understand aggregate traffic. We do not use advertising or cross-site tracking cookies. You can choose &quot;Essential Only&quot; in our cookie banner.
@@ -116,7 +116,7 @@ export default function PrivacyPage() {
 
           <section className="space-y-3">
             <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
-              <span className="text-[#8ce04a]">7.</span> Data Retention &amp; Your Rights
+              <span className="text-[#947dff]">7.</span> Data Retention &amp; Your Rights
             </h2>
             <p>
               We keep your account and monitoring history for as long as your account is active. You can access, correct, export, or delete your data at any time — delete your account or email us and we will remove your personal data.
@@ -125,7 +125,7 @@ export default function PrivacyPage() {
 
           <section className="space-y-3">
             <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
-              <span className="text-[#8ce04a]">8.</span> Security &amp; Storage
+              <span className="text-[#947dff]">8.</span> Security &amp; Storage
             </h2>
             <p>
               Data is encrypted in transit (TLS) and at rest by our infrastructure providers. We restrict access to your data and isolate each organization&apos;s records so they are only accessible to that organization.
@@ -134,12 +134,12 @@ export default function PrivacyPage() {
 
           <section className="space-y-3">
             <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
-              <span className="text-[#8ce04a]">9.</span> Contact Us
+              <span className="text-[#947dff]">9.</span> Contact Us
             </h2>
             <p>
               If you have any questions or concerns about this Privacy Policy, please contact:
             </p>
-            <p className="text-xs text-[#8ce04a] font-mono">
+            <p className="text-xs text-[#947dff] font-mono">
               Email: privacy@slashsaas.com / support@slashsaas.com<br />
               Website: https://slashsaas.com
             </p>

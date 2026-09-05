@@ -39,8 +39,8 @@ export function ForgotPasswordForm() {
   };
 
   return (
-    <div className="w-full max-w-md rounded-3xl border border-white/10 bg-zinc-950/80 backdrop-blur-xl p-8 sm:p-10 shadow-2xl shadow-black relative overflow-hidden">
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-24 bg-[#8ce04a]/15 blur-3xl pointer-events-none -z-10" />
+    <div className="w-full max-w-md rounded-3xl border border-white/10 bg-surface-container-low/90 backdrop-blur-xl p-8 sm:p-10 shadow-2xl shadow-black relative overflow-hidden">
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-24 bg-[#947dff]/15 blur-3xl pointer-events-none -z-10" />
 
       <div className="text-center mb-8">
         <h1 className="text-2xl font-black tracking-tight text-white">
@@ -64,9 +64,9 @@ export function ForgotPasswordForm() {
       {successMessage && (
         <div
           role="alert"
-          className="mb-6 rounded-2xl border border-[#8ce04a]/30 bg-[#8ce04a]/10 p-4 text-xs text-[#a3e635] flex items-start gap-2.5 animate-in fade-in"
+          className="mb-6 rounded-2xl border border-[#947dff]/30 bg-[#947dff]/10 p-4 text-xs text-[#cabeff] flex items-start gap-2.5 animate-in fade-in"
         >
-          <CheckCircle2 className="h-4 w-4 shrink-0 mt-0.5 text-[#8ce04a]" />
+          <CheckCircle2 className="h-4 w-4 shrink-0 mt-0.5 text-[#947dff]" />
           <span>{successMessage}</span>
         </div>
       )}
@@ -93,7 +93,7 @@ export function ForgotPasswordForm() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full flex items-center justify-center gap-2 rounded-xl bg-white py-3 text-xs font-bold text-zinc-950 hover:bg-zinc-200 transition-all shadow-xl active:scale-[0.99] disabled:opacity-50 mt-2"
+          className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary via-secondary to-tertiary py-3 text-xs font-bold text-surface-container-lowest hover:opacity-90 transition-all shadow-xl active:scale-[0.99] disabled:opacity-50 mt-2"
         >
           {loading ? (
             <span>Sending recovery link...</span>

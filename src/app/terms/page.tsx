@@ -10,8 +10,8 @@ export const metadata = {
 
 export default function TermsPage() {
   return (
-    <div className="min-h-screen bg-black text-zinc-100 selection:bg-white selection:text-black">
-      <header className="border-b border-white/[0.08] bg-zinc-950/80 backdrop-blur-xl sticky top-0 z-50">
+    <div className="min-h-screen bg-surface text-on-surface">
+      <header className="border-b border-white/[0.08] bg-surface-container-low/90 backdrop-blur-xl sticky top-0 z-50">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 py-4 flex items-center justify-between">
           <Link href="/">
             <SlashLogo size="md" />
@@ -105,7 +105,7 @@ export default function TermsPage() {
             <p>
               For legal notices, terms questions, or inquiries:
             </p>
-            <p className="text-xs text-[#8ce04a] font-mono">
+            <p className="text-xs text-[#947dff] font-mono">
               Email: support@slashsaas.com<br />
               Website: https://slashsaas.com
             </p>

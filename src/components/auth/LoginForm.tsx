@@ -88,8 +88,8 @@ export function LoginForm() {
   };
 
   return (
-    <div className="w-full max-w-md rounded-3xl border border-white/10 bg-zinc-950/80 backdrop-blur-xl p-8 sm:p-10 shadow-2xl shadow-black relative overflow-hidden">
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-24 bg-[#8ce04a]/15 blur-3xl pointer-events-none -z-10" />
+    <div className="w-full max-w-md rounded-3xl border border-white/10 bg-surface-container-low/90 backdrop-blur-xl p-8 sm:p-10 shadow-2xl shadow-black relative overflow-hidden">
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-24 bg-[#947dff]/15 blur-3xl pointer-events-none -z-10" />
 
       <div className="text-center mb-8">
         <h1 className="text-2xl font-black tracking-tight text-white">
@@ -138,7 +138,7 @@ export function LoginForm() {
       </button>
 
       <div className="relative my-6 text-center text-xs text-zinc-500">
-        <span className="bg-zinc-950 px-3 relative z-10 font-medium">Or with work email</span>
+        <span className="bg-surface-container-low px-3 relative z-10 font-medium">Or with work email</span>
         <div className="absolute inset-0 flex items-center">
           <div className="w-full border-t border-white/10" />
         </div>
@@ -170,7 +170,7 @@ export function LoginForm() {
             </label>
             <Link
               href="/forgot-password"
-              className="text-[11px] font-medium text-[#8ce04a] hover:underline"
+              className="text-[11px] font-medium text-[#947dff] hover:underline"
             >
               Forgot password?
             </Link>
@@ -195,7 +195,7 @@ export function LoginForm() {
               type="checkbox"
               checked={rememberMe}
               onChange={(e) => setRememberMe(e.target.checked)}
-              className="h-4 w-4 rounded border-white/20 bg-zinc-900 text-[#8ce04a] focus:ring-[#8ce04a] focus:ring-offset-black accent-[#8ce04a]"
+              className="h-4 w-4 rounded border-white/20 bg-zinc-900 text-[#947dff] focus:ring-[#947dff] focus:ring-offset-black accent-[#947dff]"
             />
             <span className="font-medium text-xs">Remember me on this device</span>
           </label>
@@ -204,7 +204,7 @@ export function LoginForm() {
         <button
           type="submit"
           disabled={loading || googleLoading}
-          className="w-full flex items-center justify-center gap-2 rounded-xl bg-white py-3 text-xs font-bold text-zinc-950 hover:bg-zinc-200 transition-all shadow-xl active:scale-[0.99] disabled:opacity-50 mt-2"
+          className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary via-secondary to-tertiary py-3 text-xs font-bold text-surface-container-lowest hover:opacity-90 transition-all shadow-xl active:scale-[0.99] disabled:opacity-50 mt-2"
         >
           {loading ? (
             <span>Signing in...</span>

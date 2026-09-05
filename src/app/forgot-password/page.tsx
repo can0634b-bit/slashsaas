@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 
 export default function ForgotPasswordPage() {
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col justify-between selection:bg-white selection:text-black">
+    <div className="min-h-screen bg-surface text-on-surface flex flex-col justify-between">
       <header className="p-6 sm:p-8 flex justify-between items-center max-w-6xl mx-auto w-full">
         <Link href="/" className="hover:opacity-90 transition-opacity">
           <SlashLogo size="md" />
@@ -24,7 +24,7 @@ export default function ForgotPasswordPage() {
           href="/login"
           className="text-xs font-semibold text-zinc-400 hover:text-white transition-colors"
         >
-          Remember your password? <span className="text-[#8ce04a]">Sign In</span>
+          Remember your password? <span className="text-[#947dff]">Sign In</span>
         </Link>
       </header>
 

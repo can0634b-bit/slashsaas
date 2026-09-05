@@ -66,10 +66,10 @@ export function VerifyEmailView() {
   };
 
   return (
-    <div className="w-full max-w-md rounded-3xl border border-white/10 bg-zinc-950/80 backdrop-blur-xl p-8 sm:p-10 shadow-2xl shadow-black relative text-center overflow-hidden">
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-24 bg-[#8ce04a]/15 blur-3xl pointer-events-none -z-10" />
+    <div className="w-full max-w-md rounded-3xl border border-white/10 bg-surface-container-low/90 backdrop-blur-xl p-8 sm:p-10 shadow-2xl shadow-black relative text-center overflow-hidden">
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-24 bg-[#947dff]/15 blur-3xl pointer-events-none -z-10" />
 
-      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#8ce04a]/10 border border-[#8ce04a]/30 text-[#8ce04a] mx-auto mb-5 shadow-lg shadow-[#8ce04a]/10">
+      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#947dff]/10 border border-[#947dff]/30 text-[#947dff] mx-auto mb-5 shadow-lg shadow-[#947dff]/10">
         <Mail className="h-7 w-7" />
       </div>
 
@@ -89,12 +89,12 @@ export function VerifyEmailView() {
           role="alert"
           className={`mb-6 rounded-2xl border p-4 text-xs flex items-start gap-2.5 text-left animate-in fade-in ${
             feedback.type === 'success'
-              ? 'border-[#8ce04a]/30 bg-[#8ce04a]/10 text-[#a3e635]'
+              ? 'border-[#947dff]/30 bg-[#947dff]/10 text-[#cabeff]'
               : 'border-rose-500/30 bg-rose-500/10 text-rose-300'
           }`}
         >
           {feedback.type === 'success' ? (
-            <CheckCircle2 className="h-4 w-4 shrink-0 mt-0.5 text-[#8ce04a]" />
+            <CheckCircle2 className="h-4 w-4 shrink-0 mt-0.5 text-[#947dff]" />
           ) : (
             <AlertCircle className="h-4 w-4 shrink-0 mt-0.5 text-rose-400" />
           )}
@@ -137,7 +137,7 @@ export function VerifyEmailView() {
 
         <Link
           href="/login"
-          className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-white py-3 text-xs font-bold text-zinc-950 hover:bg-zinc-200 transition-all shadow-xl active:scale-[0.99]"
+          className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary via-secondary to-tertiary py-3 text-xs font-bold text-surface-container-lowest hover:opacity-90 transition-all shadow-xl active:scale-[0.99]"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
           <span>Back to Sign In</span>

@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 
 export default function VerifyEmailPage() {
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col justify-between selection:bg-white selection:text-black">
+    <div className="min-h-screen bg-surface text-on-surface flex flex-col justify-between">
       <header className="p-6 sm:p-8 flex justify-between items-center max-w-6xl mx-auto w-full">
         <Link href="/" className="hover:opacity-90 transition-opacity">
           <SlashLogo size="md" />
@@ -24,14 +24,14 @@ export default function VerifyEmailPage() {
           href="/login"
           className="text-xs font-semibold text-zinc-400 hover:text-white transition-colors"
         >
-          Already confirmed? <span className="text-[#8ce04a]">Sign In</span>
+          Already confirmed? <span className="text-[#947dff]">Sign In</span>
         </Link>
       </header>
 
       <main className="flex-1 flex items-center justify-center p-4">
         <Suspense
           fallback={
-            <div className="w-full max-w-md rounded-3xl border border-white/10 bg-zinc-950/80 p-8 text-center text-xs text-zinc-400">
+            <div className="w-full max-w-md rounded-3xl border border-white/10 bg-surface-container-low/90 p-8 text-center text-xs text-zinc-400">
               Loading verification...
             </div>
           }
