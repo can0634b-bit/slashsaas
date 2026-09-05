@@ -133,37 +133,56 @@ export async function runAudit(
     const competitors = brandList.filter((b) => !b.is_self);
 
     // 4. STEP A: Query the engine naturally
-    const adapter = getEngineAdapter(engine);
+    let effectiveEngine: EngineType = engine;
     let stepAResult;
     try {
-      stepAResult = await adapter.run(prompt.text, { locale: prompt.locale });
+      stepAResult = await getEngineAdapter(engine).run(prompt.text, { locale: prompt.locale });
       resolvedModel = stepAResult.model;
     } catch (stepAErr: any) {
       const fullError = stepAErr?.message || String(stepAErr);
       const isRateLimit = isGeminiRateLimitError(stepAErr) || /429|resource_exhausted|quota/i.test(fullError);
-      console.error(`[AUDIT_ERROR] Step A generation failed for prompt "${prompt.text}" (model: ${resolvedModel}):`, fullError);
 
-      // Persist failed run row for error visibility
-      await supabase.from('runs').insert({
-        org_id: org.id,
-        prompt_id: prompt.id,
-        engine,
-        model: resolvedModel,
-        raw_response: null,
-        cost_usd: 0,
-        status: 'error',
-        error: fullError,
-        run_at: new Date().toISOString(),
-      });
+      // Auto-fallback: if the grounded engine is rate-limited / quota-exhausted,
+      // retry with Groq (Llama, ungrounded) so the audit still completes on the
+      // free tier. The run is recorded as engine 'groq' to stay honest about
+      // which model actually produced the answer.
+      const groqConfigured = !!(process.env.GROQ_API_KEY || '').trim();
+      if (isRateLimit && (engine === 'gemini' || engine === 'google_ai') && groqConfigured) {
+        try {
+          stepAResult = await getEngineAdapter('groq').run(prompt.text, { locale: prompt.locale });
+          effectiveEngine = 'groq';
+          resolvedModel = stepAResult.model;
+          console.warn(`[AUDIT] "${engine}" was rate-limited; fell back to Groq for prompt "${prompt.text}".`);
+        } catch (groqErr: any) {
+          console.warn('[AUDIT] Groq fallback also failed:', groqErr?.message || groqErr);
+        }
+      }
 
-      return {
-        success: false,
-        promptId,
-        engine,
-        model: resolvedModel,
-        error: fullError,
-        rateLimited: isRateLimit,
-      };
+      if (!stepAResult) {
+        console.error(`[AUDIT_ERROR] Step A generation failed for prompt "${prompt.text}" (model: ${resolvedModel}):`, fullError);
+
+        // Persist failed run row for error visibility
+        await supabase.from('runs').insert({
+          org_id: org.id,
+          prompt_id: prompt.id,
+          engine,
+          model: resolvedModel,
+          raw_response: null,
+          cost_usd: 0,
+          status: 'error',
+          error: fullError,
+          run_at: new Date().toISOString(),
+        });
+
+        return {
+          success: false,
+          promptId,
+          engine,
+          model: resolvedModel,
+          error: fullError,
+          rateLimited: isRateLimit,
+        };
+      }
     }
 
     // 5. STEP B: Analyze mentions structured extraction
@@ -189,7 +208,7 @@ export async function runAudit(
       .insert({
         org_id: org.id,
         prompt_id: prompt.id,
-        engine,
+        engine: effectiveEngine,
         model: stepAResult.model,
         raw_response: stepAResult.rawResponse,
         cost_usd: stepAResult.costUsd || null,
@@ -240,7 +259,7 @@ export async function runAudit(
       success: true,
       runId: newRun.id,
       promptId,
-      engine,
+      engine: effectiveEngine,
       model: resolvedModel,
       selfMentioned: selfExtraction ? selfExtraction.mentioned : false,
       selfPosition: selfExtraction ? selfExtraction.position : null,
