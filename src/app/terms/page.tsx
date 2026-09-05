@@ -4,7 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import { SlashLogo } from '@/components/Logo';
 
 export const metadata = {
-  title: 'Terms of Service — SlashSaaS',
+  title: 'Terms of Service',
   description: 'Terms of Service for SlashSaaS.',
 };
 

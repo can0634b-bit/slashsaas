@@ -4,7 +4,7 @@ import { ArrowLeft, ShieldCheck } from 'lucide-react';
 import { SlashLogo } from '@/components/Logo';
 
 export const metadata = {
-  title: 'Privacy Policy — SlashSaaS',
+  title: 'Privacy Policy',
   description: 'Official privacy policy for SlashSaaS.',
 };
 

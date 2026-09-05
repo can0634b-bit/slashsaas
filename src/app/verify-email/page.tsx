@@ -2,18 +2,18 @@ import React, { Suspense } from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { SlashLogo } from '@/components/Logo';
-import { LoginForm } from '@/components/auth/LoginForm';
+import { VerifyEmailView } from '@/components/auth/VerifyEmailView';
 
 export const metadata: Metadata = {
-  title: 'Sign In',
-  description: 'Sign in to your SlashSaaS organization workspace.',
+  title: 'Verify Email',
+  description: 'Confirm your email address to access your SlashSaaS workspace.',
   robots: {
     index: false,
     follow: false,
   },
 };
 
-export default function LoginPage() {
+export default function VerifyEmailPage() {
   return (
     <div className="min-h-screen bg-black text-white flex flex-col justify-between selection:bg-white selection:text-black">
       <header className="p-6 sm:p-8 flex justify-between items-center max-w-6xl mx-auto w-full">
@@ -21,10 +21,10 @@ export default function LoginPage() {
           <SlashLogo size="md" />
         </Link>
         <Link
-          href="/signup"
+          href="/login"
           className="text-xs font-semibold text-zinc-400 hover:text-white transition-colors"
         >
-          Don&apos;t have an account? <span className="text-[#8ce04a]">Sign Up</span>
+          Already confirmed? <span className="text-[#8ce04a]">Sign In</span>
         </Link>
       </header>
 
@@ -32,11 +32,11 @@ export default function LoginPage() {
         <Suspense
           fallback={
             <div className="w-full max-w-md rounded-3xl border border-white/10 bg-zinc-950/80 p-8 text-center text-xs text-zinc-400">
-              Loading sign in...
+              Loading verification...
             </div>
           }
         >
-          <LoginForm />
+          <VerifyEmailView />
         </Suspense>
       </main>
 
