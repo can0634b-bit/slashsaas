@@ -27,17 +27,21 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: 'SlashSaaS — Something New Is Coming',
+    default: 'SlashSaaS — AI Search Visibility Monitoring',
     template: '%s | SlashSaaS',
   },
   description:
-    'SlashSaaS is building the next evolution of modern software tooling. Multi-tenant, lightning-fast, and built for modern teams.',
+    'Track how ChatGPT, Perplexity, Google AI and Gemini answer about your brand versus competitors — every day. Visibility score, share of voice, citation sources, and change alerts. Public data only, no account connections.',
   keywords: [
+    'AI search visibility',
+    'generative engine optimization',
+    'GEO monitoring',
+    'ChatGPT brand monitoring',
+    'Perplexity visibility',
+    'AI SEO',
+    'share of voice',
+    'brand monitoring',
     'SlashSaaS',
-    'software',
-    'workspace',
-    'multi-tenant',
-    'SaaS platform',
   ],
   authors: [{ name: 'SlashSaaS', url: siteUrl }],
   creator: 'SlashSaaS',
@@ -49,16 +53,16 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: siteUrl,
-    title: 'SlashSaaS — Something New Is Coming',
+    title: 'SlashSaaS — AI Search Visibility Monitoring',
     description:
-      'SlashSaaS is building the next evolution of modern software tooling. Multi-tenant, lightning-fast, and built for modern teams.',
+      'See how ChatGPT, Perplexity, Google AI and Gemini answer about your brand versus competitors — daily. Visibility score, share of voice, citations, and alerts.',
     siteName: 'SlashSaaS',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'SlashSaaS — Something New Is Coming',
+    title: 'SlashSaaS — AI Search Visibility Monitoring',
     description:
-      'SlashSaaS is building the next evolution of modern software tooling. Multi-tenant, lightning-fast, and built for modern teams.',
+      'See how ChatGPT, Perplexity, Google AI and Gemini answer about your brand versus competitors — daily. Visibility score, share of voice, citations, and alerts.',
     creator: '@slashsaas',
   },
   icons: {

@@ -1,6 +1,6 @@
 import { ImageResponse } from 'next/og';
 
-export const alt = 'SlashSaaS — Something New Is Coming';
+export const alt = 'SlashSaaS — AI Search Visibility Monitoring';
 export const size = {
   width: 1200,
   height: 630,
@@ -71,7 +71,7 @@ export default async function Image() {
             marginBottom: '24px',
           }}
         >
-          Something New Is Coming.
+          See how AI answers about your brand.
         </div>
 
         <div
@@ -79,11 +79,11 @@ export default async function Image() {
             fontSize: '24px',
             color: '#a1a1aa',
             textAlign: 'center',
-            maxWidth: '850px',
+            maxWidth: '880px',
             marginBottom: '40px',
           }}
         >
-          Engineered for modern teams. Lightning-fast multi-tenant architecture.
+          Track ChatGPT, Perplexity, Google AI &amp; Gemini — visibility score, share of voice, and alerts.
         </div>
 
         <div
@@ -105,7 +105,7 @@ export default async function Image() {
               color: '#f4f4f5',
             }}
           >
-            Multi-Tenant Platform
+            Public data · No account connections
           </div>
           <div
             style={{

@@ -15,7 +15,7 @@ export const Footer: React.FC = () => {
               <SlashLogo size="sm" />
             </Link>
             <span className="text-zinc-700">|</span>
-            <span className="text-zinc-400">Next-Generation Software Platform</span>
+            <span className="text-zinc-400">AI Search Visibility Monitoring</span>
           </div>
 
           <div className="flex items-center gap-4">
