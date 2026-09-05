@@ -14,7 +14,7 @@ export default function NotFound() {
         <SlashLogo size="md" />
       </Link>
 
-      <p className="text-sm font-mono font-semibold text-[#8ce04a]">404</p>
+      <p className="text-sm font-mono font-semibold text-[#a78bfa]">404</p>
       <h1 className="mt-3 text-3xl sm:text-4xl font-bold tracking-tight text-white">
         This page isn&apos;t on our radar.
       </h1>
@@ -26,7 +26,7 @@ export default function NotFound() {
       <div className="mt-8 flex flex-col sm:flex-row items-center gap-3">
         <Link
           href="/"
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#8ce04a] px-5 py-2.5 text-sm font-semibold text-black hover:bg-[#a3e635] transition-colors"
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#7c5cff] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#8b6dff] transition-colors"
         >
           <Home className="h-4 w-4" />
           Back home

@@ -16,17 +16,17 @@ export const SlashLogoIcon: React.FC<LogoIconProps> = ({ className = "h-8 w-8", 
         height={size}
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className="drop-shadow-[0_0_12px_rgba(140,224,74,0.4)]"
+        className="drop-shadow-[0_0_12px_rgba(124,92,255,0.5)]"
       >
-        {/* Left Green Spark Star */}
+        {/* Left Violet Spark Star */}
         <path
           d="M32 20 C32 38 18 50 4 50 C18 50 32 62 32 80 C32 62 46 50 60 50 C46 50 32 38 32 20 Z"
-          fill="#8ce04a"
+          fill="#7c5cff"
         />
-        {/* Right Green Spark Star */}
+        {/* Right Violet Spark Star */}
         <path
           d="M68 20 C68 38 54 50 40 50 C54 50 68 62 68 80 C68 62 82 50 96 50 C82 50 68 38 68 20 Z"
-          fill="#a3e635"
+          fill="#a78bfa"
         />
       </svg>
     </div>

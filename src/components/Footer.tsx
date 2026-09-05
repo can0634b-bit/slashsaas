@@ -21,7 +21,7 @@ export const Footer: React.FC = () => {
           <div className="flex items-center gap-4">
             <a
               href="mailto:support@slashsaas.com"
-              className="hover:text-white transition-colors flex items-center gap-1.5 text-[#8ce04a]"
+              className="hover:text-white transition-colors flex items-center gap-1.5 text-[#a78bfa]"
             >
               <Mail className="h-3.5 w-3.5" />
               <span>support@slashsaas.com</span>

@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://slashsaas.com';
 
 export const viewport: Viewport = {
-  themeColor: '#000000',
+  themeColor: '#08070f',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
@@ -99,7 +99,7 @@ export default function RootLayout({
       <head>
         <JsonLd />
       </head>
-      <body className="min-h-full flex flex-col bg-black text-zinc-100 selection:bg-white selection:text-black">
+      <body className="min-h-full flex flex-col bg-[#08070f] text-zinc-100">
         {children}
         <Analytics />
         <SpeedInsights />

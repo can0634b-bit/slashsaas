@@ -70,7 +70,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenWaitlistModal }) => {
                   onClick={() => setUserDropdownOpen(!userDropdownOpen)}
                   className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/[0.04] px-3 py-1.5 text-xs font-medium text-zinc-300 hover:text-white hover:bg-white/[0.08] transition-colors"
                 >
-                  <div className="flex h-5 w-5 items-center justify-center rounded-full bg-[#8ce04a]/20 text-[#8ce04a] text-[10px] font-bold">
+                  <div className="flex h-5 w-5 items-center justify-center rounded-full bg-[#7c5cff]/20 text-[#a78bfa] text-[10px] font-bold">
                     {user.email ? user.email[0].toUpperCase() : 'U'}
                   </div>
                   <span className="max-w-[120px] truncate">{user.email?.split('@')[0]}</span>
@@ -88,7 +88,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenWaitlistModal }) => {
                       onClick={() => setUserDropdownOpen(false)}
                       className="flex items-center gap-2 px-3 py-2 rounded-xl text-zinc-300 hover:text-white hover:bg-white/5 transition-colors"
                     >
-                      <LayoutDashboard className="h-3.5 w-3.5 text-[#8ce04a]" />
+                      <LayoutDashboard className="h-3.5 w-3.5 text-[#a78bfa]" />
                       <span>Workspace</span>
                     </Link>
 

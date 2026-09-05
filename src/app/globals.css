@@ -6,9 +6,29 @@ html {
 }
 
 body {
-  background-color: #000000;
+  background-color: #08070f;
   color: #f4f4f5;
   overflow-x: hidden;
+}
+
+::selection {
+  background-color: #7c5cff;
+  color: #ffffff;
+}
+
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-reveal {
+  animation: reveal-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 /* Glass panel fallback for browsers without backdrop-filter support */
