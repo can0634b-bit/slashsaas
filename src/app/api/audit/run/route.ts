@@ -4,6 +4,10 @@ import { runAudit, runAuditAllActive } from '@/lib/actions/audit';
 import { EngineType } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
+// Gemini + Google Search grounding calls can take several seconds each; a batch
+// audit runs prompts sequentially with pacing + backoff retries. The default
+// 10s serverless timeout kills these mid-run, so extend to the max (60s).
+export const maxDuration = 60;
 
 export async function POST(req: NextRequest) {
   try {

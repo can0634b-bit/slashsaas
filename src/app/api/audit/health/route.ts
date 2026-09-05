@@ -4,6 +4,9 @@ import { resolveGeminiModel } from '@/lib/engines/gemini';
 import { resolveGroqModel } from '@/lib/engines/parser';
 
 export const dynamic = 'force-dynamic';
+// Health check makes live Gemini + Groq calls (up to ~16s combined); the default
+// 10s serverless timeout would kill it, so extend to the max (60s).
+export const maxDuration = 60;
 
 export async function GET(req: NextRequest) {
   try {
