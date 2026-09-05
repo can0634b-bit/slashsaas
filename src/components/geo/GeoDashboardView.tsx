@@ -14,19 +14,17 @@ import {
   Sparkles,
   AlertCircle,
   Globe,
-  Tag,
   CheckCircle2,
   X,
-  Lock,
   BarChart3,
   TrendingUp,
   Play,
   Loader2,
   Clock,
   FileText,
-  Check,
+  Star,
   ArrowUpRight,
-  ShieldCheck,
+  RefreshCw,
 } from 'lucide-react';
 import {
   Brand,
@@ -350,30 +348,12 @@ export function GeoDashboardView({
     const topComp = competitors[0]?.name || 'competitors';
 
     const templates = [
-      {
-        text: `Best ${topic} software for ${audience} in 2026`,
-        topic: 'Best In Category',
-      },
-      {
-        text: `Top ${topic} alternatives to ${topComp}`,
-        topic: 'Competitor Alternative',
-      },
-      {
-        text: `Is ${selfBrand.name} good for ${topic}?`,
-        topic: 'Brand Evaluation',
-      },
-      {
-        text: `${selfBrand.name} vs ${topComp} comparison`,
-        topic: 'Head to Head',
-      },
-      {
-        text: `What is the easiest ${topic} tool with great support?`,
-        topic: 'Usability',
-      },
-      {
-        text: `Affordable ${topic} platforms for ${audience}`,
-        topic: 'Pricing',
-      },
+      { text: `Best ${topic} software for ${audience} in 2026`, topic: 'Best In Category' },
+      { text: `Top ${topic} alternatives to ${topComp}`, topic: 'Competitor Alternative' },
+      { text: `Is ${selfBrand.name} good for ${topic}?`, topic: 'Brand Evaluation' },
+      { text: `${selfBrand.name} vs ${topComp} comparison`, topic: 'Head to Head' },
+      { text: `What is the easiest ${topic} tool with great support?`, topic: 'Usability' },
+      { text: `Affordable ${topic} platforms for ${audience}`, topic: 'Pricing' },
     ];
 
     setGeneratedSuggestions(
@@ -393,11 +373,7 @@ export function GeoDashboardView({
       let anyError: string | null = null;
       for (const item of toAdd) {
         if (prompts.length >= 25) break;
-        const res = await addPromptAction({
-          text: item.text,
-          topic: item.topic,
-          locale: 'en',
-        });
+        const res = await addPromptAction({ text: item.text, topic: item.topic, locale: 'en' });
         if (!res.success) {
           anyError = res.error || 'Failed to add prompt.';
           break;
@@ -411,17 +387,32 @@ export function GeoDashboardView({
     });
   };
 
+  const hasRuns = metrics.totalRuns > 0;
+
+  // ---------------- shared modal input class ----------------
+  const inputCls =
+    'w-full px-space-md py-space-sm rounded-lg border border-outline-variant/40 bg-surface-container-lowest text-body-md text-on-surface placeholder:text-outline focus:outline-none focus:border-tertiary focus:ring-1 focus:ring-tertiary transition-all';
+  const labelCls = 'block font-label-mono-sm text-label-mono-sm text-on-surface-variant mb-1';
+  const primaryBtn =
+    'px-space-md py-1.5 rounded-lg bg-gradient-to-r from-primary via-secondary to-tertiary text-surface-container-lowest font-headline-sm text-headline-sm font-bold hover:-translate-y-0.5 transition-all disabled:opacity-50 shadow-[0_0_18px_rgba(124,92,255,0.3)]';
+  const ghostBtn =
+    'px-space-md py-1.5 rounded-lg border border-outline-variant/40 text-body-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors';
+
   return (
-    <div className="space-y-8">
-      {/* Dynamic Notification Toast */}
+    <div className="relative space-y-space-lg">
+      {/* Ambient glow orbs */}
+      <div className="absolute top-8 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-[128px] pointer-events-none -z-10" />
+      <div className="absolute top-56 right-8 w-80 h-80 bg-tertiary/10 rounded-full blur-[110px] pointer-events-none -z-10" />
+
+      {/* Notification Toast */}
       {notification && (
         <div
-          className={`p-4 rounded-xl border text-xs flex items-center justify-between transition-all ${
+          className={`p-space-md rounded-xl border font-body-sm text-body-sm flex items-center justify-between transition-all ${
             notification.type === 'success'
-              ? 'border-[#8ce04a]/30 bg-[#8ce04a]/10 text-[#8ce04a]'
+              ? 'border-tertiary/30 bg-tertiary/10 text-tertiary'
               : notification.type === 'warning'
-              ? 'border-yellow-500/30 bg-yellow-500/10 text-yellow-300'
-              : 'border-rose-500/30 bg-rose-500/10 text-rose-300'
+              ? 'border-primary/30 bg-primary/10 text-primary'
+              : 'border-error/40 bg-error-container/30 text-error'
           }`}
         >
           <div className="flex items-center gap-2">
@@ -432,28 +423,50 @@ export function GeoDashboardView({
             )}
             <span>{notification.message}</span>
           </div>
-          <button onClick={() => setNotification(null)} className="text-zinc-400 hover:text-white ml-3">
+          <button onClick={() => setNotification(null)} className="text-on-surface-variant hover:text-on-surface ml-3">
             <X className="h-4 w-4" />
           </button>
         </div>
       )}
 
-      {/* TOP ROW: BRAND CARD + AI SEARCH VISIBILITY SCORE CARD */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Your Brand Card */}
-        <div className="lg:col-span-1 rounded-2xl border border-white/[0.08] bg-zinc-950/80 backdrop-blur-xl p-6 shadow-xl flex flex-col justify-between">
+      {/* Telemetry sub-bar */}
+      <section className="flex flex-col md:flex-row md:items-center justify-between gap-space-sm bg-surface-container-lowest/70 backdrop-blur-md rounded-xl p-space-md shadow-sm">
+        <div className="flex items-center gap-space-xs font-nav-pill text-nav-pill text-on-surface-variant flex-wrap">
+          <span>Workspaces</span>
+          <span className="text-outline-variant">/</span>
+          <span className="text-on-surface font-semibold flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-primary-container" />
+            {orgName || 'SlashSaaS Core'}
+          </span>
+          <span className="text-outline-variant">/</span>
+          <span className="text-primary font-medium">Overview</span>
+        </div>
+        <div className="flex items-center gap-space-xs flex-wrap font-label-mono-sm text-label-mono-sm">
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-high text-tertiary">
+            <span className="w-1.5 h-1.5 rounded-full bg-tertiary animate-pulse" />
+            <span>Engine: Gemini · Grounded</span>
+          </div>
+          <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container text-on-surface-variant">
+            <Clock className="h-3 w-3" />
+            <span>Last audit: {formatTimeAgo(metrics.lastAuditedAt)}</span>
+          </div>
+          <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container text-on-surface-variant">
+            <Globe className="h-3 w-3" />
+            <span>Region: Global (EN)</span>
+          </div>
+        </div>
+      </section>
+
+      {/* TOP ROW: Brand + Score */}
+      <section className="grid grid-cols-1 lg:grid-cols-12 gap-space-md">
+        {/* Brand card */}
+        <div className="lg:col-span-4 bg-surface-container-low/90 backdrop-blur-xl rounded-xl p-space-lg flex flex-col justify-between shadow-md relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl pointer-events-none" />
           <div>
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <div className="p-2 rounded-lg bg-[#8ce04a]/10 text-[#8ce04a] border border-[#8ce04a]/20">
-                  <Building2 className="h-4 w-4" />
-                </div>
-                <div>
-                  <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
-                    Your Brand
-                  </span>
-                </div>
-              </div>
+            <div className="flex items-center justify-between pb-space-sm">
+              <span className="font-label-mono-sm text-label-mono-sm text-on-surface-variant tracking-wider uppercase flex items-center gap-1.5">
+                <Building2 className="h-3.5 w-3.5 text-primary" /> Monitored Entity
+              </span>
               <button
                 onClick={() => {
                   setEditBrandName(selfBrand.name);
@@ -461,39 +474,45 @@ export function GeoDashboardView({
                   setEditBrandAliases(selfBrand.aliases?.join(', ') || '');
                   setIsEditingBrand(true);
                 }}
-                className="inline-flex items-center gap-1 text-xs text-zinc-400 hover:text-white transition-colors"
-                title="Edit Brand"
+                className="inline-flex items-center gap-1 text-on-surface-variant hover:text-primary transition-colors font-body-sm text-body-sm px-2 py-0.5 rounded-md hover:bg-surface-container"
               >
                 <Edit2 className="h-3.5 w-3.5" />
                 <span>Edit</span>
               </button>
             </div>
 
-            <div className="space-y-2">
-              <h2 className="text-xl font-bold text-white tracking-tight">{selfBrand.name}</h2>
+            <div className="pt-space-xs">
+              <h2 className="font-headline-xl text-headline-xl text-on-surface font-extrabold tracking-tight">{selfBrand.name}</h2>
               {selfBrand.domain && (
                 <a
                   href={`https://${selfBrand.domain}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-1.5 text-xs text-[#8ce04a] hover:underline"
+                  className="inline-flex items-center gap-1 font-label-mono-md text-label-mono-md text-secondary hover:text-tertiary transition-colors mt-1"
                 >
-                  <Globe className="h-3 w-3" />
                   <span>{selfBrand.domain}</span>
-                  <ExternalLink className="h-2.5 w-2.5" />
+                  <ExternalLink className="h-3 w-3" />
                 </a>
               )}
             </div>
 
+            <div className="flex items-center gap-2 pt-space-md flex-wrap">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-tertiary/10 text-tertiary font-label-mono-sm text-label-mono-sm">
+                <span className="w-1.5 h-1.5 rounded-full bg-tertiary animate-ping" />
+                <span className="font-medium">Active Monitor</span>
+              </div>
+              <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container text-on-surface-variant font-label-mono-sm text-label-mono-sm">
+                <Globe className="h-3 w-3" />
+                <span>Locale: EN</span>
+              </div>
+            </div>
+
             {selfBrand.aliases && selfBrand.aliases.length > 0 && (
-              <div className="mt-4 pt-4 border-t border-white/[0.06]">
-                <div className="text-[11px] font-medium text-zinc-400 mb-2">Tracked Aliases:</div>
+              <div className="pt-space-lg space-y-space-xs">
+                <p className="font-label-mono-sm text-label-mono-sm text-on-surface-variant tracking-wider uppercase">Tracked Aliases</p>
                 <div className="flex flex-wrap gap-1.5">
                   {selfBrand.aliases.map((alias, idx) => (
-                    <span
-                      key={idx}
-                      className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-white/[0.04] border border-white/[0.08] text-zinc-300"
-                    >
+                    <span key={idx} className="px-2.5 py-1 rounded-md bg-surface-container text-on-surface font-body-sm text-body-sm font-medium">
                       {alias}
                     </span>
                   ))}
@@ -502,835 +521,503 @@ export function GeoDashboardView({
             )}
           </div>
 
-          <div className="mt-6 pt-4 border-t border-white/[0.06] flex items-center justify-between text-xs text-zinc-500">
-            <span className="inline-flex items-center gap-1.5 text-[#8ce04a]">
-              <span className="h-2 w-2 rounded-full bg-[#8ce04a] animate-pulse" />
-              <span>Active Monitor</span>
+          <div className="pt-space-lg mt-space-md flex items-center justify-between font-label-mono-sm text-label-mono-sm text-on-surface-variant bg-surface-container-lowest/40 -mx-space-lg -mb-space-lg px-space-lg py-space-sm rounded-b-xl">
+            <span className="inline-flex items-center gap-1.5">
+              <Clock className="h-3.5 w-3.5 text-outline" />
+              <span>Monitored continuously</span>
             </span>
-            <span>Locale: EN</span>
+            <span className="text-tertiary flex items-center gap-1">Live</span>
           </div>
         </div>
 
-        {/* AI SEARCH VISIBILITY SCORE CARD (LIVE IN PHASE 3) */}
-        <div className="lg:col-span-2 rounded-2xl border border-white/[0.08] bg-zinc-950/80 backdrop-blur-xl p-6 shadow-xl relative overflow-hidden flex flex-col justify-between">
+        {/* Score card */}
+        <div className="lg:col-span-8 bg-surface-container-low/90 backdrop-blur-xl rounded-xl p-space-lg flex flex-col justify-between shadow-md relative overflow-hidden">
+          <div className="absolute -top-16 -right-16 w-64 h-64 bg-tertiary/10 rounded-full blur-3xl pointer-events-none" />
           <div>
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-              <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-lg bg-[#8ce04a]/10 text-[#8ce04a] border border-[#8ce04a]/20">
-                  <BarChart3 className="h-5 w-5" />
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-white">AI Search Visibility Score</h3>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-[#8ce04a]/15 text-[#8ce04a] border border-[#8ce04a]/30">
-                      <Sparkles className="h-2.5 w-2.5" />
-                      <span>Google Gemini Grounded</span>
-                    </span>
-                    {metrics.lastAuditedAt && (
-                      <span className="text-[11px] text-zinc-400 flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        <span>{formatTimeAgo(metrics.lastAuditedAt)}</span>
-                      </span>
-                    )}
-                  </div>
-                </div>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm pb-space-md">
+              <div className="flex items-center gap-space-sm flex-wrap">
+                <h3 className="font-headline-md text-headline-md text-on-surface tracking-tight">AI Search Visibility Score</h3>
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-surface-container-high text-primary font-label-mono-sm text-label-mono-sm font-medium">
+                  <Sparkles className="h-3 w-3 text-tertiary" />
+                  Engine: Gemini · Grounded
+                </span>
+                {metrics.lastAuditedAt && (
+                  <span className="text-on-surface-variant font-label-mono-sm text-label-mono-sm">Last run {formatTimeAgo(metrics.lastAuditedAt)}</span>
+                )}
               </div>
-
-              {/* Action Button */}
               <button
                 onClick={handleRunAuditAll}
                 disabled={isAuditingAll || prompts.length === 0}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#8ce04a] text-black font-semibold text-xs hover:bg-[#9ee862] transition-all disabled:opacity-50 shadow-lg shadow-[#8ce04a]/10 shrink-0 self-start sm:self-center"
+                className="inline-flex items-center justify-center gap-2 px-space-md py-2 rounded-lg bg-gradient-to-r from-primary via-secondary to-tertiary text-surface-container-lowest font-headline-sm text-headline-sm font-bold shadow-[0_0_24px_rgba(124,92,255,0.35)] hover:shadow-[0_0_32px_rgba(47,217,244,0.5)] hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:hover:translate-y-0 shrink-0"
               >
                 {isAuditingAll ? (
                   <>
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                    <span>Auditing Prompts...</span>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Auditing…</span>
                   </>
                 ) : (
                   <>
-                    <Play className="h-3.5 w-3.5 fill-current" />
-                    <span>{metrics.totalRuns === 0 ? 'Run First Audit' : 'Run Audit Now'}</span>
+                    <Play className="h-4 w-4 fill-current" />
+                    <span>{hasRuns ? 'Run Audit Now' : 'Run First Audit'}</span>
                   </>
                 )}
               </button>
             </div>
 
-            {/* Metrics Display */}
-            {metrics.totalRuns === 0 ? (
-              <div className="mt-4">
-                <p className="text-xs text-zinc-400 max-w-xl mb-6">
-                  No audit runs recorded yet. Click <strong>&quot;Run First Audit&quot;</strong> to query Google Gemini with Google Search grounding across all your tracked queries.
-                </p>
-
-                {/* Empty State Faded Gauges */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 opacity-30 select-none pointer-events-none">
-                  <div className="p-3.5 rounded-xl border border-white/[0.08] bg-black/40">
-                    <div className="text-[11px] text-zinc-400 font-medium">Brand Mention Rate</div>
-                    <div className="text-2xl font-bold text-zinc-300 mt-1">--%</div>
-                    <div className="text-[10px] text-zinc-500 mt-0.5">Across all queries</div>
+            {/* Metric tiles */}
+            <div className={`grid grid-cols-1 md:grid-cols-3 gap-space-sm pt-space-xs ${hasRuns ? '' : 'opacity-40 select-none pointer-events-none'}`}>
+              {/* Brand Mention Rate */}
+              <div className="bg-surface-container rounded-lg p-space-md flex flex-col justify-between shadow-sm">
+                <div className="flex items-start justify-between">
+                  <span className="font-label-mono-sm text-label-mono-sm text-on-surface-variant">Brand Mention Rate</span>
+                  <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-tertiary/15 text-tertiary font-label-mono-sm text-label-mono-sm font-medium">
+                    <TrendingUp className="h-3 w-3" />
+                    rate
+                  </span>
+                </div>
+                <div className="py-space-xs">
+                  <span className="text-[32px] leading-9 font-extrabold text-on-surface">{hasRuns ? `${metrics.brandMentionRate}%` : '--%'}</span>
+                </div>
+                <div className="space-y-1.5">
+                  <div className="w-full bg-surface-container-highest rounded-full h-1.5 overflow-hidden">
+                    <div className="bg-gradient-to-r from-primary to-tertiary h-full rounded-full transition-all duration-700" style={{ width: `${Math.min(100, metrics.brandMentionRate)}%` }} />
                   </div>
-                  <div className="p-3.5 rounded-xl border border-white/[0.08] bg-black/40">
-                    <div className="text-[11px] text-zinc-400 font-medium">Share of Voice</div>
-                    <div className="text-2xl font-bold text-zinc-300 mt-1">--%</div>
-                    <div className="text-[10px] text-zinc-500 mt-0.5">vs. {competitors.length} competitors</div>
-                  </div>
-                  <div className="p-3.5 rounded-xl border border-white/[0.08] bg-black/40">
-                    <div className="text-[11px] text-zinc-400 font-medium">Citations Found</div>
-                    <div className="text-2xl font-bold text-zinc-300 mt-1">--</div>
-                    <div className="text-[10px] text-zinc-500 mt-0.5">Grounding URLs</div>
-                  </div>
+                  <p className="font-body-sm text-body-sm text-on-surface-variant truncate">Recommended in AI answers</p>
                 </div>
               </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4">
-                {/* 1. Brand Mention Rate */}
-                <div className="p-4 rounded-xl border border-white/[0.08] bg-black/50 flex flex-col justify-between">
-                  <div>
-                    <div className="text-[11px] font-semibold text-zinc-400">Brand Mention Rate</div>
-                    <div className="flex items-baseline gap-2 mt-1">
-                      <span className="text-2xl font-bold text-white tracking-tight">
-                        {metrics.brandMentionRate}%
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-zinc-400 mt-0.5">
-                      Recommended in answers
-                    </p>
-                  </div>
-                  <div className="mt-3">
-                    <div className="h-1.5 w-full rounded-full bg-white/10 overflow-hidden">
-                      <div
-                        style={{ width: `${Math.min(100, metrics.brandMentionRate)}%` }}
-                        className="h-full bg-[#8ce04a] rounded-full transition-all duration-500"
-                      />
-                    </div>
-                  </div>
-                </div>
 
-                {/* 2. Share of Voice */}
-                <div className="p-4 rounded-xl border border-white/[0.08] bg-black/50 flex flex-col justify-between">
-                  <div>
-                    <div className="text-[11px] font-semibold text-zinc-400">Share of Voice</div>
-                    <div className="flex items-baseline gap-2 mt-1">
-                      <span className="text-2xl font-bold text-white tracking-tight">
-                        {metrics.shareOfVoice}%
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-zinc-400 mt-0.5">
-                      vs. {competitors.length} benchmark rivals
-                    </p>
-                  </div>
-                  <div className="mt-3">
-                    <div className="h-1.5 w-full rounded-full bg-white/10 overflow-hidden">
-                      <div
-                        style={{ width: `${Math.min(100, metrics.shareOfVoice)}%` }}
-                        className="h-full bg-emerald-400 rounded-full transition-all duration-500"
-                      />
-                    </div>
-                  </div>
+              {/* Share of Voice */}
+              <div className="bg-surface-container rounded-lg p-space-md flex flex-col justify-between shadow-sm">
+                <div className="flex items-start justify-between">
+                  <span className="font-label-mono-sm text-label-mono-sm text-on-surface-variant">Share of Voice</span>
+                  <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-surface-container-high text-secondary font-label-mono-sm text-label-mono-sm">
+                    vs {competitors.length} rivals
+                  </span>
                 </div>
-
-                {/* 3. Citations Found */}
-                <div className="p-4 rounded-xl border border-white/[0.08] bg-black/50 flex flex-col justify-between">
-                  <div>
-                    <div className="text-[11px] font-semibold text-zinc-400">Top Citations</div>
-                    <div className="flex items-baseline gap-2 mt-1">
-                      <span className="text-2xl font-bold text-white tracking-tight">
-                        {metrics.topCitationsCount}
-                      </span>
-                      <span className="text-[10px] text-zinc-500">direct links</span>
-                    </div>
-                    <div className="flex flex-wrap gap-1 mt-1.5">
-                      {metrics.topCitedDomains.length > 0 ? (
-                        metrics.topCitedDomains.slice(0, 2).map((d, i) => (
-                          <span
-                            key={i}
-                            className="px-1.5 py-0.5 rounded text-[9px] bg-white/[0.06] text-zinc-300 truncate max-w-[110px]"
-                          >
-                            {d.domain}
-                          </span>
-                        ))
-                      ) : (
-                        <span className="text-[10px] text-zinc-500 italic">No web links cited</span>
-                      )}
-                    </div>
+                <div className="py-space-xs">
+                  <span className="text-[32px] leading-9 font-extrabold text-on-surface">{hasRuns ? `${metrics.shareOfVoice}%` : '--%'}</span>
+                </div>
+                <div className="space-y-1.5">
+                  <div className="w-full bg-surface-container-highest rounded-full h-1.5 overflow-hidden">
+                    <div className="bg-tertiary h-full rounded-full transition-all duration-700" style={{ width: `${Math.min(100, metrics.shareOfVoice)}%` }} />
                   </div>
-                  <div className="mt-3 text-[10px] text-zinc-500">
-                    {metrics.totalRuns} total audit runs
-                  </div>
+                  <p className="font-body-sm text-body-sm text-on-surface-variant truncate">Your slice of the AI conversation</p>
                 </div>
               </div>
+
+              {/* Top Citations */}
+              <div className="bg-surface-container rounded-lg p-space-md flex flex-col justify-between shadow-sm">
+                <div className="flex items-start justify-between">
+                  <span className="font-label-mono-sm text-label-mono-sm text-on-surface-variant">Top Citations</span>
+                  <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface font-label-mono-sm text-label-mono-sm">
+                    {metrics.totalRuns} runs
+                  </span>
+                </div>
+                <div className="py-space-xs flex items-baseline justify-between gap-2">
+                  <span className="text-[32px] leading-9 font-extrabold text-on-surface">{hasRuns ? metrics.topCitationsCount : '--'}</span>
+                  <div className="flex items-center gap-1 flex-wrap justify-end">
+                    {metrics.topCitedDomains.slice(0, 2).map((d, i) => (
+                      <span key={i} className="px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface text-[11px] font-bold truncate max-w-[90px]">{d.domain}</span>
+                    ))}
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <div className="w-full bg-surface-container-highest rounded-full h-1.5 overflow-hidden">
+                    <div className="bg-secondary-container h-full rounded-full" style={{ width: metrics.topCitationsCount > 0 ? '85%' : '4%' }} />
+                  </div>
+                  <p className="font-body-sm text-body-sm text-on-surface-variant truncate">
+                    {metrics.topCitedDomains.length > 0 ? 'Web sources citing you' : 'No web links cited yet'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {!hasRuns && (
+              <p className="mt-space-md font-body-sm text-body-sm text-on-surface-variant max-w-xl">
+                No audit runs recorded yet. Click <strong className="text-on-surface">&quot;Run First Audit&quot;</strong> to query Google Gemini with grounding across all your tracked prompts.
+              </p>
             )}
           </div>
 
-          <div className="mt-6 pt-4 border-t border-white/[0.06] flex flex-wrap items-center justify-between text-xs text-zinc-500 gap-2">
-            <span className="flex items-center gap-1.5">
-              <TrendingUp className="h-3.5 w-3.5 text-[#8ce04a]" />
-              <span>Engine Active: Gemini 2.5/2.0 Flash • Groq Structured Extraction</span>
-            </span>
-            <span className="text-[11px] text-zinc-600">
-              OpenAI & Perplexity scheduled for Phase 4
-            </span>
+          <div className="pt-space-md mt-space-md flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-on-surface-variant font-label-mono-sm text-label-mono-sm bg-surface-container-lowest/40 -mx-space-lg -mb-space-lg px-space-lg py-space-sm rounded-b-xl">
+            <div className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-tertiary" />
+              <span>Engine active: <strong className="text-on-surface font-medium">Gemini</strong> · Groq extraction (auto-fallback)</span>
+            </div>
+            <span className="text-outline">OpenAI &amp; Perplexity scheduled next</span>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* MIDDLE SECTION: COMPETITORS BENCHMARK */}
-      <div className="rounded-2xl border border-white/[0.08] bg-zinc-950/80 backdrop-blur-xl p-6 shadow-xl">
-        <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/[0.08]">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-lg bg-[#8ce04a]/10 text-[#8ce04a] border border-[#8ce04a]/20">
-              <Swords className="h-4 w-4" />
-            </div>
-            <div>
-              <h3 className="text-base font-bold text-white">Competitor Benchmarks</h3>
-              <p className="text-xs text-zinc-400">
-                Rival brands benchmarked alongside yours in each audit run
-              </p>
-            </div>
+      {/* COMPETITOR BENCHMARKS */}
+      <section className="bg-surface-container-low/90 backdrop-blur-xl rounded-xl p-space-lg shadow-md space-y-space-md">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
+          <div className="flex items-center gap-space-sm">
+            <div className="p-2 rounded-lg bg-primary/10 text-primary"><Swords className="h-4 w-4" /></div>
+            <h3 className="font-headline-md text-headline-md text-on-surface tracking-tight">Competitor Benchmarks</h3>
+            <span className="px-2.5 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-label-mono-sm text-label-mono-sm">{competitors.length} / 15 tracked</span>
           </div>
-
-          <div className="flex items-center gap-3">
-            <span className="text-xs text-zinc-500 hidden sm:inline font-mono">
-              {competitors.length} / 15 tracked
-            </span>
-            <button
-              onClick={() => setIsAddingComp(true)}
-              disabled={competitors.length >= 15 || isPending}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 text-xs font-semibold text-zinc-200 hover:text-white transition-colors disabled:opacity-40"
-            >
-              <Plus className="h-3.5 w-3.5 text-[#8ce04a]" />
-              <span>Add Competitor</span>
-            </button>
-          </div>
+          <button
+            onClick={() => setIsAddingComp(true)}
+            disabled={competitors.length >= 15 || isPending}
+            className="inline-flex items-center gap-1.5 px-space-sm py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface transition-all font-body-md text-body-md font-medium disabled:opacity-40"
+          >
+            <Plus className="h-4 w-4 text-tertiary" />
+            <span>Add competitor</span>
+          </button>
         </div>
 
-        {competitors.length === 0 ? (
-          <div className="p-8 rounded-xl border border-dashed border-white/10 text-center text-xs text-zinc-500">
-            No competitors currently tracked. Click &quot;Add Competitor&quot; to begin benchmarking.
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-            {competitors.map((comp) => (
-              <div
-                key={comp.id}
-                className="p-4 rounded-xl border border-white/[0.06] bg-black/40 flex items-center justify-between gap-3 group hover:border-white/20 transition-all"
-              >
-                <div className="truncate">
-                  <div className="text-xs font-semibold text-zinc-200 truncate">{comp.name}</div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-sm">
+          {competitors.map((comp) => (
+            <div key={comp.id} className="bg-surface-container rounded-lg p-space-md flex items-start justify-between group hover:bg-surface-container-high transition-all shadow-sm">
+              <div className="flex items-center gap-space-xs min-w-0">
+                <div className="w-9 h-9 rounded-md bg-surface-container-highest flex items-center justify-center font-headline-sm text-headline-sm font-bold text-primary shrink-0">
+                  {comp.name.charAt(0).toUpperCase()}
+                </div>
+                <div className="min-w-0">
+                  <h4 className="font-headline-sm text-headline-sm text-on-surface font-semibold truncate">{comp.name}</h4>
                   {comp.domain ? (
-                    <div className="text-[11px] text-zinc-500 truncate flex items-center gap-1 mt-0.5">
-                      <Globe className="h-2.5 w-2.5" />
-                      <span>{comp.domain}</span>
-                    </div>
+                    <a href={`https://${comp.domain}`} target="_blank" rel="noreferrer" className="font-label-mono-sm text-label-mono-sm text-on-surface-variant hover:text-secondary flex items-center gap-0.5 truncate">
+                      {comp.domain}
+                      <ArrowUpRight className="h-2.5 w-2.5 shrink-0" />
+                    </a>
                   ) : (
-                    <div className="text-[10px] text-zinc-600 italic mt-0.5">No domain tracked</div>
+                    <span className="font-label-mono-sm text-label-mono-sm text-outline">No domain tracked</span>
                   )}
                 </div>
-
-                <button
-                  type="button"
-                  onClick={() => handleRemoveCompetitor(comp)}
-                  disabled={isPending}
-                  className="text-zinc-500 hover:text-rose-400 p-1.5 rounded-lg hover:bg-rose-500/10 transition-colors shrink-0"
-                  title="Remove competitor"
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </button>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* BOTTOM SECTION: TRACKED PROMPTS & INLINE AUDIT ACTIONS */}
-      <div className="rounded-2xl border border-white/[0.08] bg-zinc-950/80 backdrop-blur-xl p-6 shadow-xl">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-white/[0.08]">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-lg bg-[#8ce04a]/10 text-[#8ce04a] border border-[#8ce04a]/20">
-              <Search className="h-4 w-4" />
+              <button
+                onClick={() => handleRemoveCompetitor(comp)}
+                disabled={isPending}
+                className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded text-on-surface-variant hover:text-error shrink-0"
+                title="Delete competitor"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
             </div>
-            <div>
-              <h3 className="text-base font-bold text-white">Tracked Prompt Queries</h3>
-              <p className="text-xs text-zinc-400">
-                Natural queries evaluated across AI models — click Run (Play) to audit a single prompt
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-zinc-500 hidden sm:inline font-mono mr-2">
-              {prompts.length} / 25 queries
-            </span>
+          ))}
+          {/* Add slot */}
+          {competitors.length < 15 && (
             <button
-              onClick={() => {
-                setIsSuggestingPrompts(true);
-                generateTemplates();
-              }}
-              disabled={prompts.length >= 25 || isPending}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#8ce04a]/10 border border-[#8ce04a]/30 text-xs font-semibold text-[#8ce04a] hover:bg-[#8ce04a]/20 transition-colors disabled:opacity-40"
+              onClick={() => setIsAddingComp(true)}
+              className="bg-surface-container/40 rounded-lg p-space-md flex flex-col items-center justify-center text-center cursor-pointer group hover:bg-surface-container transition-all min-h-[92px]"
             >
-              <Sparkles className="h-3.5 w-3.5" />
-              <span>Suggest Prompts</span>
+              <div className="w-10 h-10 rounded-full bg-surface-container-high group-hover:bg-primary/20 group-hover:text-primary transition-all flex items-center justify-center text-on-surface-variant mb-2">
+                <Plus className="h-5 w-5" />
+              </div>
+              <span className="font-headline-sm text-headline-sm text-on-surface font-medium">Track new rival</span>
+              <span className="font-body-sm text-body-sm text-on-surface-variant">{15 - competitors.length} slots remaining</span>
             </button>
+          )}
+        </div>
+      </section>
 
+      {/* TRACKED PROMPT QUERIES */}
+      <section className="bg-surface-container-low/90 backdrop-blur-xl rounded-xl p-space-lg shadow-md space-y-space-md">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md">
+          <div>
+            <div className="flex items-center gap-space-sm">
+              <div className="p-2 rounded-lg bg-primary/10 text-primary"><Search className="h-4 w-4" /></div>
+              <h3 className="font-headline-md text-headline-md text-on-surface tracking-tight">Tracked Prompt Queries</h3>
+              <span className="px-2.5 py-0.5 rounded-full bg-surface-container text-tertiary font-label-mono-sm text-label-mono-sm font-medium">{prompts.length} / 25 queries</span>
+            </div>
+            <p className="font-body-sm text-body-sm text-on-surface-variant mt-1 ml-11">Natural buyer prompts audited across AI answer engines — click Run to audit a single prompt.</p>
+          </div>
+          <div className="flex items-center gap-space-xs flex-wrap">
+            <button
+              onClick={() => { setIsSuggestingPrompts(true); generateTemplates(); }}
+              disabled={prompts.length >= 25 || isPending}
+              className="inline-flex items-center gap-1.5 px-space-sm py-1.5 rounded-lg bg-surface-container text-primary hover:bg-surface-container-high transition-colors font-body-md text-body-md disabled:opacity-40"
+            >
+              <Sparkles className="h-4 w-4" />
+              <span>Suggest prompts</span>
+            </button>
             <button
               onClick={() => setIsAddingPrompt(true)}
               disabled={prompts.length >= 25 || isPending}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 text-xs font-semibold text-zinc-200 hover:text-white transition-colors disabled:opacity-40"
+              className="inline-flex items-center gap-1.5 px-space-md py-1.5 rounded-lg bg-primary-container text-on-primary font-body-md text-body-md font-semibold hover:bg-primary transition-all shadow-sm disabled:opacity-40"
             >
-              <Plus className="h-3.5 w-3.5 text-[#8ce04a]" />
-              <span>Add Query</span>
+              <Plus className="h-4 w-4" />
+              <span>Add query</span>
             </button>
           </div>
         </div>
 
         {prompts.length === 0 ? (
-          <div className="p-8 rounded-xl border border-dashed border-white/10 text-center text-xs text-zinc-500">
-            No prompts currently tracked. Use &quot;Add Query&quot; or &quot;Suggest Prompts&quot; to begin monitoring search visibility.
+          <div className="p-8 rounded-xl border border-dashed border-outline-variant/40 text-center font-body-sm text-body-sm text-on-surface-variant">
+            No prompts tracked yet. Use &quot;Add query&quot; or &quot;Suggest prompts&quot; to begin monitoring.
           </div>
         ) : (
-          <div className="space-y-2.5">
+          <div className="space-y-2">
             {prompts.map((prompt) => {
               const summary = promptSummaries[prompt.id];
               const isRunningThis = runningPromptId === prompt.id;
-
+              const isError = summary?.statusSummary?.startsWith('Error:');
               return (
                 <div
                   key={prompt.id}
-                  className={`p-4 rounded-xl border transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 ${
-                    prompt.is_active
-                      ? 'border-white/[0.08] bg-black/40 hover:border-white/20'
-                      : 'border-white/[0.04] bg-black/20 opacity-60'
-                  }`}
+                  className={`flex flex-col xl:flex-row xl:items-center justify-between p-space-sm bg-surface-container hover:bg-surface-container-high rounded-lg gap-space-sm transition-all group shadow-sm ${prompt.is_active ? '' : 'opacity-60'}`}
                 >
-                  <div className="flex items-start gap-3 truncate">
-                    {/* Run Single Prompt Button */}
+                  <div className="flex items-center gap-space-sm min-w-0 flex-1">
                     <button
-                      type="button"
                       onClick={() => handleRunSinglePrompt(prompt.id)}
                       disabled={isRunningThis || !prompt.is_active || isAuditingAll}
-                      className={`p-2 rounded-lg border transition-all shrink-0 mt-0.5 ${
-                        isRunningThis
-                          ? 'border-[#8ce04a] bg-[#8ce04a]/20 text-[#8ce04a]'
-                          : 'border-[#8ce04a]/30 bg-[#8ce04a]/10 text-[#8ce04a] hover:bg-[#8ce04a] hover:text-black hover:border-[#8ce04a]'
-                      } disabled:opacity-40`}
-                      title="Run audit now for this query"
+                      className="w-8 h-8 rounded-md bg-surface-container-highest group-hover:bg-primary group-hover:text-on-primary text-on-surface-variant flex items-center justify-center flex-shrink-0 transition-all disabled:opacity-40"
+                      title="Run audit for this prompt"
                     >
-                      {isRunningThis ? (
-                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                      ) : (
-                        <Play className="h-3.5 w-3.5 fill-current" />
-                      )}
+                      {isRunningThis ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4 fill-current" />}
                     </button>
-
-                    <div className="truncate">
-                      <div className="flex items-center gap-2 truncate">
-                        <span className="text-xs font-semibold text-zinc-100 truncate">{prompt.text}</span>
-                      </div>
-
-                      <div className="flex flex-wrap items-center gap-2 mt-1.5">
-                        {prompt.topic && (
-                          <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-white/[0.04] border border-white/[0.06] text-zinc-400">
-                            {prompt.topic}
-                          </span>
-                        )}
-                        <span className="text-[10px] text-zinc-500 uppercase font-mono">
-                          {prompt.locale}
-                        </span>
-
-                        {!prompt.is_active && (
-                          <span className="text-[10px] text-yellow-500 font-semibold">Paused</span>
-                        )}
-
-                        {/* Inline Latest Result */}
-                        {summary?.statusSummary ? (
-                          <div className="flex items-center gap-1.5 ml-1">
-                            <span
-                              className={`px-2 py-0.5 rounded text-[10px] font-semibold border ${
-                                summary.statusSummary.startsWith('Error:')
-                                  ? 'border-rose-500/40 bg-rose-500/15 text-rose-300'
-                                  : summary.selfMentioned
-                                    ? 'border-[#8ce04a]/40 bg-[#8ce04a]/15 text-[#8ce04a]'
-                                    : 'border-white/10 bg-white/[0.04] text-zinc-400'
-                              }`}
-                              title={summary.statusSummary.startsWith('Error:') ? summary.statusSummary : undefined}
-                            >
-                              {summary.statusSummary.startsWith('Error:') ? 'Failed' : summary.statusSummary}
-                            </span>
-
-                            {!summary.statusSummary.startsWith('Error:') && summary.selfCited && (
-                              <span className="px-1.5 py-0.5 rounded text-[9px] font-semibold border border-blue-500/30 bg-blue-500/10 text-blue-400 flex items-center gap-1">
-                                <ExternalLink className="h-2.5 w-2.5" />
-                                <span>Cited</span>
-                              </span>
-                            )}
-
-                            <span className="text-[10px] text-zinc-500">
-                              • {formatTimeAgo(summary.lastRunAt)}
-                            </span>
-                          </div>
-                        ) : (
-                          <span className="text-[10px] text-zinc-600 italic ml-1">
-                            • Not audited yet
-                          </span>
-                        )}
+                    <div className="min-w-0 flex-1">
+                      <span className="font-headline-sm text-headline-sm text-on-surface font-bold truncate block">{prompt.text}</span>
+                      <div className="flex items-center gap-1.5 pt-1 flex-wrap font-label-mono-sm text-label-mono-sm">
+                        {prompt.topic && <span className="px-2 py-0.5 rounded bg-primary/10 text-primary font-medium">{prompt.topic}</span>}
+                        <span className="px-2 py-0.5 rounded bg-surface-container-lowest text-on-surface-variant uppercase">{prompt.locale}</span>
+                        {!prompt.is_active && <span className="px-2 py-0.5 rounded bg-surface-container-lowest text-primary">Paused</span>}
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 self-end md:self-center shrink-0">
-                    <button
-                      type="button"
-                      onClick={() => handleTogglePrompt(prompt)}
-                      disabled={isPending}
-                      className={`p-1.5 rounded-lg border transition-colors ${
-                        prompt.is_active
-                          ? 'border-[#8ce04a]/30 bg-[#8ce04a]/10 text-[#8ce04a] hover:text-rose-400'
-                          : 'border-white/10 bg-white/[0.04] text-zinc-500 hover:text-[#8ce04a]'
-                      }`}
-                      title={prompt.is_active ? 'Pause prompt' : 'Activate prompt'}
-                    >
-                      <Power className="h-3.5 w-3.5" />
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setEditingPrompt(prompt);
-                        setEditPromptText(prompt.text);
-                        setEditPromptTopic(prompt.topic || '');
-                      }}
-                      disabled={isPending}
-                      className="p-1.5 text-zinc-400 hover:text-white rounded-lg hover:bg-white/[0.06] transition-colors"
-                      title="Edit prompt"
-                    >
-                      <Edit2 className="h-3.5 w-3.5" />
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => handleDeletePrompt(prompt)}
-                      disabled={isPending}
-                      className="p-1.5 text-zinc-500 hover:text-rose-400 rounded-lg hover:bg-rose-500/10 transition-colors"
-                      title="Delete prompt"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
+                  <div className="flex items-center justify-between xl:justify-end gap-space-md flex-shrink-0">
+                    <div className="flex flex-col items-start xl:items-end">
+                      {summary?.statusSummary ? (
+                        <span
+                          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full font-label-mono-sm text-label-mono-sm font-semibold ${
+                            isError
+                              ? 'bg-error-container/40 text-error'
+                              : summary.selfMentioned
+                              ? 'bg-tertiary/15 text-tertiary shadow-[0_0_12px_rgba(47,217,244,0.2)]'
+                              : 'bg-surface-container-highest text-on-surface-variant'
+                          }`}
+                          title={isError ? summary.statusSummary : undefined}
+                        >
+                          {summary.selfMentioned && !isError && <Star className="h-3 w-3 fill-current" />}
+                          {isError ? 'Failed' : summary.statusSummary}
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-surface-container-highest text-on-surface-variant font-label-mono-sm text-label-mono-sm">Not audited yet</span>
+                      )}
+                      {summary?.lastRunAt && (
+                        <span className="text-on-surface-variant font-label-mono-sm text-label-mono-sm mt-0.5 flex items-center gap-1">
+                          {summary.selfCited && !isError && <span className="text-tertiary">Cited ·</span>}
+                          {formatTimeAgo(summary.lastRunAt)}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => { setEditingPrompt(prompt); setEditPromptText(prompt.text); setEditPromptTopic(prompt.topic || ''); }}
+                        disabled={isPending}
+                        className="p-1.5 rounded hover:bg-surface-variant text-on-surface-variant hover:text-on-surface"
+                        title="Edit prompt"
+                      >
+                        <Edit2 className="h-4 w-4" />
+                      </button>
+                      {/* Toggle switch */}
+                      <button
+                        onClick={() => handleTogglePrompt(prompt)}
+                        disabled={isPending}
+                        className={`w-8 h-4 rounded-full p-0.5 flex items-center transition-all ${prompt.is_active ? 'bg-tertiary justify-end' : 'bg-surface-container-highest justify-start'}`}
+                        title={prompt.is_active ? 'Active — click to pause' : 'Paused — click to activate'}
+                      >
+                        <span className="w-3 h-3 bg-surface-container-lowest rounded-full shadow-sm" />
+                      </button>
+                      <button
+                        onClick={() => handleDeletePrompt(prompt)}
+                        disabled={isPending}
+                        className="p-1.5 rounded hover:bg-surface-variant text-on-surface-variant hover:text-error"
+                        title="Delete prompt"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               );
             })}
           </div>
         )}
-      </div>
+      </section>
 
-      {/* RECENT AUDIT EVIDENCE HISTORY */}
+      {/* RECENT AUDIT EVIDENCE */}
       {recentRuns.length > 0 && (
-        <div className="rounded-2xl border border-white/[0.08] bg-zinc-950/80 backdrop-blur-xl p-6 shadow-xl">
-          <div className="flex items-center justify-between mb-4 pb-3 border-b border-white/[0.08]">
+        <section className="bg-surface-container-low/90 backdrop-blur-xl rounded-xl p-space-lg shadow-md">
+          <div className="flex items-center justify-between mb-space-md pb-space-sm border-b border-outline-variant/20">
             <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-[#8ce04a]" />
-              <h3 className="text-sm font-bold text-white">Recent Audit History & Evidence</h3>
+              <Clock className="h-4 w-4 text-tertiary" />
+              <h3 className="font-headline-md text-headline-md text-on-surface tracking-tight">Recent Audit History &amp; Evidence</h3>
             </div>
-            <span className="text-xs text-zinc-500 font-mono">
-              {recentRuns.length} most recent audits
-            </span>
+            <span className="font-label-mono-sm text-label-mono-sm text-on-surface-variant">{recentRuns.length} recent</span>
           </div>
-
           <div className="space-y-2">
             {recentRuns.slice(0, 8).map((run) => (
-              <div
-                key={run.id}
-                className="p-3 rounded-xl border border-white/[0.06] bg-black/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
-              >
-                <div className="truncate">
-                  <div className="font-medium text-zinc-200 truncate">
-                    {run.promptText || 'Custom Query'}
-                  </div>
-                  <div className="flex items-center gap-2 text-[11px] text-zinc-500 mt-0.5">
+              <div key={run.id} className="p-space-sm rounded-lg bg-surface-container flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="font-body-md text-body-md text-on-surface truncate">{run.promptText || 'Custom Query'}</div>
+                  <div className="flex items-center gap-2 font-label-mono-sm text-label-mono-sm text-on-surface-variant mt-0.5">
                     <span className="capitalize">{run.engine}</span>
-                    <span>•</span>
-                    <span>{run.model || 'gemini-2.5-flash'}</span>
-                    <span>•</span>
+                    <span>·</span>
+                    <span className="truncate">{run.model || 'gemini'}</span>
+                    <span>·</span>
                     <span>{formatTimeAgo(run.run_at)}</span>
                   </div>
                 </div>
-
                 <button
-                  type="button"
                   onClick={() => setInspectingRun(run)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/10 bg-white/[0.04] hover:bg-white/[0.08] text-zinc-300 hover:text-white transition-colors self-start sm:self-center shrink-0"
+                  className="inline-flex items-center gap-1.5 px-space-sm py-1.5 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface-variant hover:text-on-surface transition-colors self-start sm:self-center shrink-0 font-body-md text-body-md"
                 >
-                  <FileText className="h-3 w-3 text-[#8ce04a]" />
-                  <span>Inspect Response</span>
+                  <FileText className="h-3.5 w-3.5 text-tertiary" />
+                  <span>Inspect response</span>
                 </button>
               </div>
             ))}
           </div>
-        </div>
+        </section>
       )}
 
-      {/* ============================================================= */}
-      {/* MODAL: INSPECT RAW AUDIT EVIDENCE */}
-      {/* ============================================================= */}
+      {/* ===================== MODALS ===================== */}
       {inspectingRun && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-          <div className="w-full max-w-2xl rounded-2xl border border-white/10 bg-zinc-950 p-6 shadow-2xl space-y-4 max-h-[85vh] flex flex-col">
-            <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
-              <div>
-                <h3 className="text-sm font-bold text-white">Raw AI Assistant Response</h3>
-                <p className="text-xs text-zinc-400 mt-0.5">
-                  Model: {inspectingRun.model || inspectingRun.engine} • Audited {formatTimeAgo(inspectingRun.run_at)}
-                </p>
-              </div>
-              <button onClick={() => setInspectingRun(null)} className="text-zinc-500 hover:text-white">
-                <X className="h-4 w-4" />
-              </button>
+        <Modal onClose={() => setInspectingRun(null)} wide>
+          <div className="flex items-center justify-between pb-space-sm border-b border-outline-variant/20">
+            <div>
+              <h3 className="font-headline-sm text-headline-sm text-on-surface font-bold">Raw AI Assistant Response</h3>
+              <p className="font-label-mono-sm text-label-mono-sm text-on-surface-variant mt-0.5">
+                Model: {inspectingRun.model || inspectingRun.engine} · {formatTimeAgo(inspectingRun.run_at)}
+              </p>
             </div>
-
-            <div className="flex-1 overflow-y-auto pr-1">
-              <div className="p-4 rounded-xl border border-white/[0.06] bg-black/60 font-mono text-xs text-zinc-300 whitespace-pre-wrap leading-relaxed">
-                {inspectingRun.raw_response || 'No response recorded.'}
-              </div>
-            </div>
-
-            <div className="pt-3 border-t border-white/[0.08] flex justify-end">
-              <button
-                onClick={() => setInspectingRun(null)}
-                className="px-4 py-1.5 rounded-lg bg-white/[0.08] hover:bg-white/[0.15] text-xs font-semibold text-white"
-              >
-                Close
-              </button>
+            <button onClick={() => setInspectingRun(null)} className="text-on-surface-variant hover:text-on-surface"><X className="h-4 w-4" /></button>
+          </div>
+          <div className="flex-1 overflow-y-auto pr-1 max-h-[60vh] mt-space-md">
+            <div className="p-space-md rounded-lg bg-surface-container-lowest font-mono text-body-sm text-on-surface-variant whitespace-pre-wrap leading-relaxed">
+              {inspectingRun.raw_response || 'No response recorded.'}
             </div>
           </div>
-        </div>
+          <div className="pt-space-md flex justify-end">
+            <button onClick={() => setInspectingRun(null)} className={ghostBtn}>Close</button>
+          </div>
+        </Modal>
       )}
 
-      {/* ============================================================= */}
-      {/* MODAL: EDIT BRAND */}
-      {/* ============================================================= */}
       {isEditingBrand && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-          <div className="w-full max-w-md rounded-2xl border border-white/10 bg-zinc-950 p-6 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
-              <h3 className="text-sm font-bold text-white">Edit Your Brand Information</h3>
-              <button onClick={() => setIsEditingBrand(false)} className="text-zinc-500 hover:text-white">
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-
-            <div className="space-y-3">
-              <div>
-                <label className="block text-[11px] font-medium text-zinc-300 mb-1">Brand Name *</label>
-                <input
-                  type="text"
-                  value={editBrandName}
-                  onChange={(e) => setEditBrandName(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-white/10 bg-black/60 text-xs text-zinc-100"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-medium text-zinc-300 mb-1">Primary Domain *</label>
-                <input
-                  type="text"
-                  value={editBrandDomain}
-                  onChange={(e) => setEditBrandDomain(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-white/10 bg-black/60 text-xs text-zinc-100"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-medium text-zinc-300 mb-1">
-                  Aliases (comma-separated)
-                </label>
-                <input
-                  type="text"
-                  value={editBrandAliases}
-                  onChange={(e) => setEditBrandAliases(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-white/10 bg-black/60 text-xs text-zinc-100"
-                />
-              </div>
-            </div>
-
-            <div className="pt-3 border-t border-white/[0.08] flex justify-end gap-2">
-              <button
-                onClick={() => setIsEditingBrand(false)}
-                className="px-3 py-1.5 rounded-lg border border-white/10 text-xs text-zinc-400 hover:text-white"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSaveBrand}
-                disabled={isPending}
-                className="px-4 py-1.5 rounded-lg bg-[#8ce04a] text-black font-semibold text-xs hover:bg-[#9ee862] disabled:opacity-50"
-              >
-                Save Changes
-              </button>
-            </div>
+        <Modal onClose={() => setIsEditingBrand(false)}>
+          <ModalHeader title="Edit your brand" onClose={() => setIsEditingBrand(false)} />
+          <div className="space-y-space-sm mt-space-md">
+            <div><label className={labelCls}>Brand name *</label><input className={inputCls} value={editBrandName} onChange={(e) => setEditBrandName(e.target.value)} /></div>
+            <div><label className={labelCls}>Primary domain *</label><input className={inputCls} value={editBrandDomain} onChange={(e) => setEditBrandDomain(e.target.value)} /></div>
+            <div><label className={labelCls}>Aliases (comma-separated)</label><input className={inputCls} value={editBrandAliases} onChange={(e) => setEditBrandAliases(e.target.value)} /></div>
           </div>
-        </div>
+          <div className="pt-space-md flex justify-end gap-2">
+            <button onClick={() => setIsEditingBrand(false)} className={ghostBtn}>Cancel</button>
+            <button onClick={handleSaveBrand} disabled={isPending} className={primaryBtn}>Save changes</button>
+          </div>
+        </Modal>
       )}
 
-      {/* ============================================================= */}
-      {/* MODAL: ADD COMPETITOR */}
-      {/* ============================================================= */}
       {isAddingComp && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-          <div className="w-full max-w-md rounded-2xl border border-white/10 bg-zinc-950 p-6 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
-              <h3 className="text-sm font-bold text-white">Add Competitor Brand</h3>
-              <button onClick={() => setIsAddingComp(false)} className="text-zinc-500 hover:text-white">
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-
-            <div className="space-y-3">
-              <div>
-                <label className="block text-[11px] font-medium text-zinc-300 mb-1">Competitor Name *</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Notion, Linear, ClickUp"
-                  value={newCompName}
-                  onChange={(e) => setNewCompName(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-white/10 bg-black/60 text-xs text-zinc-100"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-medium text-zinc-300 mb-1">Domain (Optional)</label>
-                <input
-                  type="text"
-                  placeholder="e.g. notion.so"
-                  value={newCompDomain}
-                  onChange={(e) => setNewCompDomain(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-white/10 bg-black/60 text-xs text-zinc-100"
-                />
-              </div>
-            </div>
-
-            <div className="pt-3 border-t border-white/[0.08] flex justify-end gap-2">
-              <button
-                onClick={() => setIsAddingComp(false)}
-                className="px-3 py-1.5 rounded-lg border border-white/10 text-xs text-zinc-400 hover:text-white"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleAddCompetitor}
-                disabled={isPending}
-                className="px-4 py-1.5 rounded-lg bg-[#8ce04a] text-black font-semibold text-xs hover:bg-[#9ee862] disabled:opacity-50"
-              >
-                Add Competitor
-              </button>
-            </div>
+        <Modal onClose={() => setIsAddingComp(false)}>
+          <ModalHeader title="Add competitor" onClose={() => setIsAddingComp(false)} />
+          <div className="space-y-space-sm mt-space-md">
+            <div><label className={labelCls}>Competitor name *</label><input className={inputCls} placeholder="e.g. Notion, Linear, ClickUp" value={newCompName} onChange={(e) => setNewCompName(e.target.value)} /></div>
+            <div><label className={labelCls}>Domain (optional)</label><input className={inputCls} placeholder="e.g. notion.so" value={newCompDomain} onChange={(e) => setNewCompDomain(e.target.value)} /></div>
           </div>
-        </div>
+          <div className="pt-space-md flex justify-end gap-2">
+            <button onClick={() => setIsAddingComp(false)} className={ghostBtn}>Cancel</button>
+            <button onClick={handleAddCompetitor} disabled={isPending} className={primaryBtn}>Add competitor</button>
+          </div>
+        </Modal>
       )}
 
-      {/* ============================================================= */}
-      {/* MODAL: ADD PROMPT */}
-      {/* ============================================================= */}
       {isAddingPrompt && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-          <div className="w-full max-w-md rounded-2xl border border-white/10 bg-zinc-950 p-6 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
-              <h3 className="text-sm font-bold text-white">Add Query to Track</h3>
-              <button onClick={() => setIsAddingPrompt(false)} className="text-zinc-500 hover:text-white">
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-
-            <div className="space-y-3">
-              <div>
-                <label className="block text-[11px] font-medium text-zinc-300 mb-1">Natural Search Query *</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Best database migration tools for Next.js"
-                  value={newPromptText}
-                  onChange={(e) => setNewPromptText(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-white/10 bg-black/60 text-xs text-zinc-100"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-medium text-zinc-300 mb-1">Topic Tag (Optional)</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Developer Tools, CRM"
-                  value={newPromptTopic}
-                  onChange={(e) => setNewPromptTopic(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-white/10 bg-black/60 text-xs text-zinc-100"
-                />
-              </div>
-            </div>
-
-            <div className="pt-3 border-t border-white/[0.08] flex justify-end gap-2">
-              <button
-                onClick={() => setIsAddingPrompt(false)}
-                className="px-3 py-1.5 rounded-lg border border-white/10 text-xs text-zinc-400 hover:text-white"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleAddPrompt}
-                disabled={isPending}
-                className="px-4 py-1.5 rounded-lg bg-[#8ce04a] text-black font-semibold text-xs hover:bg-[#9ee862] disabled:opacity-50"
-              >
-                Save Query
-              </button>
-            </div>
+        <Modal onClose={() => setIsAddingPrompt(false)}>
+          <ModalHeader title="Add query to track" onClose={() => setIsAddingPrompt(false)} />
+          <div className="space-y-space-sm mt-space-md">
+            <div><label className={labelCls}>Natural search query *</label><input className={inputCls} placeholder="e.g. Best database migration tools for Next.js" value={newPromptText} onChange={(e) => setNewPromptText(e.target.value)} /></div>
+            <div><label className={labelCls}>Topic tag (optional)</label><input className={inputCls} placeholder="e.g. Developer Tools, CRM" value={newPromptTopic} onChange={(e) => setNewPromptTopic(e.target.value)} /></div>
           </div>
-        </div>
+          <div className="pt-space-md flex justify-end gap-2">
+            <button onClick={() => setIsAddingPrompt(false)} className={ghostBtn}>Cancel</button>
+            <button onClick={handleAddPrompt} disabled={isPending} className={primaryBtn}>Save query</button>
+          </div>
+        </Modal>
       )}
 
-      {/* ============================================================= */}
-      {/* MODAL: EDIT PROMPT */}
-      {/* ============================================================= */}
       {editingPrompt && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-          <div className="w-full max-w-md rounded-2xl border border-white/10 bg-zinc-950 p-6 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
-              <h3 className="text-sm font-bold text-white">Edit Query</h3>
-              <button onClick={() => setEditingPrompt(null)} className="text-zinc-500 hover:text-white">
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-
-            <div className="space-y-3">
-              <div>
-                <label className="block text-[11px] font-medium text-zinc-300 mb-1">Search Query *</label>
-                <input
-                  type="text"
-                  value={editPromptText}
-                  onChange={(e) => setEditPromptText(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-white/10 bg-black/60 text-xs text-zinc-100"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-medium text-zinc-300 mb-1">Topic Tag</label>
-                <input
-                  type="text"
-                  value={editPromptTopic}
-                  onChange={(e) => setEditPromptTopic(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-white/10 bg-black/60 text-xs text-zinc-100"
-                />
-              </div>
-            </div>
-
-            <div className="pt-3 border-t border-white/[0.08] flex justify-end gap-2">
-              <button
-                onClick={() => setEditingPrompt(null)}
-                className="px-3 py-1.5 rounded-lg border border-white/10 text-xs text-zinc-400 hover:text-white"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSavePromptEdit}
-                disabled={isPending}
-                className="px-4 py-1.5 rounded-lg bg-[#8ce04a] text-black font-semibold text-xs hover:bg-[#9ee862] disabled:opacity-50"
-              >
-                Update Query
-              </button>
-            </div>
+        <Modal onClose={() => setEditingPrompt(null)}>
+          <ModalHeader title="Edit query" onClose={() => setEditingPrompt(null)} />
+          <div className="space-y-space-sm mt-space-md">
+            <div><label className={labelCls}>Search query *</label><input className={inputCls} value={editPromptText} onChange={(e) => setEditPromptText(e.target.value)} /></div>
+            <div><label className={labelCls}>Topic tag</label><input className={inputCls} value={editPromptTopic} onChange={(e) => setEditPromptTopic(e.target.value)} /></div>
           </div>
-        </div>
+          <div className="pt-space-md flex justify-end gap-2">
+            <button onClick={() => setEditingPrompt(null)} className={ghostBtn}>Cancel</button>
+            <button onClick={handleSavePromptEdit} disabled={isPending} className={primaryBtn}>Update query</button>
+          </div>
+        </Modal>
       )}
 
-      {/* ============================================================= */}
-      {/* MODAL: SUGGEST PROMPTS (CLIENT TEMPLATES) */}
-      {/* ============================================================= */}
       {isSuggestingPrompts && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-          <div className="w-full max-w-lg rounded-2xl border border-white/10 bg-zinc-950 p-6 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
-              <div className="flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-[#8ce04a]" />
-                <h3 className="text-sm font-bold text-white">Starter Prompt Idea Generator</h3>
-              </div>
-              <button onClick={() => setIsSuggestingPrompts(false)} className="text-zinc-500 hover:text-white">
-                <X className="h-4 w-4" />
-              </button>
+        <Modal onClose={() => setIsSuggestingPrompts(false)} wide>
+          <div className="flex items-center justify-between pb-space-sm border-b border-outline-variant/20">
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-primary" />
+              <h3 className="font-headline-sm text-headline-sm text-on-surface font-bold">Starter prompt generator</h3>
             </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-[11px] text-zinc-400 mb-1">Topic / Category</label>
-                <input
-                  type="text"
-                  value={suggestTopic}
-                  onChange={(e) => setSuggestTopic(e.target.value)}
-                  className="w-full px-2.5 py-1.5 rounded-lg border border-white/10 bg-black/60 text-xs text-zinc-100"
-                />
-              </div>
-              <div>
-                <label className="block text-[11px] text-zinc-400 mb-1">Audience</label>
-                <input
-                  type="text"
-                  value={suggestAudience}
-                  onChange={(e) => setSuggestAudience(e.target.value)}
-                  className="w-full px-2.5 py-1.5 rounded-lg border border-white/10 bg-black/60 text-xs text-zinc-100"
-                />
-              </div>
-            </div>
-
-            <div className="flex justify-end">
-              <button
-                type="button"
-                onClick={generateTemplates}
-                className="text-xs text-[#8ce04a] hover:underline"
-              >
-                Regenerate Ideas
-              </button>
-            </div>
-
-            <div className="space-y-1.5 max-h-52 overflow-y-auto pr-1">
-              {generatedSuggestions.map((s, idx) => (
-                <label
-                  key={idx}
-                  className="flex items-start gap-2 p-2 rounded-lg border border-white/[0.06] bg-black/40 hover:bg-white/[0.02] cursor-pointer text-xs"
-                >
-                  <input
-                    type="checkbox"
-                    checked={s.selected}
-                    onChange={(e) => {
-                      const checked = e.target.checked;
-                      setGeneratedSuggestions((prev) =>
-                        prev.map((item, i) => (i === idx ? { ...item, selected: checked } : item))
-                      );
-                    }}
-                    className="mt-0.5 rounded border-white/20 bg-black text-[#8ce04a] focus:ring-[#8ce04a]"
-                  />
-                  <div className="flex-1">
-                    <span className="text-zinc-200">{s.text}</span>
-                    <span className="ml-2 px-1.5 py-0.5 rounded text-[9px] bg-white/[0.06] text-zinc-400">
-                      {s.topic}
-                    </span>
-                  </div>
-                </label>
-              ))}
-            </div>
-
-            <div className="pt-3 border-t border-white/[0.08] flex justify-end gap-2">
-              <button
-                onClick={() => setIsSuggestingPrompts(false)}
-                className="px-3 py-1.5 rounded-lg border border-white/10 text-xs text-zinc-400 hover:text-white"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleAddBatchGeneratedPrompts}
-                disabled={isPending || !generatedSuggestions.some((s) => s.selected)}
-                className="px-4 py-1.5 rounded-lg bg-[#8ce04a] text-black font-semibold text-xs hover:bg-[#9ee862] disabled:opacity-50"
-              >
-                Add Selected to Prompts
-              </button>
-            </div>
+            <button onClick={() => setIsSuggestingPrompts(false)} className="text-on-surface-variant hover:text-on-surface"><X className="h-4 w-4" /></button>
           </div>
-        </div>
+          <div className="grid grid-cols-2 gap-space-sm mt-space-md">
+            <div><label className={labelCls}>Topic / category</label><input className={inputCls} value={suggestTopic} onChange={(e) => setSuggestTopic(e.target.value)} /></div>
+            <div><label className={labelCls}>Audience</label><input className={inputCls} value={suggestAudience} onChange={(e) => setSuggestAudience(e.target.value)} /></div>
+          </div>
+          <div className="flex justify-end mt-space-xs">
+            <button onClick={generateTemplates} className="inline-flex items-center gap-1 font-label-mono-sm text-label-mono-sm text-primary hover:underline"><RefreshCw className="h-3 w-3" /> Regenerate</button>
+          </div>
+          <div className="space-y-1.5 max-h-52 overflow-y-auto pr-1 mt-space-sm">
+            {generatedSuggestions.map((s, idx) => (
+              <label key={idx} className="flex items-start gap-2 p-space-sm rounded-lg bg-surface-container hover:bg-surface-container-high cursor-pointer font-body-sm text-body-sm">
+                <input
+                  type="checkbox"
+                  checked={s.selected}
+                  onChange={(e) => {
+                    const checked = e.target.checked;
+                    setGeneratedSuggestions((prev) => prev.map((item, i) => (i === idx ? { ...item, selected: checked } : item)));
+                  }}
+                  className="mt-0.5 accent-[#947dff]"
+                />
+                <div className="flex-1">
+                  <span className="text-on-surface">{s.text}</span>
+                  <span className="ml-2 px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant text-[10px]">{s.topic}</span>
+                </div>
+              </label>
+            ))}
+          </div>
+          <div className="pt-space-md flex justify-end gap-2">
+            <button onClick={() => setIsSuggestingPrompts(false)} className={ghostBtn}>Cancel</button>
+            <button onClick={handleAddBatchGeneratedPrompts} disabled={isPending || !generatedSuggestions.some((s) => s.selected)} className={primaryBtn}>Add selected</button>
+          </div>
+        </Modal>
       )}
+    </div>
+  );
+}
+
+/* ---------- modal helpers ---------- */
+function Modal({ children, onClose, wide }: { children: React.ReactNode; onClose: () => void; wide?: boolean }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md" onClick={onClose}>
+      <div
+        className={`w-full ${wide ? 'max-w-2xl' : 'max-w-md'} rounded-2xl border border-outline-variant/30 bg-surface-container-low p-space-lg shadow-2xl flex flex-col`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function ModalHeader({ title, onClose }: { title: string; onClose: () => void }) {
+  return (
+    <div className="flex items-center justify-between pb-space-sm border-b border-outline-variant/20">
+      <h3 className="font-headline-sm text-headline-sm text-on-surface font-bold">{title}</h3>
+      <button onClick={onClose} className="text-on-surface-variant hover:text-on-surface"><X className="h-4 w-4" /></button>
     </div>
   );
 }
