@@ -38,44 +38,46 @@ export default async function AppDashboardPage() {
   const orgDisplayName = organization.name || `${userDisplayName}'s Organization`;
 
   return (
-    <div className="min-h-screen bg-black text-zinc-100 flex flex-col selection:bg-white selection:text-black">
+    <div className="min-h-screen bg-surface text-on-surface flex flex-col relative">
+      <div className="fixed inset-0 -z-10 bg-[radial-gradient(#34343d_1px,transparent_1px)] [background-size:24px_24px] opacity-[0.15] pointer-events-none" />
+
       {/* Top Application Header */}
-      <header className="border-b border-white/[0.08] bg-zinc-950/80 backdrop-blur-xl sticky top-0 z-40">
+      <header className="border-b border-outline-variant/20 bg-surface-container-lowest/80 backdrop-blur-xl sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4">
             <Link href="/app" className="hover:opacity-90 transition-opacity">
               <SlashLogo size="sm" />
             </Link>
 
-            <span className="text-zinc-700 hidden sm:inline">|</span>
+            <span className="text-outline-variant hidden sm:inline">|</span>
 
             {/* Organization Selector / Label */}
-            <div className="hidden sm:flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1 text-xs font-semibold text-zinc-300">
-              <Building2 className="h-3.5 w-3.5 text-[#8ce04a]" />
+            <div className="hidden sm:flex items-center gap-2 rounded-full border border-outline-variant/30 bg-surface-container px-3 py-1 font-nav-pill text-nav-pill font-semibold text-on-surface-variant">
+              <Building2 className="h-3.5 w-3.5 text-primary" />
               <span>{orgDisplayName}</span>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-space-sm">
             {/* User Profile Link */}
             <Link
               href="/app/profile"
-              className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-zinc-300 hover:text-white hover:bg-white/[0.08] transition-colors"
+              className="flex items-center gap-2 rounded-full border border-outline-variant/30 bg-surface-container-low px-2.5 py-1 font-nav-pill text-nav-pill text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors"
             >
-              <div className="flex h-5 w-5 items-center justify-center rounded-full bg-[#8ce04a]/20 text-[#8ce04a] text-[10px] font-bold">
+              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-on-primary text-[11px] font-bold">
                 {user.email ? user.email[0].toUpperCase() : 'U'}
               </div>
-              <span className="font-semibold max-w-[130px] truncate">{user.email}</span>
+              <span className="font-medium max-w-[130px] truncate hidden lg:inline">{user.email}</span>
             </Link>
 
             {/* Sign Out Form */}
             <form action="/api/auth/signout" method="POST">
               <button
                 type="submit"
-                className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-medium text-zinc-400 hover:text-white hover:bg-white/[0.08] transition-colors"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-outline-variant/30 bg-surface-container px-3 py-1.5 font-nav-pill text-nav-pill font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors"
               >
                 <LogOut className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">Sign Out</span>
+                <span className="hidden sm:inline">Sign out</span>
               </button>
             </form>
           </div>
@@ -104,8 +106,8 @@ export default async function AppDashboardPage() {
       </main>
 
       {/* App Footer */}
-      <footer className="border-t border-white/[0.06] py-6 text-center text-xs text-zinc-600">
-        <p>SlashSaaS AI Search Visibility (GEO) Monitor • Phase 2</p>
+      <footer className="border-t border-outline-variant/20 py-6 text-center font-label-mono-sm text-label-mono-sm text-outline">
+        <p>SlashSaaS · AI Search Visibility (GEO) Monitor</p>
       </footer>
     </div>
   );
