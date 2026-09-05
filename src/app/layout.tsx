@@ -1,24 +1,28 @@
 import type { Metadata, Viewport } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Plus_Jakarta_Sans, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { JsonLd } from '@/components/JsonLd';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
+const jakarta = Plus_Jakarta_Sans({
+  variable: '--font-jakarta',
   subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800'],
+  display: 'swap',
 });
 
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
+const jetbrains = JetBrains_Mono({
+  variable: '--font-jetbrains',
   subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  display: 'swap',
 });
 
 const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://slashsaas.com';
 
 export const viewport: Viewport = {
-  themeColor: '#08070f',
+  themeColor: '#13131b',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
@@ -94,12 +98,16 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
+      className={`${jakarta.variable} ${jetbrains.variable} h-full antialiased dark`}
     >
       <head>
         <JsonLd />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
+        />
       </head>
-      <body className="min-h-full flex flex-col bg-[#08070f] text-zinc-100">
+      <body className="min-h-full flex flex-col bg-surface text-on-surface">
         {children}
         <Analytics />
         <SpeedInsights />

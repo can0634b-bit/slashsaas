@@ -1,50 +1,172 @@
 @import "tailwindcss";
 
+@theme {
+  /* ── Deep Aurora Bento palette (from Stitch design) ── */
+  --color-surface: #13131b;
+  --color-surface-dim: #13131b;
+  --color-surface-bright: #393842;
+  --color-surface-container-lowest: #0d0d16;
+  --color-surface-container-low: #1b1b23;
+  --color-surface-container: #1f1f27;
+  --color-surface-container-high: #292932;
+  --color-surface-container-highest: #34343d;
+  --color-surface-variant: #34343d;
+  --color-on-surface: #e4e1ed;
+  --color-on-surface-variant: #c9c4d8;
+  --color-inverse-surface: #e4e1ed;
+  --color-inverse-on-surface: #302f39;
+  --color-background: #13131b;
+  --color-on-background: #e4e1ed;
+  --color-outline: #938ea1;
+  --color-outline-variant: #484555;
+  --color-surface-tint: #cabeff;
+
+  --color-primary: #cabeff;
+  --color-on-primary: #31009a;
+  --color-primary-container: #947dff;
+  --color-on-primary-container: #2a0088;
+  --color-inverse-primary: #603ce2;
+  --color-primary-fixed: #e6deff;
+  --color-primary-fixed-dim: #cabeff;
+  --color-on-primary-fixed: #1c0062;
+  --color-on-primary-fixed-variant: #4816cb;
+
+  --color-secondary: #b5c4ff;
+  --color-on-secondary: #00297b;
+  --color-secondary-container: #0048cc;
+  --color-on-secondary-container: #b9c8ff;
+  --color-secondary-fixed: #dce1ff;
+  --color-secondary-fixed-dim: #b5c4ff;
+  --color-on-secondary-fixed: #00164d;
+  --color-on-secondary-fixed-variant: #003cad;
+
+  --color-tertiary: #2fd9f4;
+  --color-on-tertiary: #00363e;
+  --color-tertiary-container: #009fb4;
+  --color-on-tertiary-container: #002f36;
+  --color-tertiary-fixed: #a2eeff;
+  --color-tertiary-fixed-dim: #2fd9f4;
+  --color-on-tertiary-fixed: #001f25;
+  --color-on-tertiary-fixed-variant: #004e5a;
+
+  --color-error: #ffb4ab;
+  --color-on-error: #690005;
+  --color-error-container: #93000a;
+  --color-on-error-container: #ffdad6;
+
+  /* ── Spacing scale ── */
+  --spacing-space-2xs: 0.25rem;
+  --spacing-space-xs: 0.5rem;
+  --spacing-space-sm: 0.75rem;
+  --spacing-space-md: 1rem;
+  --spacing-space-lg: 1.5rem;
+  --spacing-space-xl: 2rem;
+  --spacing-space-2xl: 3rem;
+  --spacing-space-3xl: 4rem;
+  --spacing-gutter-mobile: 1rem;
+  --spacing-gutter-tablet: 1.5rem;
+  --spacing-gutter-desktop: 1.5rem;
+
+  /* ── Font families (var set by next/font in layout) ── */
+  --font-display-hero: var(--font-jakarta), "Plus Jakarta Sans", sans-serif;
+  --font-display-hero-mobile: var(--font-jakarta), "Plus Jakarta Sans", sans-serif;
+  --font-headline-xl: var(--font-jakarta), "Plus Jakarta Sans", sans-serif;
+  --font-headline-xl-mobile: var(--font-jakarta), "Plus Jakarta Sans", sans-serif;
+  --font-headline-lg: var(--font-jakarta), "Plus Jakarta Sans", sans-serif;
+  --font-headline-md: var(--font-jakarta), "Plus Jakarta Sans", sans-serif;
+  --font-headline-sm: var(--font-jakarta), "Plus Jakarta Sans", sans-serif;
+  --font-body-lg: var(--font-jakarta), "Plus Jakarta Sans", sans-serif;
+  --font-body-md: var(--font-jakarta), "Plus Jakarta Sans", sans-serif;
+  --font-body-sm: var(--font-jakarta), "Plus Jakarta Sans", sans-serif;
+  --font-nav-pill: var(--font-jakarta), "Plus Jakarta Sans", sans-serif;
+  --font-label-mono-lg: var(--font-jetbrains), "JetBrains Mono", monospace;
+  --font-label-mono-md: var(--font-jetbrains), "JetBrains Mono", monospace;
+  --font-label-mono-sm: var(--font-jetbrains), "JetBrains Mono", monospace;
+
+  /* ── Type scale (size + line-height + tracking + weight) ── */
+  --text-display-hero: 56px;
+  --text-display-hero--line-height: 64px;
+  --text-display-hero--letter-spacing: -0.03em;
+  --text-display-hero--font-weight: 800;
+  --text-display-hero-mobile: 36px;
+  --text-display-hero-mobile--line-height: 44px;
+  --text-display-hero-mobile--letter-spacing: -0.025em;
+  --text-display-hero-mobile--font-weight: 800;
+  --text-headline-xl: 40px;
+  --text-headline-xl--line-height: 48px;
+  --text-headline-xl--letter-spacing: -0.025em;
+  --text-headline-xl--font-weight: 800;
+  --text-headline-xl-mobile: 28px;
+  --text-headline-xl-mobile--line-height: 36px;
+  --text-headline-xl-mobile--letter-spacing: -0.02em;
+  --text-headline-xl-mobile--font-weight: 700;
+  --text-headline-lg: 28px;
+  --text-headline-lg--line-height: 36px;
+  --text-headline-lg--letter-spacing: -0.02em;
+  --text-headline-lg--font-weight: 700;
+  --text-headline-md: 20px;
+  --text-headline-md--line-height: 28px;
+  --text-headline-md--letter-spacing: -0.015em;
+  --text-headline-md--font-weight: 700;
+  --text-headline-sm: 16px;
+  --text-headline-sm--line-height: 24px;
+  --text-headline-sm--letter-spacing: -0.01em;
+  --text-headline-sm--font-weight: 600;
+  --text-body-lg: 16px;
+  --text-body-lg--line-height: 26px;
+  --text-body-lg--letter-spacing: -0.005em;
+  --text-body-md: 14px;
+  --text-body-md--line-height: 22px;
+  --text-body-sm: 12px;
+  --text-body-sm--line-height: 18px;
+  --text-nav-pill: 13px;
+  --text-nav-pill--line-height: 18px;
+  --text-nav-pill--letter-spacing: -0.005em;
+  --text-nav-pill--font-weight: 500;
+  --text-label-mono-lg: 14px;
+  --text-label-mono-lg--line-height: 20px;
+  --text-label-mono-lg--letter-spacing: -0.01em;
+  --text-label-mono-lg--font-weight: 500;
+  --text-label-mono-md: 12px;
+  --text-label-mono-md--line-height: 16px;
+  --text-label-mono-md--font-weight: 500;
+  --text-label-mono-sm: 10px;
+  --text-label-mono-sm--line-height: 14px;
+  --text-label-mono-sm--letter-spacing: 0.02em;
+  --text-label-mono-sm--font-weight: 500;
+}
+
 html {
   scroll-behavior: smooth;
   color-scheme: dark;
 }
 
 body {
-  background-color: #08070f;
-  color: #f4f4f5;
+  background-color: #13131b;
+  color: #e4e1ed;
   overflow-x: hidden;
+  font-family: var(--font-jakarta), "Plus Jakarta Sans", sans-serif;
 }
 
 ::selection {
-  background-color: #7c5cff;
+  background-color: #947dff;
   color: #ffffff;
 }
 
+/* Material Symbols sizing helper */
+.material-symbols-outlined {
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+  line-height: 1;
+}
+
 @keyframes reveal-up {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
 }
+.animate-reveal { animation: reveal-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
 
-.animate-reveal {
-  animation: reveal-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-/* Glass panel fallback for browsers without backdrop-filter support */
-@supports not (backdrop-filter: blur(1px)) {
-  .backdrop-blur-md,
-  .backdrop-blur-xl,
-  .backdrop-blur-2xl {
-    background-color: #09090b !important;
-  }
-}
-
-/* Respect user preference for reduced motion */
 @media (prefers-reduced-motion: reduce) {
-  *,
-  ::before,
-  ::after {
+  *, ::before, ::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
@@ -52,16 +174,7 @@ body {
   }
 }
 
-::-webkit-scrollbar {
-  width: 7px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 9999px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
-}
+::-webkit-scrollbar { width: 7px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.3); }
