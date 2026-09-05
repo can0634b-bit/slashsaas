@@ -77,3 +77,48 @@ export interface OnboardingPayload {
     locale?: string;
   }>;
 }
+
+export interface CitationItem {
+  url: string;
+  title?: string;
+}
+
+export interface EngineRunResult {
+  model: string;
+  rawResponse: string;
+  citations: CitationItem[];
+  costUsd?: number;
+}
+
+export interface BrandMentionExtraction {
+  brand_id: string;
+  brand_name: string;
+  is_self: boolean;
+  mentioned: boolean;
+  position: number | null;
+  cited: boolean;
+  citation_url: string | null;
+  sentiment: 'positive' | 'neutral' | 'negative' | null;
+  snippet: string | null;
+}
+
+export interface PromptAuditSummary {
+  promptId: string;
+  lastRunAt: string | null;
+  selfMentioned: boolean | null;
+  selfPosition: number | null;
+  selfCited: boolean | null;
+  competitorMentionsCount: number;
+  topCompetitorName: string | null;
+  topCompetitorPosition: number | null;
+  statusSummary: string | null;
+}
+
+export interface GeoWorkspaceMetrics {
+  totalRuns: number;
+  brandMentionRate: number; // 0 - 100 %
+  shareOfVoice: number; // 0 - 100 %
+  topCitationsCount: number;
+  topCitedDomains: Array<{ domain: string; count: number }>;
+  lastAuditedAt: string | null;
+}
