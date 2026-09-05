@@ -172,16 +172,22 @@ export function GeoDashboardView({
     try {
       const res = await runAuditAllActive('gemini');
 
-      if (!res.success) {
+      if (!res.success && res.completed === 0) {
         const firstError = res.results.find((r) => r.error)?.error;
         setNotification({
           type: 'error',
-          message: firstError ? `Audit failed: ${firstError}` : `Audit finished: Analyzed 0 of ${res.total} prompts. Check API keys and logs.`,
+          message: res.message || (firstError ? `Audit failed: ${firstError}` : `Audit finished: Analyzed 0 of ${res.total} prompts. Check API keys and logs.`),
         });
+      } else if (res.completed < res.total) {
+        setNotification({
+          type: 'warning',
+          message: res.message || `Analyzed ${res.completed} of ${res.total} (${res.rateLimitedCount} rate-limited — retry later).`,
+        });
+        router.refresh();
       } else {
         setNotification({
           type: 'success',
-          message: `Batch audit complete! Analyzed ${res.completed} of ${res.total} active prompts with Google Gemini.`,
+          message: res.message || `Batch audit complete! Analyzed ${res.completed} of ${res.total} active prompts with Google Gemini.`,
         });
         router.refresh();
       }

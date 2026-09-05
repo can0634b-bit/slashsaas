@@ -27,6 +27,8 @@ export async function POST(req: NextRequest) {
         ok: batchResult.completed > 0 || batchResult.total === 0,
         total: batchResult.total,
         completed: batchResult.completed,
+        rateLimitedCount: batchResult.rateLimitedCount,
+        message: batchResult.message,
         error: batchResult.completed === 0 && batchResult.total > 0 ? firstError : undefined,
         runs: batchResult.results.map((r) => ({
           promptId: r.promptId,

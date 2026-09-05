@@ -4,7 +4,7 @@ import { EngineRunResult, CitationItem } from '@/lib/types';
 
 export const DEFAULT_GEMINI_MODEL = 'gemini-3.6-flash';
 
-let cachedResolvedModel: string | null = null;
+let cachedCandidateModels: string[] | null = null;
 
 export function getGeminiApiKey(): string {
   const key = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
@@ -14,27 +14,140 @@ export function getGeminiApiKey(): string {
   return key.trim().replace(/^["']|["']$/g, '');
 }
 
+export interface GeminiErrorClassification {
+  isRateLimit: boolean;    // 429 / RESOURCE_EXHAUSTED / quota exceeded
+  isOverloaded: boolean;   // 503 / UNAVAILABLE / high demand / overloaded / 500
+  isFatal: boolean;        // 400 / 401 / 403 / API_KEY_INVALID / bad request / invalid argument
+  retryDelayMs?: number;   // parsed retryDelay in milliseconds
+  rawMessage: string;
+}
+
 /**
- * Resolves the optimal Gemini model dynamically:
- * (a) If GEMINI_MODEL env var is set -> use verbatim.
- * (b) Query Gemini ListModels at runtime -> filter to generation-capable, flash-tier models -> sort by highest version.
- * (c) Fallback to DEFAULT_GEMINI_MODEL ('gemini-3.6-flash').
- * Results are cached in-memory for the process lifetime.
+ * Classifies an error from Gemini SDK or REST API:
+ * - 429 / RESOURCE_EXHAUSTED / quota
+ * - 503 / UNAVAILABLE / high demand / overloaded / 500
+ * - 400 / 401 / 403 / auth / bad request (fatal -> no retry)
  */
-export async function resolveGeminiModel(apiKey?: string): Promise<string> {
+export function classifyGeminiError(err: any): GeminiErrorClassification {
+  const rawMessage = err?.message || (typeof err === 'string' ? err : String(err || 'Unknown Gemini error'));
+  const lower = rawMessage.toLowerCase();
+  const status = err?.status || err?.code || (err?.response ? err.response.status : undefined);
+
+  // 1. Fatal errors (auth, bad request, invalid key) -> fail fast
+  const isFatal =
+    status === 400 ||
+    status === 401 ||
+    status === 403 ||
+    lower.includes('api_key_invalid') ||
+    lower.includes('api key not valid') ||
+    lower.includes('permission_denied') ||
+    lower.includes('invalid_argument') ||
+    lower.includes('invalid argument') ||
+    lower.includes('unauthorized') ||
+    lower.includes('forbidden');
+
+  // 2. Rate limit / quota (429 / RESOURCE_EXHAUSTED)
+  const isRateLimit =
+    status === 429 ||
+    lower.includes('429') ||
+    lower.includes('resource_exhausted') ||
+    lower.includes('quota') ||
+    lower.includes('rate limit') ||
+    lower.includes('too many requests');
+
+  // Extract retry delay if available in message or errorDetails
+  let retryDelayMs: number | undefined;
+  if (isRateLimit) {
+    const details = err?.errorDetails || err?.details || [];
+    if (Array.isArray(details)) {
+      for (const d of details) {
+        if (d?.retryDelay) {
+          const match = String(d.retryDelay).match(/(\d+(?:\.\d+)?)/);
+          if (match) {
+            retryDelayMs = Math.round(parseFloat(match[1]) * 1000);
+            break;
+          }
+        }
+      }
+    }
+
+    if (!retryDelayMs) {
+      const match = rawMessage.match(/(?:retry\s+(?:in|after)|retryDelay["':\s]+)\s*(\d+(?:\.\d+)?)\s*s/i);
+      if (match) {
+        retryDelayMs = Math.round(parseFloat(match[1]) * 1000);
+      }
+    }
+
+    // Cap retryDelayMs between 1s and 40s (cap ~40s)
+    if (retryDelayMs !== undefined) {
+      retryDelayMs = Math.min(Math.max(retryDelayMs, 1000), 40000);
+    }
+  }
+
+  // 3. Overloaded / unavailable (503 / 500 / UNAVAILABLE / high demand)
+  const isOverloaded =
+    !isRateLimit &&
+    !isFatal &&
+    (status === 503 ||
+      status === 500 ||
+      lower.includes('503') ||
+      lower.includes('500') ||
+      lower.includes('unavailable') ||
+      lower.includes('high demand') ||
+      lower.includes('overloaded') ||
+      lower.includes('temporarily unavailable') ||
+      lower.includes('internal error') ||
+      lower.includes('internal server error'));
+
+  return {
+    isRateLimit,
+    isOverloaded,
+    isFatal,
+    retryDelayMs,
+    rawMessage,
+  };
+}
+
+export function isGeminiRateLimitError(err: any): boolean {
+  return classifyGeminiError(err).isRateLimit;
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function calculateJitteredBackoff(attempt: number, baseMs = 2000, maxMs = 20000): number {
+  const exponential = baseMs * Math.pow(2, attempt - 1);
+  const jitter = Math.random() * 1000;
+  return Math.min(exponential + jitter, maxMs);
+}
+
+function calculateExponentialBackoff(attempt: number, baseMs = 2000, maxMs = 40000): number {
+  const exponential = baseMs * Math.pow(2, attempt - 1);
+  const jitter = Math.random() * 500;
+  return Math.min(exponential + jitter, maxMs);
+}
+
+/**
+ * Returns candidate Gemini models discovered at runtime, sorted newest first:
+ * (a) If GEMINI_MODEL env var is set -> [envModel].
+ * (b) Query Gemini ListModels at runtime -> filter to flash-tier models -> sort by version descending.
+ * (c) Always appends DEFAULT_GEMINI_MODEL as a resilient fallback.
+ */
+export async function getDiscoveredGeminiModels(apiKey?: string): Promise<string[]> {
   const envModel = process.env.GEMINI_MODEL?.trim();
   if (envModel) {
     const clean = envModel.replace(/^models\//, '');
-    return clean;
+    return [clean];
   }
 
-  if (cachedResolvedModel) {
-    return cachedResolvedModel;
+  if (cachedCandidateModels && cachedCandidateModels.length > 0) {
+    return cachedCandidateModels;
   }
 
   const key = apiKey || (process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || '').trim().replace(/^["']|["']$/g, '');
   if (!key) {
-    return DEFAULT_GEMINI_MODEL;
+    return [DEFAULT_GEMINI_MODEL];
   }
 
   try {
@@ -54,10 +167,6 @@ export async function resolveGeminiModel(apiKey?: string): Promise<string> {
         supportedGenerationMethods?: string[];
       }> = data.models || [];
 
-      // Filter:
-      // 1. Must support generateContent
-      // 2. Must be flash-tier
-      // 3. Exclude non-text/specialized: embedding, tts, image, audio, transcribe, realtime
       const candidates = modelsList
         .filter((m) => {
           const name = m.name.toLowerCase();
@@ -79,7 +188,7 @@ export async function resolveGeminiModel(apiKey?: string): Promise<string> {
         .map((m) => m.name.replace(/^models\//, ''));
 
       if (candidates.length > 0) {
-        // Sort by version descending (e.g. 3.7 > 3.6 > 3.5 > 3.1)
+        // Sort descending by numeric version (e.g. 3.8 > 3.7 > 3.6)
         const sorted = candidates.sort((a, b) => {
           const matchA = a.match(/gemini-(\d+(?:\.\d+)?)/);
           const matchB = b.match(/gemini-(\d+(?:\.\d+)?)/);
@@ -89,20 +198,31 @@ export async function resolveGeminiModel(apiKey?: string): Promise<string> {
           return b.localeCompare(a);
         });
 
-        cachedResolvedModel = sorted[0];
-        console.log(`[GEMINI_RESOLVER] Dynamically resolved Gemini model: "${cachedResolvedModel}"`);
-        return cachedResolvedModel;
+        // Ensure DEFAULT_GEMINI_MODEL is in the candidate list
+        if (!sorted.includes(DEFAULT_GEMINI_MODEL)) {
+          sorted.push(DEFAULT_GEMINI_MODEL);
+        }
+
+        cachedCandidateModels = sorted;
+        console.log(`[GEMINI_RESOLVER] Discovered candidate Gemini models:`, cachedCandidateModels);
+        return cachedCandidateModels;
       }
     } else {
       console.warn(`[GEMINI_RESOLVER] ListModels HTTP ${res.status}: ${res.statusText}`);
     }
   } catch (err: any) {
-    console.warn('[GEMINI_RESOLVER] Failed to query dynamic ListModels, using default:', err?.message || err);
+    console.warn('[GEMINI_RESOLVER] Failed to query dynamic ListModels, using default list:', err?.message || err);
   }
 
-  cachedResolvedModel = DEFAULT_GEMINI_MODEL;
-  return cachedResolvedModel;
+  cachedCandidateModels = [DEFAULT_GEMINI_MODEL];
+  return cachedCandidateModels;
 }
+
+export async function resolveGeminiModel(apiKey?: string): Promise<string> {
+  const models = await getDiscoveredGeminiModels(apiKey);
+  return models[0] || DEFAULT_GEMINI_MODEL;
+}
+
 
 export class GeminiAdapter implements EngineAdapter {
   id = 'gemini' as const;
@@ -110,14 +230,121 @@ export class GeminiAdapter implements EngineAdapter {
 
   async run(promptText: string, opts?: EngineRunOptions): Promise<EngineRunResult> {
     const apiKey = getGeminiApiKey();
-    const model = await resolveGeminiModel(apiKey);
+    const candidateModels = await getDiscoveredGeminiModels(apiKey);
     const ai = new GoogleGenAI({ apiKey });
 
-    let rawResponse = '';
-    const citations: CitationItem[] = [];
+    let lastModelError: any = null;
+
+    // 2. MODEL FALLBACK:
+    // If primary model stays overloaded (503) after retries, try the NEXT available flash model
+    for (let mIdx = 0; mIdx < candidateModels.length; mIdx++) {
+      const currentModel = candidateModels[mIdx];
+      const isLastModel = mIdx === candidateModels.length - 1;
+
+      try {
+        const runResult = await this.executeModelWithRetries(ai, apiKey, currentModel, promptText);
+        return runResult;
+      } catch (err: any) {
+        lastModelError = err;
+        const classification = classifyGeminiError(err);
+
+        // Fallback to next model if overloaded (503 / high demand) and more models exist
+        if (classification.isOverloaded && !isLastModel) {
+          const nextModel = candidateModels[mIdx + 1];
+          console.warn(
+            `[GEMINI_ADAPTER] Model "${currentModel}" remained overloaded after 4 retries. Falling back to next candidate: "${nextModel}"...`
+          );
+          continue;
+        }
+
+        // On rate limit (429), fatal error, or if no further models, fail loud
+        throw err;
+      }
+    }
+
+    throw lastModelError || new Error('All Gemini model candidates failed.');
+  }
+
+  /**
+   * 1. RETRY WITH BACKOFF (up to 4 attempts):
+   * - On 429 / RESOURCE_EXHAUSTED: read retryDelay or exponential backoff (cap ~40s).
+   * - On 503 / UNAVAILABLE / high demand / 500: exponential backoff with jitter (2s, 4s, 8s...).
+   * - On other errors (auth, bad request): fail fast, no retry.
+   */
+  private async executeModelWithRetries(
+    ai: GoogleGenAI,
+    apiKey: string,
+    model: string,
+    promptText: string
+  ): Promise<EngineRunResult> {
+    const MAX_ATTEMPTS = 4;
     let lastError: any = null;
 
-    // Attempt 1: SDK generateContent with Google Search Grounding
+    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+      const isLastAttempt = attempt === MAX_ATTEMPTS;
+
+      try {
+        const generation = await this.singleGenerate(ai, apiKey, model, promptText);
+        return {
+          model,
+          rawResponse: generation.rawResponse,
+          citations: generation.citations,
+          costUsd: 0.0001,
+        };
+      } catch (err: any) {
+        lastError = err;
+        const classification = classifyGeminiError(err);
+
+        // Fatal errors (400, 401, 403, invalid key) fail fast without retry
+        if (classification.isFatal || isLastAttempt) {
+          throw new Error(`Gemini API error (model: ${model}): ${lastError?.message || String(lastError)}`);
+        }
+
+        if (classification.isRateLimit) {
+          const delayMs = classification.retryDelayMs ?? calculateExponentialBackoff(attempt, 2000, 40000);
+          console.warn(
+            `[GEMINI_RETRY] Attempt ${attempt}/${MAX_ATTEMPTS} for "${model}" hit 429 (quota exceeded). Waiting ${(delayMs / 1000).toFixed(1)}s before retry...`
+          );
+          await sleep(delayMs);
+          continue;
+        }
+
+        if (classification.isOverloaded) {
+          const delayMs = calculateJitteredBackoff(attempt, 2000, 20000);
+          console.warn(
+            `[GEMINI_RETRY] Attempt ${attempt}/${MAX_ATTEMPTS} for "${model}" hit 503 (model high demand / unavailable). Waiting ${(delayMs / 1000).toFixed(1)}s before retry...`
+          );
+          await sleep(delayMs);
+          continue;
+        }
+
+        // Other transient network/timeout errors
+        const delayMs = calculateJitteredBackoff(attempt, 1500, 10000);
+        console.warn(
+          `[GEMINI_RETRY] Attempt ${attempt}/${MAX_ATTEMPTS} for "${model}" hit transient error. Waiting ${(delayMs / 1000).toFixed(1)}s before retry: ${err?.message}`
+        );
+        await sleep(delayMs);
+      }
+    }
+
+    throw new Error(`Gemini API error (model: ${model}): ${lastError?.message || String(lastError)}`);
+  }
+
+  /**
+   * Executes a single generation attempt:
+   * First tries SDK with Google Search Grounding.
+   * If grounding tool is rejected or network error occurs (and NOT 429/503), falls back to plain or REST.
+   * If 429 or 503 is returned, throws directly so the backoff retry loop handles it.
+   */
+  private async singleGenerate(
+    ai: GoogleGenAI,
+    apiKey: string,
+    model: string,
+    promptText: string
+  ): Promise<{ rawResponse: string; citations: CitationItem[] }> {
+    let rawResponse = '';
+    const citations: CitationItem[] = [];
+
     try {
       const response = await ai.models.generateContent({
         model,
@@ -140,40 +367,30 @@ export class GeminiAdapter implements EngineAdapter {
           }
         }
       }
-    } catch (sdkGroundingErr: any) {
-      lastError = sdkGroundingErr;
-      console.warn(`[GEMINI_ADAPTER] Grounded call failed for model "${model}":`, sdkGroundingErr?.message || sdkGroundingErr);
+    } catch (sdkErr: any) {
+      const classification = classifyGeminiError(sdkErr);
+      // If error is 429, 503, or fatal, bubble immediately to retry loop / caller
+      if (classification.isRateLimit || classification.isOverloaded || classification.isFatal) {
+        throw sdkErr;
+      }
 
-      // Attempt 2: SDK without grounding tools (if tool was the cause)
+      // Try SDK without grounding if grounding tool was unsupported
       try {
-        const response = await ai.models.generateContent({
+        const plainResponse = await ai.models.generateContent({
           model,
           contents: promptText,
         });
-        rawResponse = response.text || '';
-      } catch (sdkPlainErr: any) {
-        lastError = sdkPlainErr;
-        console.warn(`[GEMINI_ADAPTER] Plain SDK call failed for model "${model}", attempting REST fallback:`, sdkPlainErr?.message || sdkPlainErr);
-
-        // Attempt 3: Direct REST endpoint with grounding
-        try {
-          const restResult = await this.callRestApi(apiKey, model, promptText, true);
-          rawResponse = restResult.text;
-          citations.push(...restResult.citations);
-        } catch (restGroundedErr: any) {
-          lastError = restGroundedErr;
-          console.warn(`[GEMINI_ADAPTER] Grounded REST failed, attempting plain REST:`, restGroundedErr?.message || restGroundedErr);
-
-          // Attempt 4: Plain REST endpoint
-          try {
-            const restPlainResult = await this.callRestApi(apiKey, model, promptText, false);
-            rawResponse = restPlainResult.text;
-          } catch (restFinalErr: any) {
-            lastError = restFinalErr;
-            console.error(`[GEMINI_ADAPTER_ERROR] All generation attempts failed for model "${model}":`, restFinalErr?.message || restFinalErr);
-            throw new Error(`Gemini API error (model: ${model}): ${lastError?.message || String(lastError)}`);
-          }
+        rawResponse = plainResponse.text || '';
+      } catch (plainErr: any) {
+        const plainClass = classifyGeminiError(plainErr);
+        if (plainClass.isRateLimit || plainClass.isOverloaded || plainClass.isFatal) {
+          throw plainErr;
         }
+
+        // Direct REST endpoint fallback
+        const restResult = await this.callRestApi(apiKey, model, promptText, true);
+        rawResponse = restResult.text;
+        citations.push(...restResult.citations);
       }
     }
 
@@ -192,12 +409,7 @@ export class GeminiAdapter implements EngineAdapter {
       }
     }
 
-    return {
-      model,
-      rawResponse: rawResponse.trim(),
-      citations: uniqueCitations,
-      costUsd: 0.0001,
-    };
+    return { rawResponse: rawResponse.trim(), citations: uniqueCitations };
   }
 
   private async callRestApi(
@@ -237,7 +449,10 @@ export class GeminiAdapter implements EngineAdapter {
     if (!res.ok) {
       const errJson = await res.json().catch(() => ({}));
       const rawMsg = errJson.error?.message || `HTTP ${res.status}: ${res.statusText}`;
-      throw new Error(rawMsg);
+      const err: any = new Error(rawMsg);
+      err.status = res.status;
+      err.errorDetails = errJson.error?.details;
+      throw err;
     }
 
     const data = await res.json();
