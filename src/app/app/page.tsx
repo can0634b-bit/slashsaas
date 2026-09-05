@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 import { Metadata } from 'next';
 import { getCurrentOrg, getGeoWorkspaceData } from '@/lib/supabase/geo';
 import { SlashLogo } from '@/components/Logo';
-import { LogOut, Building2, User } from 'lucide-react';
+import { LogOut, Building2, Home } from 'lucide-react';
 import { OnboardingWizard } from '@/components/geo/OnboardingWizard';
 import { GeoDashboardView } from '@/components/geo/GeoDashboardView';
 
@@ -44,9 +44,20 @@ export default async function AppDashboardPage() {
       {/* Top Application Header */}
       <header className="border-b border-outline-variant/20 bg-surface-container-lowest/80 backdrop-blur-xl sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <Link href="/app" className="hover:opacity-90 transition-opacity">
               <SlashLogo size="sm" />
+            </Link>
+
+            {/* Back to marketing homepage */}
+            <Link
+              href="/"
+              title="Back to homepage"
+              aria-label="Back to homepage"
+              className="group inline-flex items-center gap-1.5 rounded-full border border-outline-variant/30 bg-surface-container px-2.5 sm:px-3 py-1 font-nav-pill text-nav-pill font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high hover:border-primary/40 transition-colors"
+            >
+              <Home className="h-3.5 w-3.5 text-primary transition-transform group-hover:-translate-x-0.5" />
+              <span className="hidden sm:inline">Home</span>
             </Link>
 
             <span className="text-outline-variant hidden sm:inline">|</span>
