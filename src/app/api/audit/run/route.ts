@@ -22,12 +22,15 @@ export async function POST(req: NextRequest) {
 
     if (body.all === true) {
       const batchResult = await runAuditAllActive(engine);
+      const firstError = batchResult.results.find((r) => r.error)?.error;
       return NextResponse.json({
         ok: batchResult.completed > 0 || batchResult.total === 0,
         total: batchResult.total,
         completed: batchResult.completed,
+        error: batchResult.completed === 0 && batchResult.total > 0 ? firstError : undefined,
         runs: batchResult.results.map((r) => ({
           promptId: r.promptId,
+          model: r.model,
           status: r.success ? 'completed' : r.rateLimited ? 'rate_limited' : 'failed',
           selfMentioned: r.selfMentioned,
           selfPosition: r.selfPosition,
@@ -64,6 +67,7 @@ export async function POST(req: NextRequest) {
         runs: [
           {
             promptId: singleResult.promptId,
+            model: singleResult.model,
             status: singleResult.success ? 'completed' : 'failed',
             selfMentioned: singleResult.selfMentioned,
             selfPosition: singleResult.selfPosition,

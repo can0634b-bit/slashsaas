@@ -56,6 +56,8 @@ create table if not exists public.runs (
   model text null,
   raw_response text null,
   cost_usd numeric(10, 6) null,
+  status text not null default 'ok',
+  error text null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );

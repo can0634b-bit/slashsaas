@@ -128,8 +128,9 @@ export async function getGeoWorkspaceData(orgId: string): Promise<GeoWorkspaceDa
     mentionList = (rawMentions || []) as Mention[];
   }
 
-  // 5. Compute Metrics
-  const totalRuns = runList.length;
+  // 5. Compute Metrics (only ok runs contribute to percentage metrics)
+  const okRuns = runList.filter((r) => r.status !== 'error');
+  const totalRuns = okRuns.length;
   let selfMentionsCount = 0;
   let competitorMentionsCount = 0;
   let topCitationsCount = 0;
@@ -203,6 +204,21 @@ export async function getGeoWorkspaceData(orgId: string): Promise<GeoWorkspaceDa
         topCompetitorName: null,
         topCompetitorPosition: null,
         statusSummary: null,
+      };
+      continue;
+    }
+
+    if (latestRun.status === 'error') {
+      promptSummaries[prompt.id] = {
+        promptId: prompt.id,
+        lastRunAt: latestRun.run_at,
+        selfMentioned: null,
+        selfPosition: null,
+        selfCited: null,
+        competitorMentionsCount: 0,
+        topCompetitorName: null,
+        topCompetitorPosition: null,
+        statusSummary: `Error: ${latestRun.error || 'Audit failed'}`,
       };
       continue;
     }

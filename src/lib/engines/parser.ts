@@ -127,12 +127,19 @@ function fallbackAnalyzeMentions(input: MentionAnalysisInput): BrandMentionExtra
   }));
 }
 
+export const DEFAULT_GROQ_MODEL = 'llama-3.3-70b-versatile';
+
+export function resolveGroqModel(): string {
+  return process.env.GROQ_MODEL?.trim() || DEFAULT_GROQ_MODEL;
+}
+
 /**
- * Parses raw AI engine response using Groq llama-3.3-70b-versatile in strict JSON mode.
+ * Parses raw AI engine response using Groq in strict JSON mode.
  * Robustly falls back to pattern matching on any error or missing keys.
  */
 export async function analyzeMentions(input: MentionAnalysisInput): Promise<BrandMentionExtraction[]> {
   const apiKey = process.env.GROQ_API_KEY;
+  const groqModel = resolveGroqModel();
 
   if (!apiKey || apiKey.trim().length === 0) {
     console.warn('[PARSER] GROQ_API_KEY is not set. Executing fallback regex analyzer.');
@@ -202,7 +209,7 @@ Return ONLY a JSON object: { "mentions": [ ... ] }`;
         Authorization: `Bearer ${apiKey.trim()}`,
       },
       body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
+        model: groqModel,
         messages: [
           {
             role: 'system',

@@ -42,6 +42,8 @@ export interface Run {
   model: string | null;
   raw_response: string | null;
   cost_usd: number | null;
+  status: 'ok' | 'error';
+  error: string | null;
   created_at: string;
   updated_at: string;
 }

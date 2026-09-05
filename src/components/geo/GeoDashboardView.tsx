@@ -173,9 +173,10 @@ export function GeoDashboardView({
       const res = await runAuditAllActive('gemini');
 
       if (!res.success) {
+        const firstError = res.results.find((r) => r.error)?.error;
         setNotification({
           type: 'error',
-          message: 'Failed to run full audit batch.',
+          message: firstError ? `Audit failed: ${firstError}` : `Audit finished: Analyzed 0 of ${res.total} prompts. Check API keys and logs.`,
         });
       } else {
         setNotification({
@@ -841,15 +842,18 @@ export function GeoDashboardView({
                           <div className="flex items-center gap-1.5 ml-1">
                             <span
                               className={`px-2 py-0.5 rounded text-[10px] font-semibold border ${
-                                summary.selfMentioned
-                                  ? 'border-[#8ce04a]/40 bg-[#8ce04a]/15 text-[#8ce04a]'
-                                  : 'border-white/10 bg-white/[0.04] text-zinc-400'
+                                summary.statusSummary.startsWith('Error:')
+                                  ? 'border-rose-500/40 bg-rose-500/15 text-rose-300'
+                                  : summary.selfMentioned
+                                    ? 'border-[#8ce04a]/40 bg-[#8ce04a]/15 text-[#8ce04a]'
+                                    : 'border-white/10 bg-white/[0.04] text-zinc-400'
                               }`}
+                              title={summary.statusSummary.startsWith('Error:') ? summary.statusSummary : undefined}
                             >
-                              {summary.statusSummary}
+                              {summary.statusSummary.startsWith('Error:') ? 'Failed' : summary.statusSummary}
                             </span>
 
-                            {summary.selfCited && (
+                            {!summary.statusSummary.startsWith('Error:') && summary.selfCited && (
                               <span className="px-1.5 py-0.5 rounded text-[9px] font-semibold border border-blue-500/30 bg-blue-500/10 text-blue-400 flex items-center gap-1">
                                 <ExternalLink className="h-2.5 w-2.5" />
                                 <span>Cited</span>

@@ -5,6 +5,7 @@ import { createClient } from '../supabase/server';
 import { getCurrentOrg } from '../supabase/geo';
 import { EngineType, Brand } from '@/lib/types';
 import { getEngineAdapter } from '../engines';
+import { resolveGeminiModel } from '../engines/gemini';
 import { analyzeMentions } from '../engines/parser';
 
 export interface AuditRunResponse {
@@ -12,6 +13,7 @@ export interface AuditRunResponse {
   runId?: string;
   promptId: string;
   engine: EngineType;
+  model?: string;
   error?: string;
   rateLimited?: boolean;
   selfMentioned?: boolean;
@@ -23,14 +25,28 @@ export interface AuditRunResponse {
 /**
  * Runs an audit for a single prompt against the specified AI engine.
  * Never trusts a client-supplied org_id; resolves strictly from session.
+ * On error, records a run row with status='error' and the full error string for auditability.
  */
 export async function runAudit(
   promptId: string,
   engine: EngineType = 'gemini'
 ): Promise<AuditRunResponse> {
+  let resolvedModel = 'gemini-3.6-flash';
+  let orgId: string | null = null;
+  let promptText = '';
+
   try {
     const { org } = await getCurrentOrg();
+    orgId = org.id;
     const supabase = await createClient();
+
+    if (engine === 'gemini') {
+      try {
+        resolvedModel = await resolveGeminiModel();
+      } catch (err) {
+        console.warn('[AUDIT] Failed to resolve Gemini model, using default:', err);
+      }
+    }
 
     // 1. Anti-hammering rate guard (reject if run for same prompt occurred <30s ago)
     const thirtySecondsAgo = new Date(Date.now() - 30 * 1000).toISOString();
@@ -49,6 +65,7 @@ export async function runAudit(
         success: false,
         promptId,
         engine,
+        model: resolvedModel,
         error: 'Cooldown active: This prompt was audited less than 30 seconds ago.',
         rateLimited: true,
       };
@@ -68,9 +85,12 @@ export async function runAudit(
         success: false,
         promptId,
         engine,
+        model: resolvedModel,
         error: 'Prompt not found or is currently paused.',
       };
     }
+
+    promptText = prompt.text;
 
     // 3. Load self brand and competitors
     const { data: brandsData, error: brandsErr } = await supabase
@@ -83,6 +103,7 @@ export async function runAudit(
         success: false,
         promptId,
         engine,
+        model: resolvedModel,
         error: 'No brands configured for this organization.',
       };
     }
@@ -94,6 +115,7 @@ export async function runAudit(
         success: false,
         promptId,
         engine,
+        model: resolvedModel,
         error: 'Organization does not have an active self brand configured.',
       };
     }
@@ -102,7 +124,35 @@ export async function runAudit(
 
     // 4. STEP A: Query the engine naturally
     const adapter = getEngineAdapter(engine);
-    const stepAResult = await adapter.run(prompt.text, { locale: prompt.locale });
+    let stepAResult;
+    try {
+      stepAResult = await adapter.run(prompt.text, { locale: prompt.locale });
+      resolvedModel = stepAResult.model;
+    } catch (stepAErr: any) {
+      const fullError = stepAErr?.message || String(stepAErr);
+      console.error(`[AUDIT_ERROR] Step A generation failed for prompt "${prompt.text}" (model: ${resolvedModel}):`, fullError);
+
+      // Persist failed run row for error visibility
+      await supabase.from('runs').insert({
+        org_id: org.id,
+        prompt_id: prompt.id,
+        engine,
+        model: resolvedModel,
+        raw_response: null,
+        cost_usd: 0,
+        status: 'error',
+        error: fullError,
+        run_at: new Date().toISOString(),
+      });
+
+      return {
+        success: false,
+        promptId,
+        engine,
+        model: resolvedModel,
+        error: fullError,
+      };
+    }
 
     // 5. STEP B: Analyze mentions structured extraction
     const extractions = await analyzeMentions({
@@ -121,7 +171,7 @@ export async function runAudit(
       })),
     });
 
-    // 6. Record run as a new time-series record
+    // 6. Record successful run as a new time-series record
     const { data: newRun, error: runInsertErr } = await supabase
       .from('runs')
       .insert({
@@ -131,6 +181,8 @@ export async function runAudit(
         model: stepAResult.model,
         raw_response: stepAResult.rawResponse,
         cost_usd: stepAResult.costUsd || null,
+        status: 'ok',
+        error: null,
         run_at: new Date().toISOString(),
       })
       .select('id')
@@ -142,6 +194,7 @@ export async function runAudit(
         success: false,
         promptId,
         engine,
+        model: resolvedModel,
         error: runInsertErr?.message || 'Failed to save audit run to database.',
       };
     }
@@ -176,18 +229,41 @@ export async function runAudit(
       runId: newRun.id,
       promptId,
       engine,
+      model: resolvedModel,
       selfMentioned: selfExtraction ? selfExtraction.mentioned : false,
       selfPosition: selfExtraction ? selfExtraction.position : null,
       selfCited: selfExtraction ? selfExtraction.cited : false,
       competitorsMentioned: compMentions,
     };
   } catch (err: any) {
-    console.error('[AUDIT] Unexpected audit failure:', err);
+    const fullError = err?.message || String(err);
+    console.error(`[AUDIT_UNEXPECTED] Failure for prompt ${promptId} (model: ${resolvedModel}):`, fullError);
+
+    if (orgId) {
+      try {
+        const supabase = await createClient();
+        await supabase.from('runs').insert({
+          org_id: orgId,
+          prompt_id: promptId,
+          engine,
+          model: resolvedModel,
+          raw_response: null,
+          cost_usd: 0,
+          status: 'error',
+          error: fullError,
+          run_at: new Date().toISOString(),
+        });
+      } catch (insertErr) {
+        console.error('[AUDIT] Could not insert error run row:', insertErr);
+      }
+    }
+
     return {
       success: false,
       promptId,
       engine,
-      error: err?.message || 'An unexpected error occurred during audit.',
+      model: resolvedModel,
+      error: fullError,
     };
   }
 }
@@ -245,7 +321,7 @@ export async function runAuditAllActive(
 
   const completed = results.filter((r) => r.success).length;
   return {
-    success: true,
+    success: completed > 0,
     total: prompts.length,
     completed,
     results,
