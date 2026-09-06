@@ -10,6 +10,7 @@ import {
   VisibilityTrendPoint,
   CitationItem,
   CitationIntelligence,
+  VisibilityChange,
 } from '@/lib/types';
 import { User } from '@supabase/supabase-js';
 
@@ -53,6 +54,7 @@ export interface GeoWorkspaceData {
   recentRuns: Array<Run & { promptText?: string }>;
   visibilityTrend: VisibilityTrendPoint[];
   citationIntelligence: CitationIntelligence;
+  visibilityChanges: VisibilityChange[];
 }
 
 function extractDomainFromUrl(urlStr?: string | null): string | null {
@@ -368,6 +370,53 @@ export async function getGeoWorkspaceData(orgId: string): Promise<GeoWorkspaceDa
     promptText: promptMap.get(r.prompt_id)?.text,
   }));
 
+  // 6b. Visibility Changes — diff the self-brand's standing between the two most
+  // recent audits of each prompt ("did the AI change its mind about me?"). Uses
+  // mentionsByRunId (built above) and runList (already sorted newest-first).
+  const visibilityChanges: VisibilityChange[] = [];
+  if (selfBrandId) {
+    const okRunsByPrompt = new Map<string, Run[]>();
+    for (const r of runList) {
+      if (r.status === 'error') continue;
+      const arr = okRunsByPrompt.get(r.prompt_id) || [];
+      arr.push(r); // runList is desc, so arr[0] is newest
+      okRunsByPrompt.set(r.prompt_id, arr);
+    }
+
+    const selfStandingOf = (runId: string) => {
+      const ms = mentionsByRunId.get(runId) || [];
+      const sm = ms.find((m) => m.brand_id === selfBrandId);
+      return { mentioned: !!sm?.mentioned, position: sm?.position ?? null, cited: !!sm?.cited };
+    };
+
+    for (const [promptId, runs] of okRunsByPrompt.entries()) {
+      if (runs.length < 2) continue; // need a prior audit to diff against
+      const latest = runs[0];
+      const prev = runs[1];
+      const cur = selfStandingOf(latest.id);
+      const old = selfStandingOf(prev.id);
+      const promptText = promptMap.get(promptId)?.text || 'Query';
+      const base = { promptId, promptText, changedAt: latest.run_at };
+
+      if (cur.mentioned && !old.mentioned) {
+        visibilityChanges.push({ ...base, kind: 'gained_mention', detail: `Now mentioned${cur.position ? ` at #${cur.position}` : ''} — was absent before`, prevPosition: null, newPosition: cur.position });
+      } else if (!cur.mentioned && old.mentioned) {
+        visibilityChanges.push({ ...base, kind: 'lost_mention', detail: `Dropped from the answer — was ${old.position ? `#${old.position}` : 'mentioned'} before`, prevPosition: old.position, newPosition: null });
+      } else if (cur.mentioned && old.mentioned && cur.position && old.position && cur.position !== old.position) {
+        const up = cur.position < old.position;
+        visibilityChanges.push({ ...base, kind: up ? 'position_up' : 'position_down', detail: `Moved ${up ? 'up' : 'down'} from #${old.position} to #${cur.position}`, prevPosition: old.position, newPosition: cur.position });
+      }
+
+      if (cur.cited && !old.cited) {
+        visibilityChanges.push({ ...base, kind: 'gained_citation', detail: 'Your site is now cited as a source' });
+      } else if (!cur.cited && old.cited) {
+        visibilityChanges.push({ ...base, kind: 'lost_citation', detail: 'Your site is no longer cited as a source' });
+      }
+    }
+
+    visibilityChanges.sort((a, b) => b.changedAt.localeCompare(a.changedAt));
+  }
+
   // 7. Citation Source Intelligence — which sources the AI pulls from
   const citationIntelligence = computeCitationIntelligence(okRuns, selfBrand?.domain);
 
@@ -380,5 +429,6 @@ export async function getGeoWorkspaceData(orgId: string): Promise<GeoWorkspaceDa
     recentRuns: enrichedRecentRuns,
     visibilityTrend,
     citationIntelligence,
+    visibilityChanges: visibilityChanges.slice(0, 10),
   };
 }

@@ -29,6 +29,8 @@ import {
   AlertTriangle,
   Quote,
   Target,
+  TrendingDown,
+  History,
 } from 'lucide-react';
 import {
   Brand,
@@ -38,6 +40,7 @@ import {
   PromptAuditSummary,
   VisibilityTrendPoint,
   CitationIntelligence,
+  VisibilityChange,
 } from '@/lib/types';
 import { VisibilityTrendChart } from './VisibilityTrendChart';
 import { computeRecommendations } from '@/lib/geo/recommendations';
@@ -64,6 +67,7 @@ interface GeoDashboardViewProps {
   recentRuns: Array<Run & { promptText?: string }>;
   visibilityTrend: VisibilityTrendPoint[];
   citationIntelligence: CitationIntelligence;
+  visibilityChanges: VisibilityChange[];
 }
 
 function formatTimeAgo(dateStr?: string | null): string {
@@ -91,6 +95,7 @@ export function GeoDashboardView({
   recentRuns,
   visibilityTrend,
   citationIntelligence,
+  visibilityChanges,
 }: GeoDashboardViewProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -673,6 +678,45 @@ export function GeoDashboardView({
       {/* VISIBILITY TREND (time-series moat) */}
       <VisibilityTrendChart trend={visibilityTrend} brandName={selfBrand.name} />
 
+      {/* WHAT CHANGED (answer archive diff — did the AI change its mind about you?) */}
+      {visibilityChanges.length > 0 && (
+        <section className="bg-surface-container-low/90 backdrop-blur-xl rounded-xl p-space-lg shadow-md space-y-space-md">
+          <div className="flex items-center gap-space-sm flex-wrap">
+            <div className="p-2 rounded-lg bg-primary/10 text-primary"><History className="h-4 w-4" /></div>
+            <h3 className="font-headline-md text-headline-md text-on-surface tracking-tight">What Changed</h3>
+            <span className="px-2.5 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-label-mono-sm text-label-mono-sm">
+              vs the previous audit · {visibilityChanges.length}
+            </span>
+          </div>
+          <div className="space-y-2">
+            {visibilityChanges.map((c, i) => {
+              const positive = c.kind === 'gained_mention' || c.kind === 'gained_citation' || c.kind === 'position_up';
+              const Icon =
+                c.kind === 'position_up' ? TrendingUp
+                : c.kind === 'position_down' ? TrendingDown
+                : c.kind === 'gained_citation' ? CheckCircle2
+                : c.kind === 'gained_mention' ? Star
+                : AlertTriangle;
+              return (
+                <div
+                  key={i}
+                  className={`flex items-start gap-space-sm p-space-sm rounded-lg border bg-surface-container shadow-sm ${positive ? 'border-tertiary/20' : 'border-error/20'}`}
+                >
+                  <div className={`p-1.5 rounded-md shrink-0 ${positive ? 'bg-tertiary/15 text-tertiary' : 'bg-error-container/30 text-error'}`}>
+                    <Icon className="h-4 w-4" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-headline-sm text-headline-sm text-on-surface font-semibold truncate">{c.promptText}</p>
+                    <p className="font-body-sm text-body-sm text-on-surface-variant mt-0.5">{c.detail}</p>
+                  </div>
+                  <span className="font-label-mono-sm text-label-mono-sm text-on-surface-variant shrink-0">{formatTimeAgo(c.changedAt)}</span>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
       {/* RECOMMENDATIONS (turn monitoring into action) */}
       {recommendations.length > 0 && (
         <section className="bg-surface-container-low/90 backdrop-blur-xl rounded-xl p-space-lg shadow-md space-y-space-md">
@@ -1032,6 +1076,27 @@ export function GeoDashboardView({
             <div className="p-space-md rounded-lg bg-surface-container-lowest font-mono text-body-sm text-on-surface-variant whitespace-pre-wrap leading-relaxed">
               {inspectingRun.raw_response || 'No response recorded.'}
             </div>
+            {inspectingRun.citations && inspectingRun.citations.length > 0 && (
+              <div className="mt-space-md">
+                <p className="font-label-mono-sm text-label-mono-sm text-on-surface-variant uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                  <Quote className="h-3.5 w-3.5 text-tertiary" /> Sources cited ({inspectingRun.citations.length})
+                </p>
+                <div className="space-y-1">
+                  {inspectingRun.citations.map((c, i) => (
+                    <a
+                      key={i}
+                      href={c.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center gap-2 p-2 rounded-lg bg-surface-container hover:bg-surface-container-high transition-colors font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface"
+                    >
+                      <span className="truncate">{c.title || c.url}</span>
+                      <ExternalLink className="h-3 w-3 shrink-0 ml-auto text-outline" />
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
           <div className="pt-space-md flex justify-end">
             <button onClick={() => setInspectingRun(null)} className={ghostBtn}>Close</button>

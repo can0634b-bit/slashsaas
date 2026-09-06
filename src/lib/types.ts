@@ -154,3 +154,25 @@ export interface CitationIntelligence {
   selfSourceCount: number; // # of cited sources that are the self brand
   sources: CitationSource[]; // top sources, ranked by frequency
 }
+
+export type VisibilityChangeKind =
+  | 'gained_mention'
+  | 'lost_mention'
+  | 'position_up'
+  | 'position_down'
+  | 'gained_citation'
+  | 'lost_citation';
+
+/**
+ * A detected change in the brand's standing between the two most recent audits
+ * of a prompt — the "did the AI change its mind about me?" signal (the moat).
+ */
+export interface VisibilityChange {
+  promptId: string;
+  promptText: string;
+  changedAt: string; // run_at of the newer audit
+  kind: VisibilityChangeKind;
+  detail: string;
+  prevPosition?: number | null;
+  newPosition?: number | null;
+}

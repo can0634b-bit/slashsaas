@@ -31,7 +31,7 @@ export default async function AppDashboardPage() {
   }
 
   // Load organization-scoped GEO data via authenticated RLS query
-  const { selfBrand, competitors, prompts, metrics, promptSummaries, recentRuns, visibilityTrend, citationIntelligence } =
+  const { selfBrand, competitors, prompts, metrics, promptSummaries, recentRuns, visibilityTrend, citationIntelligence, visibilityChanges } =
     await getGeoWorkspaceData(organization.id);
 
   const userDisplayName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User';
@@ -114,6 +114,7 @@ export default async function AppDashboardPage() {
             recentRuns={recentRuns}
             visibilityTrend={visibilityTrend}
             citationIntelligence={citationIntelligence}
+            visibilityChanges={visibilityChanges}
           />
         )}
       </main>
