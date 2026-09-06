@@ -301,9 +301,16 @@ export class GeminiAdapter implements EngineAdapter {
         }
 
         if (classification.isRateLimit) {
-          const delayMs = classification.retryDelayMs ?? calculateExponentialBackoff(attempt, 2000, 40000);
+          // Free-tier 429s are expected. Don't burn the function's time budget on
+          // long backoff — a free fallback engine (NVIDIA/Groq) is waiting, so do
+          // at most one SHORT retry then bail fast so audit-core can fail over.
+          // (When billing is enabled, 429s don't occur, so this never triggers.)
+          if (attempt >= 2) {
+            throw new Error(`Gemini API error (model: ${model}): ${lastError?.message || String(lastError)}`);
+          }
+          const delayMs = Math.min(classification.retryDelayMs ?? 2000, 3000);
           console.warn(
-            `[GEMINI_RETRY] Attempt ${attempt}/${MAX_ATTEMPTS} for "${model}" hit 429 (quota exceeded). Waiting ${(delayMs / 1000).toFixed(1)}s before retry...`
+            `[GEMINI_RETRY] "${model}" hit 429 (quota). Quick retry in ${(delayMs / 1000).toFixed(1)}s, then failing over to the free engine...`
           );
           await sleep(delayMs);
           continue;

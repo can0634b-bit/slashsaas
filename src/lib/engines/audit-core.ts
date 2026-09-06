@@ -161,7 +161,7 @@ export async function auditPromptCore(
       stepAResult = await getEngineAdapter(engine).run(prompt.text, { locale: prompt.locale });
       resolvedModel = stepAResult.model;
     } catch (stepAErr: any) {
-      const fullError = stepAErr?.message || String(stepAErr);
+      let fullError = stepAErr?.message || String(stepAErr);
       const isRateLimit = isGeminiRateLimitError(stepAErr) || /429|resource_exhausted|quota/i.test(fullError);
 
       // Auto-fallback: if the grounded engine is rate-limited / quota-exhausted,
@@ -179,7 +179,11 @@ export async function auditPromptCore(
           resolvedModel = stepAResult.model;
           console.warn(`[AUDIT] "${engine}" was rate-limited; fell back to ${fallbackEngine} for prompt "${prompt.text}".`);
         } catch (fbErr: any) {
-          console.warn(`[AUDIT] ${fallbackEngine} fallback also failed:`, fbErr?.message || fbErr);
+          const fbMsg = fbErr?.message || String(fbErr);
+          console.warn(`[AUDIT] ${fallbackEngine} fallback also failed:`, fbMsg);
+          // Fail loud: record the fallback's REAL error, not just the Gemini 429,
+          // so a failed audit is debuggable (e.g. NVIDIA rate limit vs 401).
+          fullError = `Primary(${engine}) rate-limited: ${fullError} — Fallback(${fallbackEngine}) failed: ${fbMsg}`;
         }
       }
 
