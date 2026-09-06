@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { CookieBanner } from '@/components/CookieBanner';
 import { MarketingAuthNav } from '@/components/marketing/MarketingAuthNav';
+import { SlashLogoIcon } from '@/components/Logo';
 import { track } from '@vercel/analytics';
 
 export default function LandingPage() {
@@ -53,9 +54,7 @@ export default function LandingPage() {
       <header className="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.4)]">
         <div className="h-16 max-w-[80rem] mx-auto px-gutter-mobile md:px-gutter-tablet lg:px-gutter-desktop flex items-center justify-between">
           <Link href="/" className="flex items-center gap-space-sm group">
-            <span className="material-symbols-outlined text-primary text-[26px]" style={{ fontVariationSettings: "'FILL' 1" }}>
-              blur_on
-            </span>
+            <SlashLogoIcon size={28} className="h-7 w-7" />
             <span className="font-headline-md text-headline-md tracking-tight text-on-surface">SlashSaaS</span>
             <span className="font-label-mono-sm text-label-mono-sm px-space-xs py-space-2xs rounded-full bg-tertiary-container/20 text-tertiary border border-tertiary/30 uppercase tracking-wider hidden sm:inline-block">
               AI Visibility
@@ -516,7 +515,7 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-12 gap-space-xl mb-space-2xl">
             <div className="md:col-span-5 flex flex-col items-start gap-space-sm">
               <div className="flex items-center gap-space-xs">
-                <span className="material-symbols-outlined text-primary text-[22px]" style={{ fontVariationSettings: "'FILL' 1" }}>blur_on</span>
+                <SlashLogoIcon size={22} className="h-6 w-6" />
                 <span className="font-headline-md text-headline-md tracking-tight text-on-surface">SlashSaaS</span>
               </div>
               <p className="font-body-md text-body-md text-on-surface-variant max-w-sm">AI Search Visibility Monitoring for modern teams. Continuous intelligence across generative search models.</p>

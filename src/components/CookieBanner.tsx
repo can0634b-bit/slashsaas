@@ -31,10 +31,10 @@ export const CookieBanner: React.FC = () => {
   return (
     <aside
       aria-label="Cookie and Privacy Consent"
-      className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-md z-50 rounded-2xl border border-white/10 bg-zinc-950/95 backdrop-blur-xl p-4 sm:p-5 shadow-2xl shadow-black/90 animate-in fade-in slide-in-from-bottom-4 duration-300"
+      className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-md z-50 rounded-2xl border border-white/10 bg-surface-container-low/95 backdrop-blur-xl p-4 sm:p-5 shadow-2xl shadow-black/90 animate-in fade-in slide-in-from-bottom-4 duration-300"
     >
       <div className="flex items-start gap-3">
-        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#8ce04a]/10 text-[#8ce04a] shrink-0 mt-0.5">
+        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10 text-primary shrink-0 mt-0.5">
           <ShieldCheck className="h-4 w-4" />
         </div>
 

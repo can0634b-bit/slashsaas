@@ -284,7 +284,7 @@ export function OnboardingWizard({ orgId, orgName }: OnboardingWizardProps) {
     <div className="max-w-3xl mx-auto py-6">
       {/* Header Banner */}
       <div className="text-center mb-8">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#8ce04a]/30 bg-[#8ce04a]/10 text-xs font-semibold text-[#8ce04a] mb-3">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#947dff]/30 bg-[#947dff]/10 text-xs font-semibold text-[#947dff] mb-3">
           <Sparkles className="h-3.5 w-3.5" />
           <span>AI Search Visibility (GEO) Setup</span>
         </div>
@@ -300,17 +300,17 @@ export function OnboardingWizard({ orgId, orgName }: OnboardingWizardProps) {
       <div className="mb-8 grid grid-cols-3 gap-2">
         <div
           className={`h-1.5 rounded-full transition-all duration-300 ${
-            step >= 1 ? 'bg-[#8ce04a]' : 'bg-white/10'
+            step >= 1 ? 'bg-[#947dff]' : 'bg-white/10'
           }`}
         />
         <div
           className={`h-1.5 rounded-full transition-all duration-300 ${
-            step >= 2 ? 'bg-[#8ce04a]' : 'bg-white/10'
+            step >= 2 ? 'bg-[#947dff]' : 'bg-white/10'
           }`}
         />
         <div
           className={`h-1.5 rounded-full transition-all duration-300 ${
-            step >= 3 ? 'bg-[#8ce04a]' : 'bg-white/10'
+            step >= 3 ? 'bg-[#947dff]' : 'bg-white/10'
           }`}
         />
       </div>
@@ -323,7 +323,7 @@ export function OnboardingWizard({ orgId, orgName }: OnboardingWizardProps) {
       )}
 
       {/* STEP CONTAINER */}
-      <div className="rounded-2xl border border-white/[0.08] bg-zinc-950/80 backdrop-blur-xl p-6 sm:p-8 shadow-2xl">
+      <div className="rounded-2xl border border-white/[0.08] bg-surface-container-low/80 backdrop-blur-xl p-6 sm:p-8 shadow-2xl">
         {/* ========================================================= */}
         {/* STEP 1: YOUR BRAND */}
         {/* ========================================================= */}
@@ -332,7 +332,7 @@ export function OnboardingWizard({ orgId, orgName }: OnboardingWizardProps) {
             <div className="border-b border-white/[0.08] pb-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <div className="p-2 rounded-lg bg-[#8ce04a]/10 text-[#8ce04a] border border-[#8ce04a]/20">
+                  <div className="p-2 rounded-lg bg-[#947dff]/10 text-[#947dff] border border-[#947dff]/20">
                     <Building2 className="h-5 w-5" />
                   </div>
                   <div>
@@ -354,10 +354,10 @@ export function OnboardingWizard({ orgId, orgName }: OnboardingWizardProps) {
                   placeholder="e.g. Acme Cloud or SlashSaaS"
                   value={brandName}
                   onChange={(e) => setBrandName(e.target.value)}
-                  className={`w-full px-3.5 py-2.5 rounded-xl border bg-black/50 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:ring-1 transition-all ${
+                  className={`w-full px-3.5 py-2.5 rounded-xl border bg-surface-container-lowest/70 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:ring-1 transition-all ${
                     step1Errors.name
                       ? 'border-rose-500/50 focus:border-rose-500 focus:ring-rose-500/30'
-                      : 'border-white/10 focus:border-[#8ce04a] focus:ring-[#8ce04a]/30'
+                      : 'border-white/10 focus:border-[#947dff] focus:ring-[#947dff]/30'
                   }`}
                 />
                 {step1Errors.name && (
@@ -379,10 +379,10 @@ export function OnboardingWizard({ orgId, orgName }: OnboardingWizardProps) {
                     placeholder="acme.com"
                     value={brandDomain}
                     onChange={(e) => setBrandDomain(e.target.value)}
-                    className={`w-full pl-10 pr-3.5 py-2.5 rounded-xl border bg-black/50 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:ring-1 transition-all ${
+                    className={`w-full pl-10 pr-3.5 py-2.5 rounded-xl border bg-surface-container-lowest/70 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:ring-1 transition-all ${
                       step1Errors.domain
                         ? 'border-rose-500/50 focus:border-rose-500 focus:ring-rose-500/30'
-                        : 'border-white/10 focus:border-[#8ce04a] focus:ring-[#8ce04a]/30'
+                        : 'border-white/10 focus:border-[#947dff] focus:ring-[#947dff]/30'
                     }`}
                   />
                 </div>
@@ -407,7 +407,7 @@ export function OnboardingWizard({ orgId, orgName }: OnboardingWizardProps) {
                   placeholder="e.g. AcmeApp, Acme Software, Acme Cloud Platform"
                   value={brandAliases}
                   onChange={(e) => setBrandAliases(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-white/10 bg-black/50 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-[#8ce04a] focus:ring-1 focus:ring-[#8ce04a]/30 transition-all"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-white/10 bg-surface-container-lowest/70 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-[#947dff] focus:ring-1 focus:ring-[#947dff]/30 transition-all"
                 />
                 <p className="text-[11px] text-zinc-500 mt-1">
                   Helps detect variations when AI engines misspell or abbreviate your brand name.
@@ -419,7 +419,7 @@ export function OnboardingWizard({ orgId, orgName }: OnboardingWizardProps) {
               <button
                 type="button"
                 onClick={handleValidateStep1}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#8ce04a] text-black font-semibold text-xs hover:bg-[#9ee862] transition-colors"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-primary via-secondary to-tertiary text-surface-container-lowest font-semibold text-xs hover:opacity-90 transition-colors"
               >
                 <span>Continue to Competitors</span>
                 <ArrowRight className="h-3.5 w-3.5" />
@@ -436,7 +436,7 @@ export function OnboardingWizard({ orgId, orgName }: OnboardingWizardProps) {
             <div className="border-b border-white/[0.08] pb-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <div className="p-2 rounded-lg bg-[#8ce04a]/10 text-[#8ce04a] border border-[#8ce04a]/20">
+                  <div className="p-2 rounded-lg bg-[#947dff]/10 text-[#947dff] border border-[#947dff]/20">
                     <Swords className="h-5 w-5" />
                   </div>
                   <div>
@@ -466,7 +466,7 @@ export function OnboardingWizard({ orgId, orgName }: OnboardingWizardProps) {
                         handleAddCompetitor();
                       }
                     }}
-                    className="w-full px-3 py-2 rounded-lg border border-white/10 bg-black/60 text-xs text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-[#8ce04a]"
+                    className="w-full px-3 py-2 rounded-lg border border-white/10 bg-surface-container-lowest/70 text-xs text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-[#947dff]"
                   />
                 </div>
                 <div>
@@ -484,7 +484,7 @@ export function OnboardingWizard({ orgId, orgName }: OnboardingWizardProps) {
                         handleAddCompetitor();
                       }
                     }}
-                    className="w-full px-3 py-2 rounded-lg border border-white/10 bg-black/60 text-xs text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-[#8ce04a]"
+                    className="w-full px-3 py-2 rounded-lg border border-white/10 bg-surface-container-lowest/70 text-xs text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-[#947dff]"
                   />
                 </div>
               </div>
@@ -502,7 +502,7 @@ export function OnboardingWizard({ orgId, orgName }: OnboardingWizardProps) {
                   onClick={handleAddCompetitor}
                   className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg border border-white/10 bg-white/[0.05] hover:bg-white/[0.1] text-xs font-semibold text-zinc-200 transition-colors"
                 >
-                  <Plus className="h-3.5 w-3.5 text-[#8ce04a]" />
+                  <Plus className="h-3.5 w-3.5 text-[#947dff]" />
                   <span>Add Competitor</span>
                 </button>
               </div>
@@ -524,7 +524,7 @@ export function OnboardingWizard({ orgId, orgName }: OnboardingWizardProps) {
                   {competitors.map((comp) => (
                     <div
                       key={comp.id}
-                      className="p-3 rounded-xl border border-white/[0.08] bg-black/40 flex items-center justify-between group"
+                      className="p-3 rounded-xl border border-white/[0.08] bg-surface-container-lowest/60 flex items-center justify-between group"
                     >
                       <div className="truncate">
                         <div className="text-xs font-medium text-zinc-200 truncate">{comp.name}</div>
@@ -561,7 +561,7 @@ export function OnboardingWizard({ orgId, orgName }: OnboardingWizardProps) {
               <button
                 type="button"
                 onClick={handleValidateStep2}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#8ce04a] text-black font-semibold text-xs hover:bg-[#9ee862] transition-colors"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-primary via-secondary to-tertiary text-surface-container-lowest font-semibold text-xs hover:opacity-90 transition-colors"
               >
                 <span>Continue to Prompts</span>
                 <ArrowRight className="h-3.5 w-3.5" />
@@ -578,7 +578,7 @@ export function OnboardingWizard({ orgId, orgName }: OnboardingWizardProps) {
             <div className="border-b border-white/[0.08] pb-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <div className="p-2 rounded-lg bg-[#8ce04a]/10 text-[#8ce04a] border border-[#8ce04a]/20">
+                  <div className="p-2 rounded-lg bg-[#947dff]/10 text-[#947dff] border border-[#947dff]/20">
                     <Search className="h-5 w-5" />
                   </div>
                   <div>
@@ -593,7 +593,7 @@ export function OnboardingWizard({ orgId, orgName }: OnboardingWizardProps) {
             </div>
 
             {/* Helper Bar with Suggest Prompts Button */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl border border-[#8ce04a]/20 bg-[#8ce04a]/[0.05]">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl border border-[#947dff]/20 bg-[#947dff]/[0.05]">
               <div className="text-xs text-zinc-300">
                 <span className="font-semibold text-white">Need inspiration?</span> Use our starter template generator to create industry benchmark queries.
               </div>
@@ -605,7 +605,7 @@ export function OnboardingWizard({ orgId, orgName }: OnboardingWizardProps) {
                     generatePromptTemplates();
                   }
                 }}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#8ce04a] text-black font-semibold text-xs hover:bg-[#9ee862] shrink-0 transition-colors"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-primary via-secondary to-tertiary text-surface-container-lowest font-semibold text-xs hover:opacity-90 shrink-0 transition-colors"
               >
                 <Sparkles className="h-3.5 w-3.5" />
                 <span>{showGenerator ? 'Close Generator' : 'Suggest Prompts'}</span>
@@ -614,7 +614,7 @@ export function OnboardingWizard({ orgId, orgName }: OnboardingWizardProps) {
 
             {/* Template Suggestion Helper Modal / Panel */}
             {showGenerator && (
-              <div className="p-5 rounded-xl border border-white/10 bg-zinc-900/90 space-y-4">
+              <div className="p-5 rounded-xl border border-white/10 bg-surface-container/90 space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="text-xs font-semibold text-zinc-200">
                     Prompt Idea Generator (Client-Side Templates)
@@ -622,7 +622,7 @@ export function OnboardingWizard({ orgId, orgName }: OnboardingWizardProps) {
                   <button
                     type="button"
                     onClick={generatePromptTemplates}
-                    className="text-[11px] text-[#8ce04a] hover:underline"
+                    className="text-[11px] text-[#947dff] hover:underline"
                   >
                     Refresh Templates
                   </button>
@@ -636,7 +636,7 @@ export function OnboardingWizard({ orgId, orgName }: OnboardingWizardProps) {
                       placeholder="e.g. CRM, project management, developer API"
                       value={generatorTopic}
                       onChange={(e) => setGeneratorTopic(e.target.value)}
-                      className="w-full px-2.5 py-1.5 rounded-lg border border-white/10 bg-black/60 text-xs text-zinc-100"
+                      className="w-full px-2.5 py-1.5 rounded-lg border border-white/10 bg-surface-container-lowest/70 text-xs text-zinc-100"
                     />
                   </div>
                   <div>
@@ -646,7 +646,7 @@ export function OnboardingWizard({ orgId, orgName }: OnboardingWizardProps) {
                       placeholder="e.g. startups, enterprise, freelance designers"
                       value={generatorAudience}
                       onChange={(e) => setGeneratorAudience(e.target.value)}
-                      className="w-full px-2.5 py-1.5 rounded-lg border border-white/10 bg-black/60 text-xs text-zinc-100"
+                      className="w-full px-2.5 py-1.5 rounded-lg border border-white/10 bg-surface-container-lowest/70 text-xs text-zinc-100"
                     />
                   </div>
                 </div>
@@ -657,7 +657,7 @@ export function OnboardingWizard({ orgId, orgName }: OnboardingWizardProps) {
                     {generatedSuggestions.map((s, idx) => (
                       <label
                         key={idx}
-                        className="flex items-start gap-2 p-2 rounded-lg border border-white/[0.06] bg-black/40 hover:bg-white/[0.02] cursor-pointer text-xs"
+                        className="flex items-start gap-2 p-2 rounded-lg border border-white/[0.06] bg-surface-container-lowest/60 hover:bg-white/[0.02] cursor-pointer text-xs"
                       >
                         <input
                           type="checkbox"
@@ -668,7 +668,7 @@ export function OnboardingWizard({ orgId, orgName }: OnboardingWizardProps) {
                               prev.map((item, i) => (i === idx ? { ...item, selected: checked } : item))
                             );
                           }}
-                          className="mt-0.5 rounded border-white/20 bg-black text-[#8ce04a] focus:ring-[#8ce04a]"
+                          className="mt-0.5 rounded border-white/20 bg-black text-[#947dff] focus:ring-[#947dff]"
                         />
                         <div className="flex-1">
                           <span className="text-zinc-200">{s.text}</span>
@@ -692,7 +692,7 @@ export function OnboardingWizard({ orgId, orgName }: OnboardingWizardProps) {
                   <button
                     type="button"
                     onClick={handleAcceptGeneratedPrompts}
-                    className="px-4 py-1.5 rounded-lg bg-[#8ce04a] text-black font-semibold text-xs hover:bg-[#9ee862]"
+                    className="px-4 py-1.5 rounded-lg bg-gradient-to-r from-primary via-secondary to-tertiary text-surface-container-lowest font-semibold text-xs hover:opacity-90"
                   >
                     Add Selected to Prompts
                   </button>
@@ -718,7 +718,7 @@ export function OnboardingWizard({ orgId, orgName }: OnboardingWizardProps) {
                         handleAddPrompt();
                       }
                     }}
-                    className="w-full px-3 py-2 rounded-lg border border-white/10 bg-black/60 text-xs text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-[#8ce04a]"
+                    className="w-full px-3 py-2 rounded-lg border border-white/10 bg-surface-container-lowest/70 text-xs text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-[#947dff]"
                   />
                 </div>
                 <div>
@@ -736,7 +736,7 @@ export function OnboardingWizard({ orgId, orgName }: OnboardingWizardProps) {
                         handleAddPrompt();
                       }
                     }}
-                    className="w-full px-3 py-2 rounded-lg border border-white/10 bg-black/60 text-xs text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-[#8ce04a]"
+                    className="w-full px-3 py-2 rounded-lg border border-white/10 bg-surface-container-lowest/70 text-xs text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-[#947dff]"
                   />
                 </div>
               </div>
@@ -754,7 +754,7 @@ export function OnboardingWizard({ orgId, orgName }: OnboardingWizardProps) {
                   onClick={handleAddPrompt}
                   className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg border border-white/10 bg-white/[0.05] hover:bg-white/[0.1] text-xs font-semibold text-zinc-200 transition-colors"
                 >
-                  <Plus className="h-3.5 w-3.5 text-[#8ce04a]" />
+                  <Plus className="h-3.5 w-3.5 text-[#947dff]" />
                   <span>Add Query</span>
                 </button>
               </div>
@@ -776,10 +776,10 @@ export function OnboardingWizard({ orgId, orgName }: OnboardingWizardProps) {
                   {prompts.map((p) => (
                     <div
                       key={p.id}
-                      className="p-3 rounded-xl border border-white/[0.08] bg-black/40 flex items-center justify-between gap-3 group"
+                      className="p-3 rounded-xl border border-white/[0.08] bg-surface-container-lowest/60 flex items-center justify-between gap-3 group"
                     >
                       <div className="flex items-center gap-2.5 truncate">
-                        <Search className="h-3.5 w-3.5 text-[#8ce04a] shrink-0" />
+                        <Search className="h-3.5 w-3.5 text-[#947dff] shrink-0" />
                         <span className="text-xs text-zinc-200 truncate">{p.text}</span>
                         <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-white/[0.06] text-zinc-400 border border-white/[0.04] shrink-0">
                           {p.topic}
@@ -815,11 +815,11 @@ export function OnboardingWizard({ orgId, orgName }: OnboardingWizardProps) {
                 type="button"
                 onClick={handleSubmitOnboarding}
                 disabled={isPending || prompts.length === 0}
-                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#8ce04a] text-black font-semibold text-xs hover:bg-[#9ee862] disabled:opacity-50 transition-colors shadow-lg shadow-[#8ce04a]/10"
+                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-primary via-secondary to-tertiary text-surface-container-lowest font-semibold text-xs hover:opacity-90 disabled:opacity-50 transition-colors shadow-lg shadow-[#947dff]/10"
               >
                 {isPending ? (
                   <>
-                    <div className="h-3.5 w-3.5 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                    <div className="h-3.5 w-3.5 border-2 border-surface-container-lowest/40 border-t-surface-container-lowest rounded-full animate-spin" />
                     <span>Configuring Workspace...</span>
                   </>
                 ) : (

@@ -8,7 +8,7 @@ export const JsonLd: React.FC = () => {
     '@type': 'Organization',
     name: 'SlashSaaS',
     url: baseUrl,
-    logo: `${baseUrl}/icon.png`,
+    logo: `${baseUrl}/apple-icon`,
     description:
       'AI search visibility monitoring — track how ChatGPT, Perplexity, Google AI and Gemini answer about your brand versus competitors over time.',
     contactPoint: {

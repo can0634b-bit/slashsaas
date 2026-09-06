@@ -2,6 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { MarketingAuthNav } from '@/components/marketing/MarketingAuthNav';
+import { SlashLogoIcon } from '@/components/Logo';
 
 export const metadata: Metadata = {
   title: 'Pricing',
@@ -76,12 +77,7 @@ export default function PricingPage() {
       <header className="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.4)]">
         <div className="h-16 max-w-[80rem] mx-auto px-gutter-mobile md:px-gutter-tablet lg:px-gutter-desktop flex items-center justify-between">
           <Link href="/" className="flex items-center gap-space-sm group">
-            <span
-              className="material-symbols-outlined text-primary text-[26px]"
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-              blur_on
-            </span>
+            <SlashLogoIcon size={28} className="h-7 w-7" />
             <span className="font-headline-md text-headline-md tracking-tight text-on-surface">SlashSaaS</span>
             <span className="font-label-mono-sm text-label-mono-sm px-space-xs py-space-2xs rounded-full bg-tertiary-container/20 text-tertiary border border-tertiary/30 uppercase tracking-wider hidden sm:inline-block">
               AI Visibility

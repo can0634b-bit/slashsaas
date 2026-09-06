@@ -18,8 +18,8 @@ export default async function Image() {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          backgroundColor: '#000000',
-          backgroundImage: 'radial-gradient(circle at 50% 30%, rgba(140, 224, 74, 0.18), transparent 70%)',
+          backgroundColor: '#0b0a12',
+          backgroundImage: 'radial-gradient(circle at 50% 25%, rgba(124, 92, 255, 0.22), transparent 70%)',
           color: '#ffffff',
           fontFamily: 'sans-serif',
           padding: '60px',
@@ -42,11 +42,11 @@ export default async function Image() {
           >
             <path
               d="M32 20 C32 38 18 50 4 50 C18 50 32 62 32 80 C32 62 46 50 60 50 C46 50 32 38 32 20 Z"
-              fill="#8ce04a"
+              fill="#7c5cff"
             />
             <path
               d="M68 20 C68 38 54 50 40 50 C54 50 68 62 68 80 C68 62 82 50 96 50 C82 50 68 38 68 20 Z"
-              fill="#a3e635"
+              fill="#2fd9f4"
             />
           </svg>
           <span
@@ -111,13 +111,13 @@ export default async function Image() {
             style={{
               display: 'flex',
               alignItems: 'center',
-              backgroundColor: 'rgba(140, 224, 74, 0.12)',
-              border: '1px solid rgba(140, 224, 74, 0.3)',
+              backgroundColor: 'rgba(124, 92, 255, 0.14)',
+              border: '1px solid rgba(124, 92, 255, 0.35)',
               borderRadius: '9999px',
               padding: '10px 24px',
               fontSize: '18px',
               fontWeight: 700,
-              color: '#8ce04a',
+              color: '#a78bfa',
             }}
           >
             Early Access

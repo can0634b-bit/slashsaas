@@ -70,12 +70,9 @@ export const metadata: Metadata = {
     creator: '@slashsaas',
   },
   icons: {
-    icon: [
-      { url: '/icon.svg', type: 'image/svg+xml' },
-      { url: '/icon.png', type: 'image/png' },
-    ],
+    icon: [{ url: '/icon.svg', type: 'image/svg+xml' }],
     shortcut: '/icon.svg',
-    apple: '/icon.png',
+    apple: '/apple-icon',
   },
   robots: {
     index: true,
