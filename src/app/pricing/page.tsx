@@ -30,7 +30,7 @@ const plans: Plan[] = [
     cta: 'Start with Radar',
     features: [
       '1 brand monitored',
-      'Up to 10 tracked buyer prompts',
+      'Up to 15 tracked buyer prompts',
       'Track up to 5 competitors',
       'Daily autonomous audits (Google Gemini, grounded)',
       'Visibility Score, Share of Voice & trend over time',
@@ -50,7 +50,7 @@ const plans: Plan[] = [
     features: [
       'Everything in Radar, plus:',
       'Up to 3 brands monitored',
-      'Up to 50 tracked buyer prompts',
+      'Up to 45 tracked buyer prompts',
       'Track up to 15 competitors',
       'Multi-engine — Gemini live; ChatGPT, Perplexity & Google AI rolling out',
       'Citation source intelligence (who the AI cites)',

@@ -3,6 +3,7 @@ import { EngineType, Brand } from '@/lib/types';
 import { getEngineAdapter } from './index';
 import { resolveGeminiModel, isGeminiRateLimitError } from './gemini';
 import { analyzeMentions } from './parser';
+import { getPlan, isUnlimited } from '@/lib/billing/plans';
 
 export interface AuditRunResponse {
   success: boolean;
@@ -64,6 +65,44 @@ export async function auditPromptCore(
         error: 'Cooldown active: This prompt was audited less than 30 seconds ago.',
         rateLimited: true,
       };
+    }
+
+    // 1b. Per-plan daily audit cap — the primary COST guard.
+    // Counts SUCCESSFUL audits for this org in the last rolling 24h and rejects
+    // further audits once the plan's cap is reached, BEFORE any paid engine call
+    // (so a blocked audit costs $0). Only status='ok' runs consume the allowance,
+    // so users are never penalised for our engine's own failures. Fail-open: a
+    // counter-query error must never block a legitimate (billable) audit.
+    try {
+      const { data: orgRow } = await supabase
+        .from('organizations')
+        .select('plan')
+        .eq('id', orgId)
+        .maybeSingle();
+      const plan = getPlan(orgRow?.plan as string | null | undefined);
+
+      if (!isUnlimited(plan.dailyAuditCap)) {
+        const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+        const { count } = await supabase
+          .from('runs')
+          .select('id', { count: 'exact', head: true })
+          .eq('org_id', orgId)
+          .eq('status', 'ok')
+          .gte('run_at', dayAgo);
+
+        if ((count ?? 0) >= plan.dailyAuditCap) {
+          return {
+            success: false,
+            promptId,
+            engine,
+            model: resolvedModel,
+            error: `Daily audit limit reached — ${plan.dailyAuditCap} audits/day on the ${plan.label} plan. This is a rolling 24-hour window, so it frees up as your earliest audits pass the 24h mark. Upgrade for a higher cap.`,
+            rateLimited: true,
+          };
+        }
+      }
+    } catch (capErr) {
+      console.warn('[AUDIT] Daily cap check failed (allowing audit):', capErr);
     }
 
     // 2. Load prompt (must belong to org and be active)
