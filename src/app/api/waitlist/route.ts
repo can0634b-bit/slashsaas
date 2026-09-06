@@ -87,7 +87,7 @@ export async function POST(request: Request) {
     // 2. Try Resend Provider (does NOT abort if webhook failed or succeeded)
     if (hasResend) {
       try {
-        const notificationEmail = process.env.WAITLIST_NOTIFICATION_EMAIL || 'support@slashsaas.com';
+        const notificationEmail = process.env.WAITLIST_NOTIFICATION_EMAIL || 'slashsaas@gmail.com';
         const resendRes = await fetch('https://api.resend.com/emails', {
           method: 'POST',
           headers: {

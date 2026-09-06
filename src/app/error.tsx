@@ -29,8 +29,8 @@ export default function Error({
       </h1>
       <p className="mt-3 max-w-md text-sm leading-relaxed text-zinc-400">
         It&apos;s on our side, not yours. Try again, and if it keeps happening, let us know at{' '}
-        <a href="mailto:support@slashsaas.com" className="text-[#a78bfa] hover:underline">
-          support@slashsaas.com
+        <a href="mailto:slashsaas@gmail.com" className="text-[#a78bfa] hover:underline">
+          slashsaas@gmail.com
         </a>
         .
       </p>

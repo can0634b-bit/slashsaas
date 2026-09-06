@@ -140,7 +140,7 @@ export default function PrivacyPage() {
               If you have any questions or concerns about this Privacy Policy, please contact:
             </p>
             <p className="text-xs text-[#947dff] font-mono">
-              Email: privacy@slashsaas.com / support@slashsaas.com<br />
+              Email: slashsaas@gmail.com<br />
               Website: https://slashsaas.com
             </p>
           </section>

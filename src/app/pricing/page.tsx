@@ -86,6 +86,7 @@ export default function PricingPage() {
           <nav className="hidden md:flex items-center gap-space-lg">
             <Link className="font-nav-pill text-nav-pill text-on-surface-variant hover:text-on-surface transition-colors" href="/#how-it-works">How it works</Link>
             <Link className="font-nav-pill text-nav-pill text-on-surface-variant hover:text-on-surface transition-colors" href="/#features">Features</Link>
+            <Link className="font-nav-pill text-nav-pill text-tertiary hover:opacity-80 transition-opacity" href="/scorecard">Free check</Link>
             <Link className="font-nav-pill text-nav-pill text-primary transition-colors" href="/pricing">Pricing</Link>
             <Link className="font-nav-pill text-nav-pill text-on-surface-variant hover:text-on-surface transition-colors" href="/#faq">FAQ</Link>
           </nav>

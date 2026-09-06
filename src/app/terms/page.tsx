@@ -106,7 +106,7 @@ export default function TermsPage() {
               For legal notices, terms questions, or inquiries:
             </p>
             <p className="text-xs text-[#947dff] font-mono">
-              Email: support@slashsaas.com<br />
+              Email: slashsaas@gmail.com<br />
               Website: https://slashsaas.com
             </p>
           </section>

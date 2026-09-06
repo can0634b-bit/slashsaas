@@ -63,6 +63,7 @@ export default function LandingPage() {
           <nav className="hidden md:flex items-center gap-space-lg">
             <a className="font-nav-pill text-nav-pill text-on-surface-variant hover:text-on-surface transition-colors" href="#how-it-works">How it works</a>
             <a className="font-nav-pill text-nav-pill text-on-surface-variant hover:text-on-surface transition-colors" href="#features">Features</a>
+            <Link className="font-nav-pill text-nav-pill text-tertiary hover:opacity-80 transition-opacity" href="/scorecard">Free check</Link>
             <Link className="font-nav-pill text-nav-pill text-on-surface-variant hover:text-on-surface transition-colors" href="/pricing">Pricing</Link>
             <a className="font-nav-pill text-nav-pill text-on-surface-variant hover:text-on-surface transition-colors" href="#faq">FAQ</a>
           </nav>
@@ -519,7 +520,7 @@ export default function LandingPage() {
                 <span className="font-headline-md text-headline-md tracking-tight text-on-surface">SlashSaaS</span>
               </div>
               <p className="font-body-md text-body-md text-on-surface-variant max-w-sm">AI Search Visibility Monitoring for modern teams. Continuous intelligence across generative search models.</p>
-              <a className="font-label-mono-md text-label-mono-md text-tertiary hover:underline mt-space-xs" href="mailto:support@slashsaas.com">support@slashsaas.com</a>
+              <a className="font-label-mono-md text-label-mono-md text-tertiary hover:underline mt-space-xs" href="mailto:slashsaas@gmail.com">slashsaas@gmail.com</a>
             </div>
             <div className="md:col-span-4 flex flex-col gap-space-xs">
               <span className="font-label-mono-sm text-label-mono-sm uppercase text-outline tracking-wider mb-space-xs">Resources</span>

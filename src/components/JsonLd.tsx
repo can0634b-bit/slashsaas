@@ -13,7 +13,7 @@ export const JsonLd: React.FC = () => {
       'AI search visibility monitoring — track how ChatGPT, Perplexity, Google AI and Gemini answer about your brand versus competitors over time.',
     contactPoint: {
       '@type': 'ContactPoint',
-      email: 'support@slashsaas.com',
+      email: 'slashsaas@gmail.com',
       contactType: 'customer support',
       availableLanguage: ['English'],
     },
