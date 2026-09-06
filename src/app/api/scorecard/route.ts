@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getEngineAdapter } from '@/lib/engines';
-import { isRateLimited, clientIp, capString } from '@/lib/security/rate-limit';
+import { clientIp, capString } from '@/lib/security/rate-limit';
+import { enforceRateLimit } from '@/lib/security/rate-limit-db';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -38,7 +39,7 @@ function isMentioned(answer: string, brand: string, domain?: string): boolean {
 
 export async function POST(req: NextRequest) {
   try {
-    if (isRateLimited(`scorecard:${clientIp(req)}`, 5, 60 * 60 * 1000)) {
+    if (await enforceRateLimit(`scorecard:${clientIp(req)}`, 5, 60 * 60 * 1000)) {
       return NextResponse.json(
         { error: 'You have run several checks recently. Please try again in a little while.' },
         { status: 429 }

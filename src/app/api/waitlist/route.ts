@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { isRateLimited, clientIp, escapeHtml, capString } from '@/lib/security/rate-limit';
+import { clientIp, escapeHtml, capString } from '@/lib/security/rate-limit';
+import { enforceRateLimit } from '@/lib/security/rate-limit-db';
 
 interface WaitlistPayload {
   email: string;
@@ -27,7 +28,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     // Rate limit (best-effort, per IP): this endpoint is public and unauthenticated.
-    if (isRateLimited(`waitlist:${clientIp(request)}`, 10, 60 * 60 * 1000)) {
+    if (await enforceRateLimit(`waitlist:${clientIp(request)}`, 10, 60 * 60 * 1000)) {
       return NextResponse.json(
         { error: 'Too many requests. Please try again in a little while.' },
         { status: 429 }
