@@ -120,7 +120,12 @@ export class NvidiaAdapter implements EngineAdapter {
     }
 
     const data = await res.json();
-    const rawResponse: string = data.choices?.[0]?.message?.content?.trim() || '';
+    // Some NVIDIA-hosted models are reasoning models that embed a
+    // <think>…</think> chain-of-thought in the content. Strip it so only the
+    // final answer is analysed (harmless when absent).
+    const rawResponse: string = (data.choices?.[0]?.message?.content || '')
+      .replace(/<think>[\s\S]*?<\/think>/gi, '')
+      .trim();
     if (!rawResponse) {
       throw new Error('NVIDIA returned an empty answer.');
     }
