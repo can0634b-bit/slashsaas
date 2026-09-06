@@ -1,27 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getEngineAdapter } from '@/lib/engines';
+import { isRateLimited, clientIp, capString } from '@/lib/security/rate-limit';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
-// Best-effort per-IP throttle (per serverless instance). Combined with the
-// public scorecard using Groq (not the product's grounded Gemini) this keeps
-// the endpoint from burning quota. A Redis/DB limiter is a future hardening.
-const hits = new Map<string, number[]>();
-const WINDOW_MS = 60 * 60 * 1000;
-const MAX_PER_WINDOW = 5;
-
-function rateLimited(ip: string): boolean {
-  const now = Date.now();
-  const arr = (hits.get(ip) || []).filter((t) => now - t < WINDOW_MS);
-  if (arr.length >= MAX_PER_WINDOW) {
-    hits.set(ip, arr);
-    return true;
-  }
-  arr.push(now);
-  hits.set(ip, arr);
-  return false;
-}
+// Public endpoint → best-effort per-IP throttle. Combined with using Groq (not
+// the product's grounded Gemini) this keeps the endpoint from burning quota.
 
 // Natural buyer-intent prompts for the entered category — the brand should
 // appear here if the AI considers it a real option.
@@ -53,8 +38,7 @@ function isMentioned(answer: string, brand: string, domain?: string): boolean {
 
 export async function POST(req: NextRequest) {
   try {
-    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
-    if (rateLimited(ip)) {
+    if (isRateLimited(`scorecard:${clientIp(req)}`, 5, 60 * 60 * 1000)) {
       return NextResponse.json(
         { error: 'You have run several checks recently. Please try again in a little while.' },
         { status: 429 }
@@ -62,9 +46,9 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json().catch(() => ({}));
-    const brand = String(body.brand || '').trim();
-    const category = String(body.category || '').trim();
-    const domain = String(body.domain || '').trim();
+    const brand = capString(body.brand, 80);
+    const category = capString(body.category, 80);
+    const domain = capString(body.domain, 120);
 
     if (brand.length < 2) {
       return NextResponse.json({ error: 'Please enter your brand name.' }, { status: 400 });

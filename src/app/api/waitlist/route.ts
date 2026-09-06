@@ -1,4 +1,5 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
+import { isRateLimited, clientIp, escapeHtml, capString } from '@/lib/security/rate-limit';
 
 interface WaitlistPayload {
   email: string;
@@ -8,7 +9,7 @@ interface WaitlistPayload {
   source?: string;
 }
 
-// In-memory buffer fallback for dev runtime inspection
+// In-memory buffer fallback for dev runtime inspection (bounded).
 const inMemoryWaitlist: Array<WaitlistPayload & { id: string; createdAt: string; deliveredVia: string[] }> = [];
 
 export async function GET() {
@@ -25,19 +26,25 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const body: WaitlistPayload = await request.json();
-    const { email, name, company, planInterest, source } = body;
-
-    // Strict validation
-    if (!email || typeof email !== 'string') {
+    // Rate limit (best-effort, per IP): this endpoint is public and unauthenticated.
+    if (isRateLimited(`waitlist:${clientIp(request)}`, 10, 60 * 60 * 1000)) {
       return NextResponse.json(
-        { error: 'A valid work email address is required.' },
-        { status: 400 }
+        { error: 'Too many requests. Please try again in a little while.' },
+        { status: 429 }
       );
     }
 
+    const body: WaitlistPayload = await request.json().catch(() => ({} as WaitlistPayload));
+
+    // Normalize + hard-cap every field to bound payload size and abuse.
+    const email = capString(body.email, 254).toLowerCase();
+    const name = capString(body.name, 120);
+    const company = capString(body.company, 120);
+    const planInterest = capString(body.planInterest, 60) || 'early_access';
+    const source = capString(body.source, 60) || 'landing_page';
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email.trim())) {
+    if (!email || !emailRegex.test(email)) {
       return NextResponse.json(
         { error: 'Please enter a valid work email address.' },
         { status: 400 }
@@ -46,17 +53,16 @@ export async function POST(request: Request) {
 
     const leadEntry = {
       id: 'lead_' + Math.random().toString(36).substring(2, 11),
-      email: email.trim().toLowerCase(),
-      name: name?.trim() || null,
-      company: company?.trim() || null,
-      planInterest: planInterest || 'early_access',
-      source: source || 'landing_page',
+      email,
+      name: name || null,
+      company: company || null,
+      planInterest,
+      source,
       createdAt: new Date().toISOString(),
     };
 
     const deliveredVia: string[] = [];
 
-    // Loud configuration warning if zero persistence providers exist
     const hasWebhook = Boolean(process.env.WAITLIST_WEBHOOK_URL && process.env.WAITLIST_WEBHOOK_URL.trim().length > 0);
     const hasResend = Boolean(process.env.RESEND_API_KEY && process.env.RESEND_API_KEY.trim().length > 0);
 
@@ -66,14 +72,18 @@ export async function POST(request: Request) {
       );
     }
 
-    // 1. Try Webhook Provider (e.g. Zapier, Make, Slack, Google Sheets)
+    // 1. Webhook provider (e.g. Make.com → Google Sheet).
     if (hasWebhook) {
       try {
+        const controller = new AbortController();
+        const t = setTimeout(() => controller.abort(), 8000);
         const webhookRes = await fetch(process.env.WAITLIST_WEBHOOK_URL!, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(leadEntry),
+          signal: controller.signal,
         });
+        clearTimeout(t);
         if (webhookRes.ok) {
           deliveredVia.push('webhook');
         } else {
@@ -84,10 +94,13 @@ export async function POST(request: Request) {
       }
     }
 
-    // 2. Try Resend Provider (does NOT abort if webhook failed or succeeded)
+    // 2. Resend provider — user-supplied values are HTML-escaped to prevent
+    //    HTML/email injection into the notification.
     if (hasResend) {
       try {
         const notificationEmail = process.env.WAITLIST_NOTIFICATION_EMAIL || 'slashsaas@gmail.com';
+        const controller = new AbortController();
+        const t = setTimeout(() => controller.abort(), 8000);
         const resendRes = await fetch('https://api.resend.com/emails', {
           method: 'POST',
           headers: {
@@ -97,18 +110,21 @@ export async function POST(request: Request) {
           body: JSON.stringify({
             from: 'SlashSaaS Leads <onboarding@resend.dev>',
             to: [notificationEmail],
-            subject: `🎉 New SlashSaaS Early Access Lead: ${leadEntry.email}`,
+            subject: `New SlashSaaS lead: ${leadEntry.email}`,
             html: `
               <h2>New Early Access Request</h2>
-              <p><strong>Email:</strong> ${leadEntry.email}</p>
-              <p><strong>Name:</strong> ${leadEntry.name || 'Not provided'}</p>
-              <p><strong>Company:</strong> ${leadEntry.company || 'Not provided'}</p>
-              <p><strong>Plan Interest:</strong> ${leadEntry.planInterest}</p>
+              <p><strong>Email:</strong> ${escapeHtml(leadEntry.email)}</p>
+              <p><strong>Name:</strong> ${escapeHtml(leadEntry.name || 'Not provided')}</p>
+              <p><strong>Company:</strong> ${escapeHtml(leadEntry.company || 'Not provided')}</p>
+              <p><strong>Plan Interest:</strong> ${escapeHtml(leadEntry.planInterest)}</p>
+              <p><strong>Source:</strong> ${escapeHtml(leadEntry.source)}</p>
               <p><strong>Lead ID:</strong> ${leadEntry.id}</p>
               <p><strong>Timestamp:</strong> ${leadEntry.createdAt}</p>
             `,
           }),
+          signal: controller.signal,
         });
+        clearTimeout(t);
 
         if (resendRes.ok) {
           deliveredVia.push('resend');
@@ -120,12 +136,11 @@ export async function POST(request: Request) {
       }
     }
 
-    // 3. Guaranteed Server Log Fallback (retained in Vercel logs)
+    // 3. Guaranteed server-log fallback.
     if (deliveredVia.length === 0) {
       deliveredVia.push('log-only');
     }
 
-    // Guaranteed grep-friendly server log line emitted on every single lead
     console.info(
       '[WAITLIST_LEAD]',
       JSON.stringify({
@@ -140,8 +155,9 @@ export async function POST(request: Request) {
       })
     );
 
-    // In-memory record
+    // Bounded in-memory record (keep only the most recent entries).
     inMemoryWaitlist.push({ ...leadEntry, deliveredVia });
+    if (inMemoryWaitlist.length > 200) inMemoryWaitlist.splice(0, inMemoryWaitlist.length - 200);
 
     const persisted = deliveredVia.some((d) => d === 'webhook' || d === 'resend');
 
