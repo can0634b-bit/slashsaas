@@ -6,12 +6,33 @@ export const DEFAULT_GEMINI_MODEL = 'gemini-3.6-flash';
 
 let cachedCandidateModels: string[] | null = null;
 
+/**
+ * Collects all configured Gemini API keys, in priority order. Supports a pool
+ * so a rate-limited/quota-exhausted key rotates to the next one (more combined
+ * free quota) before the audit falls back to the ungrounded free engine.
+ * Sources: GEMINI_API_KEY[_2.._4], a comma-separated GEMINI_API_KEYS, GOOGLE_API_KEY.
+ */
+export function getGeminiApiKeys(): string[] {
+  const raw = [
+    process.env.GEMINI_API_KEY,
+    process.env.GEMINI_API_KEY_2,
+    process.env.GEMINI_API_KEY_3,
+    process.env.GEMINI_API_KEY_4,
+    ...((process.env.GEMINI_API_KEYS || '').split(',')),
+    process.env.GOOGLE_API_KEY,
+  ];
+  const keys = raw
+    .map((k) => (k || '').trim().replace(/^["']|["']$/g, ''))
+    .filter((k) => k.length > 0);
+  return Array.from(new Set(keys));
+}
+
 export function getGeminiApiKey(): string {
-  const key = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-  if (!key || key.trim().length === 0) {
+  const keys = getGeminiApiKeys();
+  if (keys.length === 0) {
     throw new Error('GEMINI_API_KEY is not configured on the server. Please set GEMINI_API_KEY in your environment variables.');
   }
-  return key.trim().replace(/^["']|["']$/g, '');
+  return keys[0];
 }
 
 export interface GeminiErrorClassification {
@@ -229,8 +250,39 @@ export class GeminiAdapter implements EngineAdapter {
   displayName = 'Google Gemini';
 
   async run(promptText: string, opts?: EngineRunOptions): Promise<EngineRunResult> {
-    const apiKey = getGeminiApiKey();
-    const candidateModels = await getDiscoveredGeminiModels(apiKey);
+    const keys = getGeminiApiKeys();
+    if (keys.length === 0) {
+      throw new Error('GEMINI_API_KEY is not configured on the server.');
+    }
+    const candidateModels = await getDiscoveredGeminiModels(keys[0]);
+
+    // KEY ROTATION: on a rate-limit / quota error, rotate to the next configured
+    // key (more combined free quota) before giving up so audit-core can fail
+    // over to the free engine. Model-fallback (503) is handled within each key.
+    let lastKeyError: any = null;
+    for (let kIdx = 0; kIdx < keys.length; kIdx++) {
+      const apiKey = keys[kIdx];
+      const isLastKey = kIdx === keys.length - 1;
+      try {
+        return await this.generateWithModelFallback(apiKey, candidateModels, promptText);
+      } catch (err: any) {
+        lastKeyError = err;
+        const classification = classifyGeminiError(err);
+        if (classification.isRateLimit && !isLastKey) {
+          console.warn(`[GEMINI_ADAPTER] API key #${kIdx + 1} rate-limited/quota-exhausted. Rotating to key #${kIdx + 2}...`);
+          continue;
+        }
+        throw err;
+      }
+    }
+    throw lastKeyError || new Error('All Gemini API keys failed.');
+  }
+
+  private async generateWithModelFallback(
+    apiKey: string,
+    candidateModels: string[],
+    promptText: string
+  ): Promise<EngineRunResult> {
     const ai = new GoogleGenAI({ apiKey });
 
     let lastModelError: any = null;
