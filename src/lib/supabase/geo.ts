@@ -11,6 +11,7 @@ import {
   CitationItem,
   CitationIntelligence,
   VisibilityChange,
+  SentimentPositioning,
 } from '@/lib/types';
 import { User } from '@supabase/supabase-js';
 
@@ -55,6 +56,7 @@ export interface GeoWorkspaceData {
   visibilityTrend: VisibilityTrendPoint[];
   citationIntelligence: CitationIntelligence;
   visibilityChanges: VisibilityChange[];
+  sentimentPositioning: SentimentPositioning;
 }
 
 function extractDomainFromUrl(urlStr?: string | null): string | null {
@@ -420,6 +422,45 @@ export async function getGeoWorkspaceData(orgId: string): Promise<GeoWorkspaceDa
   // 7. Citation Source Intelligence — which sources the AI pulls from
   const citationIntelligence = computeCitationIntelligence(okRuns, selfBrand?.domain);
 
+  // 8. Sentiment & Positioning — how the AI talks about the self brand + rank depth
+  let sentPositive = 0;
+  let sentNeutral = 0;
+  let sentNegative = 0;
+  let positionSum = 0;
+  let positionCount = 0;
+  let bestPosition: number | null = null;
+  for (const m of mentionList) {
+    if (!selfBrandId || m.brand_id !== selfBrandId || !m.mentioned) continue;
+    const s = (m.sentiment || 'neutral').toLowerCase();
+    if (s === 'positive') sentPositive++;
+    else if (s === 'negative') sentNegative++;
+    else sentNeutral++;
+    if (typeof m.position === 'number' && m.position > 0) {
+      positionSum += m.position;
+      positionCount++;
+      if (bestPosition === null || m.position < bestPosition) bestPosition = m.position;
+    }
+  }
+  const totalSelfMentions = sentPositive + sentNeutral + sentNegative;
+  const dominant: 'positive' | 'neutral' | 'negative' | null =
+    totalSelfMentions === 0
+      ? null
+      : sentNegative > sentPositive && sentNegative >= sentNeutral
+      ? 'negative'
+      : sentPositive >= sentNeutral && sentPositive >= sentNegative
+      ? 'positive'
+      : 'neutral';
+  const sentimentPositioning: SentimentPositioning = {
+    totalMentions: totalSelfMentions,
+    positive: sentPositive,
+    neutral: sentNeutral,
+    negative: sentNegative,
+    positivePct: totalSelfMentions > 0 ? Math.round((sentPositive / totalSelfMentions) * 100) : 0,
+    dominant,
+    avgPosition: positionCount > 0 ? Math.round((positionSum / positionCount) * 10) / 10 : null,
+    bestPosition,
+  };
+
   return {
     selfBrand,
     competitors,
@@ -430,5 +471,6 @@ export async function getGeoWorkspaceData(orgId: string): Promise<GeoWorkspaceDa
     visibilityTrend,
     citationIntelligence,
     visibilityChanges: visibilityChanges.slice(0, 10),
+    sentimentPositioning,
   };
 }

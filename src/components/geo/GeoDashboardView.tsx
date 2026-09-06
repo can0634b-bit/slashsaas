@@ -31,6 +31,8 @@ import {
   Target,
   TrendingDown,
   History,
+  Smile,
+  Award,
 } from 'lucide-react';
 import {
   Brand,
@@ -41,6 +43,7 @@ import {
   VisibilityTrendPoint,
   CitationIntelligence,
   VisibilityChange,
+  SentimentPositioning,
 } from '@/lib/types';
 import { VisibilityTrendChart } from './VisibilityTrendChart';
 import { computeRecommendations } from '@/lib/geo/recommendations';
@@ -68,6 +71,7 @@ interface GeoDashboardViewProps {
   visibilityTrend: VisibilityTrendPoint[];
   citationIntelligence: CitationIntelligence;
   visibilityChanges: VisibilityChange[];
+  sentimentPositioning: SentimentPositioning;
 }
 
 function formatTimeAgo(dateStr?: string | null): string {
@@ -96,6 +100,7 @@ export function GeoDashboardView({
   visibilityTrend,
   citationIntelligence,
   visibilityChanges,
+  sentimentPositioning,
 }: GeoDashboardViewProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -832,6 +837,72 @@ export function GeoDashboardView({
               })}
             </div>
           </>
+        )}
+      </section>
+
+      {/* SENTIMENT & POSITIONING (how the AI talks about you + rank depth) */}
+      <section className="bg-surface-container-low/90 backdrop-blur-xl rounded-xl p-space-lg shadow-md space-y-space-md">
+        <div className="flex items-center gap-space-sm flex-wrap">
+          <div className="p-2 rounded-lg bg-primary/10 text-primary"><Smile className="h-4 w-4" /></div>
+          <h3 className="font-headline-md text-headline-md text-on-surface tracking-tight">Sentiment &amp; Positioning</h3>
+          <span className="px-2.5 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-label-mono-sm text-label-mono-sm">
+            How the AI talks about you
+          </span>
+        </div>
+
+        {sentimentPositioning.totalMentions === 0 ? (
+          <div className="p-8 rounded-xl border border-dashed border-outline-variant/40 text-center font-body-sm text-body-sm text-on-surface-variant">
+            No brand mentions to analyze yet. Once the AI starts mentioning <strong className="text-on-surface">{selfBrand.name}</strong>, its tone (positive / neutral / negative) and your average rank show up here.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-space-sm">
+            {/* Sentiment tile */}
+            <div className="bg-surface-container rounded-lg p-space-md shadow-sm">
+              <div className="flex items-center justify-between mb-space-sm">
+                <span className="font-label-mono-sm text-label-mono-sm text-on-surface-variant">Tone of mentions</span>
+                <span
+                  className={`px-2 py-0.5 rounded-full font-label-mono-sm text-label-mono-sm font-semibold capitalize ${
+                    sentimentPositioning.dominant === 'positive'
+                      ? 'bg-tertiary/15 text-tertiary'
+                      : sentimentPositioning.dominant === 'negative'
+                      ? 'bg-error-container/30 text-error'
+                      : 'bg-surface-container-high text-on-surface-variant'
+                  }`}
+                >
+                  Mostly {sentimentPositioning.dominant}
+                </span>
+              </div>
+              <div className="w-full h-2.5 rounded-full overflow-hidden flex bg-surface-container-highest">
+                <div className="bg-tertiary h-full transition-all duration-700" style={{ width: `${(sentimentPositioning.positive / sentimentPositioning.totalMentions) * 100}%` }} />
+                <div className="bg-outline-variant h-full transition-all duration-700" style={{ width: `${(sentimentPositioning.neutral / sentimentPositioning.totalMentions) * 100}%` }} />
+                <div className="bg-error h-full transition-all duration-700" style={{ width: `${(sentimentPositioning.negative / sentimentPositioning.totalMentions) * 100}%` }} />
+              </div>
+              <div className="flex items-center gap-space-md mt-space-sm font-label-mono-sm text-label-mono-sm flex-wrap">
+                <span className="flex items-center gap-1 text-tertiary"><span className="w-2 h-2 rounded-full bg-tertiary" />{sentimentPositioning.positive} positive</span>
+                <span className="flex items-center gap-1 text-on-surface-variant"><span className="w-2 h-2 rounded-full bg-outline-variant" />{sentimentPositioning.neutral} neutral</span>
+                <span className="flex items-center gap-1 text-error"><span className="w-2 h-2 rounded-full bg-error" />{sentimentPositioning.negative} negative</span>
+              </div>
+            </div>
+
+            {/* Positioning tile */}
+            <div className="bg-surface-container rounded-lg p-space-md shadow-sm flex flex-col justify-between">
+              <div className="flex items-center justify-between">
+                <span className="font-label-mono-sm text-label-mono-sm text-on-surface-variant">Rank when mentioned</span>
+                <Award className="h-4 w-4 text-tertiary" />
+              </div>
+              <div className="flex items-end gap-space-md py-space-xs">
+                <span className="text-[32px] leading-9 font-extrabold text-on-surface">
+                  {sentimentPositioning.avgPosition !== null ? `#${sentimentPositioning.avgPosition}` : '—'}
+                </span>
+                <span className="font-body-sm text-body-sm text-on-surface-variant pb-1">
+                  avg{sentimentPositioning.bestPosition !== null ? ` · best #${sentimentPositioning.bestPosition}` : ''}
+                </span>
+              </div>
+              <p className="font-body-sm text-body-sm text-on-surface-variant">
+                Across {sentimentPositioning.totalMentions} mention{sentimentPositioning.totalMentions === 1 ? '' : 's'} — lower rank is better.
+              </p>
+            </div>
+          </div>
         )}
       </section>
 

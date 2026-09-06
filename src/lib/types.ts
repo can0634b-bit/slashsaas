@@ -155,6 +155,21 @@ export interface CitationIntelligence {
   sources: CitationSource[]; // top sources, ranked by frequency
 }
 
+/**
+ * How the AI talks about the brand when it mentions it — sentiment mix +
+ * ranking depth. Answers "am I described well, and where do I land?"
+ */
+export interface SentimentPositioning {
+  totalMentions: number; // self-brand mentions analyzed
+  positive: number;
+  neutral: number;
+  negative: number;
+  positivePct: number; // 0-100 of analyzed mentions
+  dominant: 'positive' | 'neutral' | 'negative' | null;
+  avgPosition: number | null; // average rank when mentioned (1 = best)
+  bestPosition: number | null; // best (lowest) rank achieved
+}
+
 export type VisibilityChangeKind =
   | 'gained_mention'
   | 'lost_mention'
