@@ -9,7 +9,7 @@ export interface UserProfile {
   createdAt: string;
 }
 
-export type EngineType = 'openai' | 'perplexity' | 'google_ai' | 'gemini' | 'groq';
+export type EngineType = 'openai' | 'perplexity' | 'google_ai' | 'gemini' | 'groq' | 'nvidia';
 
 export interface Brand {
   id: string;

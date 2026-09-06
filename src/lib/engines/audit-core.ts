@@ -165,18 +165,21 @@ export async function auditPromptCore(
       const isRateLimit = isGeminiRateLimitError(stepAErr) || /429|resource_exhausted|quota/i.test(fullError);
 
       // Auto-fallback: if the grounded engine is rate-limited / quota-exhausted,
-      // retry with Groq (Llama, ungrounded) so the audit still completes on the
-      // free tier. The run is recorded as engine 'groq' to stay honest about
-      // which model actually produced the answer.
+      // retry with a free ungrounded answer engine so the audit still completes
+      // without a paid key. Prefer NVIDIA NIM (larger free model) over Groq when
+      // NVIDIA_API_KEY is set. The run is recorded under whichever engine
+      // actually answered, to stay honest (these produce no citations).
+      const nvidiaConfigured = !!(process.env.NVIDIA_API_KEY || '').trim();
       const groqConfigured = !!(process.env.GROQ_API_KEY || '').trim();
-      if (isRateLimit && (engine === 'gemini' || engine === 'google_ai') && groqConfigured) {
+      const fallbackEngine: EngineType | null = nvidiaConfigured ? 'nvidia' : groqConfigured ? 'groq' : null;
+      if (isRateLimit && (engine === 'gemini' || engine === 'google_ai') && fallbackEngine) {
         try {
-          stepAResult = await getEngineAdapter('groq').run(prompt.text, { locale: prompt.locale });
-          effectiveEngine = 'groq';
+          stepAResult = await getEngineAdapter(fallbackEngine).run(prompt.text, { locale: prompt.locale });
+          effectiveEngine = fallbackEngine;
           resolvedModel = stepAResult.model;
-          console.warn(`[AUDIT] "${engine}" was rate-limited; fell back to Groq for prompt "${prompt.text}".`);
-        } catch (groqErr: any) {
-          console.warn('[AUDIT] Groq fallback also failed:', groqErr?.message || groqErr);
+          console.warn(`[AUDIT] "${engine}" was rate-limited; fell back to ${fallbackEngine} for prompt "${prompt.text}".`);
+        } catch (fbErr: any) {
+          console.warn(`[AUDIT] ${fallbackEngine} fallback also failed:`, fbErr?.message || fbErr);
         }
       }
 
