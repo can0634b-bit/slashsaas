@@ -15,6 +15,6 @@ export const config = {
      * - icon.png, icon.svg, opengraph-image
      * - robots.txt, sitemap.xml
      */
-    '/((?!_next/static|_next/image|favicon.ico|icon.png|icon.svg|opengraph-image|robots.txt|sitemap.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|icon.png|icon.svg|opengraph-image|robots.txt|sitemap.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp|html)$).*)',
   ],
 };
