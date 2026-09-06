@@ -25,6 +25,8 @@ import {
   Star,
   ArrowUpRight,
   RefreshCw,
+  Lightbulb,
+  AlertTriangle,
 } from 'lucide-react';
 import {
   Brand,
@@ -35,6 +37,7 @@ import {
   VisibilityTrendPoint,
 } from '@/lib/types';
 import { VisibilityTrendChart } from './VisibilityTrendChart';
+import { computeRecommendations } from '@/lib/geo/recommendations';
 import {
   addCompetitorAction,
   removeBrandAction,
@@ -393,6 +396,15 @@ export function GeoDashboardView({
 
   const hasRuns = metrics.totalRuns > 0;
 
+  const recommendations = computeRecommendations({
+    brandName: selfBrand.name,
+    metrics,
+    prompts,
+    promptSummaries,
+    competitors,
+    visibilityTrend,
+  });
+
   // ---------------- shared modal input class ----------------
   const inputCls =
     'w-full px-space-md py-space-sm rounded-lg border border-outline-variant/40 bg-surface-container-lowest text-body-md text-on-surface placeholder:text-outline focus:outline-none focus:border-tertiary focus:ring-1 focus:ring-tertiary transition-all';
@@ -655,6 +667,46 @@ export function GeoDashboardView({
 
       {/* VISIBILITY TREND (time-series moat) */}
       <VisibilityTrendChart trend={visibilityTrend} brandName={selfBrand.name} />
+
+      {/* RECOMMENDATIONS (turn monitoring into action) */}
+      {recommendations.length > 0 && (
+        <section className="bg-surface-container-low/90 backdrop-blur-xl rounded-xl p-space-lg shadow-md space-y-space-md">
+          <div className="flex items-center gap-space-sm flex-wrap">
+            <div className="p-2 rounded-lg bg-primary/10 text-primary"><Lightbulb className="h-4 w-4" /></div>
+            <h3 className="font-headline-md text-headline-md text-on-surface tracking-tight">Recommendations</h3>
+            <span className="px-2.5 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-label-mono-sm text-label-mono-sm">
+              Your action plan · {recommendations.length}
+            </span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-space-sm">
+            {recommendations.map((r) => {
+              const style =
+                r.kind === 'warning'
+                  ? { Icon: AlertTriangle, wrap: 'bg-error-container/30 text-error', border: 'border-error/20' }
+                  : r.kind === 'win'
+                  ? { Icon: CheckCircle2, wrap: 'bg-tertiary/15 text-tertiary', border: 'border-tertiary/20' }
+                  : r.kind === 'setup'
+                  ? { Icon: Sparkles, wrap: 'bg-surface-container-highest text-on-surface-variant', border: 'border-outline-variant/20' }
+                  : { Icon: Lightbulb, wrap: 'bg-primary/10 text-primary', border: 'border-primary/25' };
+              const Icon = style.Icon;
+              return (
+                <div
+                  key={r.id}
+                  className={`rounded-lg border ${style.border} bg-surface-container p-space-md flex items-start gap-space-sm shadow-sm`}
+                >
+                  <div className={`p-1.5 rounded-md shrink-0 ${style.wrap}`}>
+                    <Icon className="h-4 w-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-headline-sm text-headline-sm text-on-surface font-semibold">{r.title}</p>
+                    <p className="font-body-sm text-body-sm text-on-surface-variant mt-1">{r.detail}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {/* COMPETITOR BENCHMARKS */}
       <section className="bg-surface-container-low/90 backdrop-blur-xl rounded-xl p-space-lg shadow-md space-y-space-md">
