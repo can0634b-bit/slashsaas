@@ -684,7 +684,7 @@ export function GeoDashboardView({
               <span className="w-1.5 h-1.5 rounded-full bg-tertiary" />
               <span>Engine active: <strong className="text-on-surface font-medium">Gemini</strong> · Groq extraction (auto-fallback)</span>
             </div>
-            <span className="text-outline">OpenAI &amp; Perplexity scheduled next</span>
+            <span className="text-outline">Deep Gemini-grounded intelligence</span>
           </div>
         </div>
       </section>
