@@ -2,6 +2,7 @@
 
 import React, { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import {
   Building2,
   Swords,
@@ -485,6 +486,14 @@ export function GeoDashboardView({
             <Globe className="h-3 w-3" />
             <span>Region: Global (EN)</span>
           </div>
+          <Link
+            href="/app/report"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors"
+            title="Open a printable / shareable visibility report"
+          >
+            <FileText className="h-3 w-3 text-tertiary" />
+            <span>Report</span>
+          </Link>
         </div>
       </section>
 
