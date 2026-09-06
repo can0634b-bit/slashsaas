@@ -44,6 +44,7 @@ export interface Run {
   cost_usd: number | null;
   status: 'ok' | 'error';
   error: string | null;
+  citations?: CitationItem[] | null;
   created_at: string;
   updated_at: string;
 }
@@ -130,4 +131,26 @@ export interface GeoWorkspaceMetrics {
   topCitationsCount: number;
   topCitedDomains: Array<{ domain: string; count: number }>;
   lastAuditedAt: string | null;
+}
+
+/** One source the AI cited (aggregated across audit runs). */
+export interface CitationSource {
+  label: string; // display name — the grounding title, else the domain
+  domain: string | null;
+  url: string; // a representative citation URL
+  count: number; // how many times this source was cited across runs
+  isSelf: boolean; // matches the self-brand domain (you're already there)
+}
+
+/**
+ * Citation Source Intelligence — which web sources the AI pulls from when
+ * answering the org's buyer prompts, and whether the brand appears among them.
+ * The actionable output: "get listed on the sources where you're missing."
+ */
+export interface CitationIntelligence {
+  totalCitations: number; // total citation instances across runs
+  uniqueSources: number;
+  runsWithCitations: number;
+  selfSourceCount: number; // # of cited sources that are the self brand
+  sources: CitationSource[]; // top sources, ranked by frequency
 }

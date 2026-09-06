@@ -27,6 +27,8 @@ import {
   RefreshCw,
   Lightbulb,
   AlertTriangle,
+  Quote,
+  Target,
 } from 'lucide-react';
 import {
   Brand,
@@ -35,6 +37,7 @@ import {
   GeoWorkspaceMetrics,
   PromptAuditSummary,
   VisibilityTrendPoint,
+  CitationIntelligence,
 } from '@/lib/types';
 import { VisibilityTrendChart } from './VisibilityTrendChart';
 import { computeRecommendations } from '@/lib/geo/recommendations';
@@ -60,6 +63,7 @@ interface GeoDashboardViewProps {
   promptSummaries: Record<string, PromptAuditSummary>;
   recentRuns: Array<Run & { promptText?: string }>;
   visibilityTrend: VisibilityTrendPoint[];
+  citationIntelligence: CitationIntelligence;
 }
 
 function formatTimeAgo(dateStr?: string | null): string {
@@ -86,6 +90,7 @@ export function GeoDashboardView({
   promptSummaries,
   recentRuns,
   visibilityTrend,
+  citationIntelligence,
 }: GeoDashboardViewProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -707,6 +712,84 @@ export function GeoDashboardView({
           </div>
         </section>
       )}
+
+      {/* CITATION SOURCE INTELLIGENCE (Command flagship — where the AI gets its answers) */}
+      <section className="bg-surface-container-low/90 backdrop-blur-xl rounded-xl p-space-lg shadow-md space-y-space-md">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
+          <div className="flex items-center gap-space-sm flex-wrap">
+            <div className="p-2 rounded-lg bg-tertiary/10 text-tertiary"><Quote className="h-4 w-4" /></div>
+            <h3 className="font-headline-md text-headline-md text-on-surface tracking-tight">Citation Source Intelligence</h3>
+            <span className="px-2.5 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-label-mono-sm text-label-mono-sm">
+              Where the AI gets its answers
+            </span>
+          </div>
+          {citationIntelligence.uniqueSources > 0 && (
+            <span className="font-label-mono-sm text-label-mono-sm text-on-surface-variant">
+              {citationIntelligence.uniqueSources} sources · {citationIntelligence.runsWithCitations} grounded runs
+            </span>
+          )}
+        </div>
+
+        {citationIntelligence.sources.length === 0 ? (
+          <div className="p-8 rounded-xl border border-dashed border-outline-variant/40 text-center font-body-sm text-body-sm text-on-surface-variant">
+            No citation sources yet. When a <strong className="text-on-surface">grounded Gemini audit</strong> runs, the web sources the AI pulls from show up here — so you know exactly where to get listed to influence the answer. <span className="text-outline">(Ungrounded Groq-fallback runs produce no citations.)</span>
+          </div>
+        ) : (
+          <>
+            <div className="flex flex-wrap items-center gap-space-sm font-body-sm text-body-sm">
+              <span className="text-on-surface-variant">
+                AI cited <strong className="text-on-surface">{citationIntelligence.uniqueSources}</strong> distinct source{citationIntelligence.uniqueSources === 1 ? '' : 's'} answering your buyer prompts.
+              </span>
+              {citationIntelligence.selfSourceCount > 0 ? (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-tertiary/15 text-tertiary font-medium">
+                  <CheckCircle2 className="h-3.5 w-3.5" /> You appear as a cited source
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
+                  <Target className="h-3.5 w-3.5" /> You&apos;re not cited yet — your biggest opportunity
+                </span>
+              )}
+            </div>
+
+            <div className="space-y-1.5">
+              {citationIntelligence.sources.map((s, i) => {
+                const topCount = citationIntelligence.sources[0].count || 1;
+                const pct = Math.max(6, Math.round((s.count / topCount) * 100));
+                return (
+                  <div key={i} className="flex items-center gap-space-sm p-space-sm rounded-lg bg-surface-container shadow-sm">
+                    <span className="w-5 text-center font-label-mono-sm text-label-mono-sm text-on-surface-variant shrink-0">{i + 1}</span>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <a
+                          href={s.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="font-headline-sm text-headline-sm text-on-surface font-semibold truncate hover:text-tertiary transition-colors inline-flex items-center gap-1 min-w-0"
+                        >
+                          <span className="truncate">{s.label}</span>
+                          <ExternalLink className="h-3 w-3 shrink-0 text-on-surface-variant" />
+                        </a>
+                        {s.isSelf ? (
+                          <span className="px-1.5 py-0.5 rounded bg-tertiary/15 text-tertiary font-label-mono-sm text-label-mono-sm font-bold shrink-0">You</span>
+                        ) : (
+                          <span className="px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-label-mono-sm text-label-mono-sm shrink-0">Get listed</span>
+                        )}
+                      </div>
+                      <div className="w-full bg-surface-container-highest rounded-full h-1.5 overflow-hidden mt-1">
+                        <div
+                          className={`h-full rounded-full transition-all duration-700 ${s.isSelf ? 'bg-tertiary' : 'bg-gradient-to-r from-primary to-secondary'}`}
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                    </div>
+                    <span className="font-label-mono-sm text-label-mono-sm text-on-surface-variant shrink-0" title="times cited across audits">{s.count}×</span>
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
+      </section>
 
       {/* COMPETITOR BENCHMARKS */}
       <section className="bg-surface-container-low/90 backdrop-blur-xl rounded-xl p-space-lg shadow-md space-y-space-md">

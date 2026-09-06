@@ -225,21 +225,39 @@ export async function auditPromptCore(
     });
 
     // 6. Record successful run as a new time-series record
-    const { data: newRun, error: runInsertErr } = await supabase
+    const runPayload: Record<string, unknown> = {
+      org_id: orgId,
+      prompt_id: prompt.id,
+      engine: effectiveEngine,
+      model: stepAResult.model,
+      raw_response: stepAResult.rawResponse,
+      cost_usd: stepAResult.costUsd || null,
+      // Full grounding source list → powers Citation Source Intelligence.
+      // Empty for ungrounded (Groq-fallback) runs.
+      citations: stepAResult.citations && stepAResult.citations.length > 0 ? stepAResult.citations : null,
+      status: 'ok',
+      error: null,
+      run_at: new Date().toISOString(),
+    };
+
+    let { data: newRun, error: runInsertErr } = await supabase
       .from('runs')
-      .insert({
-        org_id: orgId,
-        prompt_id: prompt.id,
-        engine: effectiveEngine,
-        model: stepAResult.model,
-        raw_response: stepAResult.rawResponse,
-        cost_usd: stepAResult.costUsd || null,
-        status: 'ok',
-        error: null,
-        run_at: new Date().toISOString(),
-      })
+      .insert(runPayload)
       .select('id')
       .single();
+
+    // Resilience: if the `citations` column hasn't been migrated yet, the insert
+    // errors on that column. Retry once WITHOUT it so audits never break on a
+    // lagging migration (the citation data is simply omitted until it's applied).
+    if (runInsertErr && /citations/i.test(runInsertErr.message || '')) {
+      console.warn('[AUDIT] runs.citations column missing — retrying insert without citations (run the run_citations migration).');
+      const { citations: _omit, ...withoutCitations } = runPayload;
+      ({ data: newRun, error: runInsertErr } = await supabase
+        .from('runs')
+        .insert(withoutCitations)
+        .select('id')
+        .single());
+    }
 
     if (runInsertErr || !newRun) {
       console.error('[AUDIT] Failed to insert run record:', runInsertErr);

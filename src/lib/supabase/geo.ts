@@ -8,6 +8,8 @@ import {
   GeoWorkspaceMetrics,
   PromptAuditSummary,
   VisibilityTrendPoint,
+  CitationItem,
+  CitationIntelligence,
 } from '@/lib/types';
 import { User } from '@supabase/supabase-js';
 
@@ -50,6 +52,7 @@ export interface GeoWorkspaceData {
   promptSummaries: Record<string, PromptAuditSummary>;
   recentRuns: Array<Run & { promptText?: string }>;
   visibilityTrend: VisibilityTrendPoint[];
+  citationIntelligence: CitationIntelligence;
 }
 
 function extractDomainFromUrl(urlStr?: string | null): string | null {
@@ -60,6 +63,68 @@ function extractDomainFromUrl(urlStr?: string | null): string | null {
   } catch {
     return urlStr.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0] || null;
   }
+}
+
+/** Normalizes a brand-entered domain ("https://www.x.com/path") to "x.com". */
+function normalizeBrandDomain(domain?: string | null): string | null {
+  if (!domain) return null;
+  const d = domain.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0].split('?')[0];
+  return d || null;
+}
+
+/**
+ * Aggregates every source the AI cited across successful runs into ranked
+ * Citation Source Intelligence. Gemini grounding URLs are usually Google
+ * redirect links, so the human-readable `title` (site name) is the reliable
+ * source identifier — we key on it, falling back to the URL domain.
+ */
+function computeCitationIntelligence(
+  okRuns: Run[],
+  selfBrandDomain?: string | null
+): CitationIntelligence {
+  const selfDomain = normalizeBrandDomain(selfBrandDomain);
+  const agg = new Map<string, { label: string; domain: string | null; url: string; count: number; isSelf: boolean }>();
+  let totalCitations = 0;
+  let runsWithCitations = 0;
+
+  for (const r of okRuns) {
+    const cits = Array.isArray(r.citations) ? (r.citations as CitationItem[]) : [];
+    if (cits.length > 0) runsWithCitations++;
+    for (const c of cits) {
+      if (!c || !c.url) continue;
+      totalCitations++;
+      const domain = extractDomainFromUrl(c.url);
+      const title = (c.title || '').trim();
+      const label = title || domain || c.url;
+      const key = label.toLowerCase();
+      const isSelf = !!selfDomain && (
+        (!!domain && domain.toLowerCase().includes(selfDomain)) ||
+        title.toLowerCase().includes(selfDomain) ||
+        c.url.toLowerCase().includes(selfDomain)
+      );
+      const existing = agg.get(key);
+      if (existing) {
+        existing.count++;
+        if (isSelf) existing.isSelf = true;
+      } else {
+        agg.set(key, { label, domain, url: c.url, count: 1, isSelf });
+      }
+    }
+  }
+
+  const all = Array.from(agg.values());
+  const sources = all
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 12)
+    .map((s) => ({ label: s.label, domain: s.domain, url: s.url, count: s.count, isSelf: s.isSelf }));
+
+  return {
+    totalCitations,
+    uniqueSources: all.length,
+    runsWithCitations,
+    selfSourceCount: all.filter((s) => s.isSelf).length,
+    sources,
+  };
 }
 
 /**
@@ -303,6 +368,9 @@ export async function getGeoWorkspaceData(orgId: string): Promise<GeoWorkspaceDa
     promptText: promptMap.get(r.prompt_id)?.text,
   }));
 
+  // 7. Citation Source Intelligence — which sources the AI pulls from
+  const citationIntelligence = computeCitationIntelligence(okRuns, selfBrand?.domain);
+
   return {
     selfBrand,
     competitors,
@@ -311,5 +379,6 @@ export async function getGeoWorkspaceData(orgId: string): Promise<GeoWorkspaceDa
     promptSummaries,
     recentRuns: enrichedRecentRuns,
     visibilityTrend,
+    citationIntelligence,
   };
 }
