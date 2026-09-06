@@ -7,6 +7,7 @@ import {
   Mention,
   GeoWorkspaceMetrics,
   PromptAuditSummary,
+  VisibilityTrendPoint,
 } from '@/lib/types';
 import { User } from '@supabase/supabase-js';
 
@@ -48,6 +49,7 @@ export interface GeoWorkspaceData {
   metrics: GeoWorkspaceMetrics;
   promptSummaries: Record<string, PromptAuditSummary>;
   recentRuns: Array<Run & { promptText?: string }>;
+  visibilityTrend: VisibilityTrendPoint[];
 }
 
 function extractDomainFromUrl(urlStr?: string | null): string | null {
@@ -179,6 +181,44 @@ export async function getGeoWorkspaceData(orgId: string): Promise<GeoWorkspaceDa
     lastAuditedAt: runList.length > 0 ? runList[0].run_at : null,
   };
 
+  // 5b. Compute Visibility Trend (daily time-series — the accumulated-history moat)
+  // Bucket successful runs + their mentions by UTC calendar day.
+  const runDayById = new Map<string, string>();
+  const dayBuckets = new Map<
+    string,
+    { runs: number; selfMentions: number; competitorMentions: number }
+  >();
+
+  for (const r of okRuns) {
+    const day = r.run_at.slice(0, 10); // run_at is ISO → YYYY-MM-DD
+    runDayById.set(r.id, day);
+    const bucket = dayBuckets.get(day) || { runs: 0, selfMentions: 0, competitorMentions: 0 };
+    bucket.runs++;
+    dayBuckets.set(day, bucket);
+  }
+
+  for (const m of mentionList) {
+    const day = runDayById.get(m.run_id);
+    if (!day) continue; // mention belongs to an error/absent run
+    const bucket = dayBuckets.get(day);
+    if (!bucket) continue;
+    if (selfBrandId && m.brand_id === selfBrandId) {
+      if (m.mentioned) bucket.selfMentions++;
+    } else if (m.mentioned) {
+      bucket.competitorMentions++;
+    }
+  }
+
+  const visibilityTrend: VisibilityTrendPoint[] = Array.from(dayBuckets.entries())
+    .map(([date, b]) => {
+      const mentionRate = b.runs > 0 ? Math.round((b.selfMentions / b.runs) * 100) : 0;
+      const totalDayMentions = b.selfMentions + b.competitorMentions;
+      const shareOfVoice =
+        totalDayMentions > 0 ? Math.round((b.selfMentions / totalDayMentions) * 100) : 0;
+      return { date, mentionRate, shareOfVoice, runs: b.runs };
+    })
+    .sort((a, b) => a.date.localeCompare(b.date));
+
   // 6. Compute Per-Prompt Summaries
   const promptSummaries: Record<string, PromptAuditSummary> = {};
   const mentionsByRunId = new Map<string, Mention[]>();
@@ -270,5 +310,6 @@ export async function getGeoWorkspaceData(orgId: string): Promise<GeoWorkspaceDa
     metrics,
     promptSummaries,
     recentRuns: enrichedRecentRuns,
+    visibilityTrend,
   };
 }

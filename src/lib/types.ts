@@ -116,6 +116,13 @@ export interface PromptAuditSummary {
   statusSummary: string | null;
 }
 
+export interface VisibilityTrendPoint {
+  date: string; // YYYY-MM-DD (UTC day bucket)
+  mentionRate: number; // 0 - 100 %
+  shareOfVoice: number; // 0 - 100 %
+  runs: number; // successful audit runs that day
+}
+
 export interface GeoWorkspaceMetrics {
   totalRuns: number;
   brandMentionRate: number; // 0 - 100 %

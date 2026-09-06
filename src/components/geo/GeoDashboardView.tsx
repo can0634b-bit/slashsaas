@@ -32,7 +32,9 @@ import {
   Run,
   GeoWorkspaceMetrics,
   PromptAuditSummary,
+  VisibilityTrendPoint,
 } from '@/lib/types';
+import { VisibilityTrendChart } from './VisibilityTrendChart';
 import {
   addCompetitorAction,
   removeBrandAction,
@@ -54,6 +56,7 @@ interface GeoDashboardViewProps {
   metrics: GeoWorkspaceMetrics;
   promptSummaries: Record<string, PromptAuditSummary>;
   recentRuns: Array<Run & { promptText?: string }>;
+  visibilityTrend: VisibilityTrendPoint[];
 }
 
 function formatTimeAgo(dateStr?: string | null): string {
@@ -79,6 +82,7 @@ export function GeoDashboardView({
   metrics,
   promptSummaries,
   recentRuns,
+  visibilityTrend,
 }: GeoDashboardViewProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -648,6 +652,9 @@ export function GeoDashboardView({
           </div>
         </div>
       </section>
+
+      {/* VISIBILITY TREND (time-series moat) */}
+      <VisibilityTrendChart trend={visibilityTrend} brandName={selfBrand.name} />
 
       {/* COMPETITOR BENCHMARKS */}
       <section className="bg-surface-container-low/90 backdrop-blur-xl rounded-xl p-space-lg shadow-md space-y-space-md">
