@@ -97,6 +97,12 @@ export function SignupForm() {
 
   const handleGoogleSignup = async () => {
     setErrorMessage(null);
+
+    if (!agreedToTerms) {
+      setErrorMessage('You must agree to the Terms of Service and Privacy Policy to proceed.');
+      return;
+    }
+
     setGoogleLoading(true);
 
     try {
