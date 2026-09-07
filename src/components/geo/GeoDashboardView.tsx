@@ -153,7 +153,7 @@ export function GeoDashboardView({
     setNotification(null);
 
     try {
-      const res = await runAudit(promptId, 'gemini');
+      const res = await runAudit(promptId, 'openai');
 
       if (res.rateLimited) {
         setNotification({
@@ -193,7 +193,7 @@ export function GeoDashboardView({
     setNotification(null);
 
     try {
-      const res = await runAuditAllActive('gemini');
+      const res = await runAuditAllActive('openai');
 
       if (!res.success && res.completed === 0) {
         const firstError = res.results.find((r) => r.error)?.error;

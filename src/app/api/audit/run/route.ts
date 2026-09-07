@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json().catch(() => ({}));
-    const engine: EngineType = body.engine || 'gemini';
+    const engine: EngineType = body.engine || 'openai';
 
     if (body.all === true) {
       const batchResult = await runAuditAllActive(engine);

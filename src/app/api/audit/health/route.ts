@@ -50,7 +50,54 @@ export async function GET(_req: NextRequest) {
       return NextResponse.json({ ok: false, error: 'Unauthorized. Please sign in.' }, { status: 401 });
     }
 
-    // 1. Gemini — test EVERY configured key (the rotation pool)
+    // 1. OpenAI — test EVERY configured key (the rotation pool)
+    const { getOpenAIApiKeys, DEFAULT_OPENAI_MODEL } = await import('@/lib/engines/openai');
+    const openaiKeys = getOpenAIApiKeys();
+    let openai: {
+      reachable: boolean;
+      keys: number;
+      resolvedModel: string;
+      perKey?: Array<{ key: number; reachable: boolean; error?: string }>;
+      error?: string;
+    };
+
+    if (openaiKeys.length === 0) {
+      openai = { reachable: false, keys: 0, resolvedModel: 'none', error: 'No OPENAI_API_KEY configured.' };
+    } else {
+      const resolvedModel = process.env.OPENAI_MODEL || DEFAULT_OPENAI_MODEL;
+      const perKey: Array<{ key: number; reachable: boolean; error?: string }> = [];
+      for (let i = 0; i < openaiKeys.length; i++) {
+        const key = openaiKeys[i];
+        try {
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), 9000);
+          const res = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
+            body: JSON.stringify({ model: resolvedModel, messages: [{ role: 'user', content: 'Say OK' }], max_tokens: 5 }),
+            signal: controller.signal,
+          });
+          clearTimeout(timeout);
+          if (res.ok) {
+            perKey.push({ key: i + 1, reachable: true });
+          } else {
+            const errData = await res.json().catch(() => ({}));
+            perKey.push({ key: i + 1, reachable: false, error: errData?.error?.message || `HTTP ${res.status}` });
+          }
+        } catch (err) {
+          perKey.push({ key: i + 1, reachable: false, error: abortMsg(err, 9) });
+        }
+      }
+      openai = {
+        reachable: perKey.some((k) => k.reachable),
+        keys: openaiKeys.length,
+        resolvedModel,
+        perKey,
+      };
+    }
+
+    // 1.5 Gemini (Legacy) - Keeping it to not break interfaces fully if they rely on it, but we can just comment it out.
+    // We'll leave it as is, but change groundedAvailable and canAnswer down below.
     const geminiKeys = getGeminiApiKeys();
     let gemini: {
       reachable: boolean;
@@ -137,13 +184,13 @@ export async function GET(_req: NextRequest) {
       }
     }
 
-    // Product can answer if ANY answer engine is reachable (grounded via Gemini,
-    // else ungrounded via NVIDIA/Groq). Grounded requires Gemini specifically.
-    const canAnswer = gemini.reachable || nvidia.reachable || groq.reachable;
+    // Product can answer if ANY answer engine is reachable
+    const canAnswer = openai.reachable || gemini.reachable || nvidia.reachable || groq.reachable;
 
     return NextResponse.json({
       ok: canAnswer,
-      groundedAvailable: gemini.reachable,
+      groundedAvailable: openai.reachable || gemini.reachable,
+      openai,
       gemini,
       nvidia,
       groq,

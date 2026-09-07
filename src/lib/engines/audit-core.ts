@@ -31,17 +31,13 @@ export async function auditPromptCore(
   supabase: SupabaseClient,
   orgId: string,
   promptId: string,
-  engine: EngineType = 'gemini'
+  engine: EngineType = 'openai'
 ): Promise<AuditRunResponse> {
-  let resolvedModel = 'gemini-3.6-flash';
+  let resolvedModel = 'gpt-4o-mini';
 
   try {
-    if (engine === 'gemini') {
-      try {
-        resolvedModel = await resolveGeminiModel();
-      } catch (err) {
-        console.warn('[AUDIT] Failed to resolve Gemini model, using default:', err);
-      }
+    if (engine === 'openai') {
+      resolvedModel = process.env.OPENAI_MODEL || 'gpt-4o-mini';
     }
 
     // 1. Anti-hammering rate guard (reject if run for same prompt occurred <30s ago)

@@ -118,7 +118,7 @@ async function dispatchAlert(brand: string, orgId: string, events: AlertEvent[])
  * the manual "Run" button, on a schedule. Uses the service-role admin client but
  * scopes every operation by org_id, so each org only ever touches its own data.
  */
-async function runGeoAuditCron(engine: EngineType = 'gemini') {
+async function runGeoAuditCron(engine: EngineType = 'openai') {
   const started = Date.now();
   const supabase = createAdminClient();
 
@@ -238,7 +238,7 @@ async function handle(req: NextRequest) {
   }
 
   try {
-    const engineParam = (req.nextUrl.searchParams.get('engine') || 'gemini') as EngineType;
+    const engineParam = (req.nextUrl.searchParams.get('engine') || 'openai') as EngineType;
     const summary = await runGeoAuditCron(engineParam);
     return NextResponse.json({ success: summary.ok, ...summary });
   } catch (err: any) {

@@ -27,7 +27,7 @@ export interface BatchAuditResponse {
  */
 export async function runAudit(
   promptId: string,
-  engine: EngineType = 'gemini'
+  engine: EngineType = 'openai'
 ): Promise<AuditRunResponse> {
   const { org } = await getCurrentOrg();
   const supabase = await createClient();
@@ -44,7 +44,7 @@ export async function runAudit(
  * to respect Gemini free-tier rate limits. Configurable via AUDIT_CONCURRENCY.
  */
 export async function runAuditAllActive(
-  engine: EngineType = 'gemini'
+  engine: EngineType = 'openai'
 ): Promise<BatchAuditResponse> {
   const { org } = await getCurrentOrg();
   const supabase = await createClient();

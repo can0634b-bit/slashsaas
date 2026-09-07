@@ -3,7 +3,8 @@ import { EngineAdapter } from './types';
 import { GeminiAdapter } from './gemini';
 import { GroqAdapter } from './groq';
 import { NvidiaAdapter } from './nvidia';
-import { OpenAIAdapter, PerplexityAdapter } from './stubs';
+import { PerplexityAdapter } from './stubs';
+import { OpenAIAdapter } from './openai';
 
 const adapters: Record<EngineType, EngineAdapter> = {
   gemini: new GeminiAdapter(),
@@ -16,12 +17,12 @@ const adapters: Record<EngineType, EngineAdapter> = {
 
 /**
  * Returns the engine adapter for the specified engine type.
- * Default is Gemini.
+ * Default is OpenAI.
  */
-export function getEngineAdapter(engine: EngineType = 'gemini'): EngineAdapter {
+export function getEngineAdapter(engine: EngineType = 'openai'): EngineAdapter {
   const adapter = adapters[engine];
   if (!adapter) {
-    return adapters.gemini;
+    return adapters.openai;
   }
   return adapter;
 }
@@ -32,3 +33,4 @@ export * from './groq';
 export * from './nvidia';
 export * from './stubs';
 export * from './parser';
+export * from './openai';
