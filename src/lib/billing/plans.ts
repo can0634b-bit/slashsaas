@@ -43,7 +43,7 @@ export const PLANS: Record<PlanId, PlanLimits> = {
   free: {
     id: 'free',
     label: 'Free',
-    dailyAuditCap: envCap('PLAN_FREE_DAILY_CAP', 5),
+    dailyAuditCap: envCap('PLAN_FREE_DAILY_CAP', 2),
     maxPrompts: 3,
     maxCompetitors: 3,
     priceUsd: 0,
@@ -51,7 +51,7 @@ export const PLANS: Record<PlanId, PlanLimits> = {
   radar: {
     id: 'radar',
     label: 'Radar',
-    dailyAuditCap: envCap('PLAN_RADAR_DAILY_CAP', 15),
+    dailyAuditCap: envCap('PLAN_RADAR_DAILY_CAP', 20),
     maxPrompts: 15,
     maxCompetitors: 5,
     priceUsd: 29,
@@ -59,10 +59,10 @@ export const PLANS: Record<PlanId, PlanLimits> = {
   command: {
     id: 'command',
     label: 'Command',
-    dailyAuditCap: envCap('PLAN_COMMAND_DAILY_CAP', 45),
+    dailyAuditCap: envCap('PLAN_COMMAND_DAILY_CAP', 50),
     maxPrompts: 45,
     maxCompetitors: 15,
-    priceUsd: 89,
+    priceUsd: 59,
   },
   unlimited: {
     id: 'unlimited',

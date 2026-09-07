@@ -6,6 +6,7 @@ import { getCurrentOrg } from '../supabase/geo';
 import { EngineType } from '@/lib/types';
 import { isGeminiRateLimitError } from '../engines/gemini';
 import { auditPromptCore, type AuditRunResponse } from '../engines/audit-core';
+import { getPlan } from '../billing/plans';
 
 export type { AuditRunResponse };
 
@@ -19,20 +20,13 @@ export interface BatchAuditResponse {
   results: AuditRunResponse[];
 }
 
-// Ultra-optimized limits to stretch a $5 API budget as far as possible while providing value
-const PLAN_LIMITS: Record<string, number> = {
-  free: 2,       // 2 scans per day (strictly a trial, very fast conversion push)
-  radar: 20,     // 20 scans per day ($29/mo)
-  command: 50,   // 50 scans per day ($59/mo)
-  unlimited: 9999
-};
-
 /**
  * Helper: Checks if the org has exceeded their daily scan limit.
  * Returns the number of scans remaining today.
  */
 async function checkRemainingDailyLimit(supabase: any, orgId: string, plan: string = 'free'): Promise<number> {
-  const maxLimit = PLAN_LIMITS[plan.toLowerCase()] || PLAN_LIMITS['free'];
+  const planLimits = getPlan(plan);
+  const maxLimit = planLimits.dailyAuditCap;
   
   // Count runs created today (UTC)
   const startOfDay = new Date();
