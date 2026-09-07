@@ -41,9 +41,9 @@ export async function POST(req: Request) {
 
         // Map variant back to plan name if active
         if (status === 'active' || status === 'past_due') {
-          if (variantId === '2102182') {
+          if (variantId === '2102615') {
             planName = 'radar';
-          } else if (variantId === '2102197') {
+          } else if (variantId === '2102627') {
             planName = 'command';
           }
         } else if (status === 'cancelled' || status === 'expired' || status === 'unpaid') {

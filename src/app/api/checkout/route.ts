@@ -5,8 +5,8 @@ import { lemonSqueezySetup, createCheckout } from '@lemonsqueezy/lemonsqueezy.js
 export const dynamic = 'force-dynamic';
 
 const VARIANT_MAP: Record<string, string> = {
-  radar: '2102182',
-  command: '2102197',
+  radar: '2102615',
+  command: '2102627',
 };
 
 export async function GET(req: Request) {
