@@ -32,7 +32,7 @@ const plans: Plan[] = [
       '1 brand monitored',
       'Up to 15 tracked buyer prompts',
       'Track up to 5 competitors',
-      'Daily autonomous audits (Google Gemini, grounded)',
+      'Daily autonomous audits (Premium Live AI, grounded)',
       'Visibility Score, Share of Voice & trend over time',
       'AI action-plan recommendations',
       'Change alerts (email / webhook)',
@@ -149,7 +149,7 @@ export default function PricingPage() {
                 </div>
 
                 <Link
-                  href="/signup"
+                  href={plan.name === 'Radar' ? '/api/checkout?plan=radar' : plan.name === 'Command' ? '/api/checkout?plan=command' : '/signup'}
                   className={`w-full inline-flex items-center justify-center gap-space-xs font-headline-sm text-headline-sm px-space-lg py-space-sm rounded-xl transition-all duration-200 ${
                     plan.highlight
                       ? 'bg-gradient-to-r from-primary-container via-secondary-container to-tertiary text-on-primary shadow-[0_0_24px_rgba(148,125,255,0.4)] hover:shadow-[0_0_35px_rgba(47,217,244,0.6)] hover:-translate-y-0.5'
