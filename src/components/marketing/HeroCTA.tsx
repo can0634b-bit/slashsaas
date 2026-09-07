@@ -53,15 +53,13 @@ export function HeroCTA() {
 
   return (
     <div className="flex flex-wrap items-center gap-space-md pt-space-xs w-full sm:w-auto">
-      {state !== 'paid' && (
-        <Link 
-          className="w-full sm:w-auto inline-flex items-center justify-center gap-space-xs font-headline-sm text-headline-sm px-space-lg py-space-sm rounded-xl bg-gradient-to-r from-primary-container via-secondary-container to-tertiary text-on-primary shadow-[0_0_24px_rgba(148,125,255,0.4)] hover:shadow-[0_0_35px_rgba(47,217,244,0.6)] hover:-translate-y-0.5 transition-all duration-200" 
-          href={state === 'anon' ? "/signup" : "/app"}
-        >
-          <span>{state === 'anon' ? 'Start free' : 'Go to workspace'}</span>
-          <span className="material-symbols-outlined text-lg">arrow_forward</span>
-        </Link>
-      )}
+      <Link 
+        className="w-full sm:w-auto inline-flex items-center justify-center gap-space-xs font-headline-sm text-headline-sm px-space-lg py-space-sm rounded-xl bg-gradient-to-r from-primary-container via-secondary-container to-tertiary text-on-primary shadow-[0_0_24px_rgba(148,125,255,0.4)] hover:shadow-[0_0_35px_rgba(47,217,244,0.6)] hover:-translate-y-0.5 transition-all duration-200" 
+        href={state === 'anon' ? "/signup" : "/app"}
+      >
+        <span>{state === 'anon' ? 'Start free' : 'Go to workspace'}</span>
+        <span className="material-symbols-outlined text-lg">arrow_forward</span>
+      </Link>
       <a 
         className="w-full sm:w-auto inline-flex items-center justify-center gap-space-xs font-headline-sm text-headline-sm px-space-lg py-space-sm rounded-xl bg-surface-container/60 hover:bg-surface-container text-on-surface border border-outline-variant/40 hover:border-primary/50 transition-all duration-200 backdrop-blur-md" 
         href="#how-it-works"

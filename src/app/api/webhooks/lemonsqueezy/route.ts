@@ -29,8 +29,13 @@ export async function POST(req: Request) {
     const eventName = payload.meta.event_name;
     const customData = payload.meta.custom_data;
     
-    // Check if it's a subscription creation or update
-    if (eventName === 'subscription_created' || eventName === 'subscription_updated') {
+    // Check if it's a subscription creation, update, cancellation, or expiration
+    if (
+      eventName === 'subscription_created' || 
+      eventName === 'subscription_updated' || 
+      eventName === 'subscription_cancelled' ||
+      eventName === 'subscription_expired'
+    ) {
       const orgId = customData?.org_id;
       const variantId = payload.data.attributes.variant_id?.toString();
       const status = payload.data.attributes.status; // 'active', 'past_due', 'unpaid', 'cancelled', 'expired'
