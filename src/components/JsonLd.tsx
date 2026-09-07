@@ -10,7 +10,7 @@ export const JsonLd: React.FC = () => {
     url: baseUrl,
     logo: `${baseUrl}/apple-icon`,
     description:
-      'AI search visibility monitoring — track how ChatGPT, Perplexity, Google AI and Gemini answer about your brand versus competitors over time.',
+      'AI search visibility monitoring — track how leading AI assistants answer about your brand versus competitors over time.',
     contactPoint: {
       '@type': 'ContactPoint',
       email: 'slashsaas@gmail.com',
@@ -27,7 +27,7 @@ export const JsonLd: React.FC = () => {
     operatingSystem: 'Web',
     url: baseUrl,
     description:
-      'Monitor your brand’s visibility inside AI assistant answers (ChatGPT, Perplexity, Google AI, Gemini): visibility score, share of voice vs competitors, citation sources, and change alerts. Public data only.',
+      'Monitor your brand’s visibility inside AI assistant answers: visibility score, share of voice vs competitors, citation sources, and change alerts. Public data only.',
   };
 
   return (

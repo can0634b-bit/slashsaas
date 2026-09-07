@@ -267,9 +267,14 @@ export class GeminiAdapter implements EngineAdapter {
         return await this.generateWithModelFallback(apiKey, candidateModels, promptText);
       } catch (err: any) {
         lastKeyError = err;
-        const classification = classifyGeminiError(err);
-        if (classification.isRateLimit && !isLastKey) {
-          console.warn(`[GEMINI_ADAPTER] API key #${kIdx + 1} rate-limited/quota-exhausted. Rotating to key #${kIdx + 2}...`);
+        // Rotate to the next key on ANY failure (rate-limit, denied/invalid key,
+        // persistent overload) — the whole point of the pool is to survive a bad
+        // key. Only after the last key fails do we throw so audit-core can fall
+        // back to the free ungrounded engine.
+        if (!isLastKey) {
+          const c = classifyGeminiError(err);
+          const reason = c.isRateLimit ? 'rate-limited/quota' : c.isFatal ? 'access/auth denied' : 'error';
+          console.warn(`[GEMINI_ADAPTER] API key #${kIdx + 1} ${reason} — rotating to key #${kIdx + 2}...`);
           continue;
         }
         throw err;

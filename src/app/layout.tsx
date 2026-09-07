@@ -35,13 +35,13 @@ export const metadata: Metadata = {
     template: '%s | SlashSaaS',
   },
   description:
-    'Track how ChatGPT, Perplexity, Google AI and Gemini answer about your brand versus competitors — every day. Visibility score, share of voice, citation sources, and change alerts. Public data only, no account connections.',
+    'Track how AI assistants answer about your brand versus competitors — every day. Visibility score, share of voice, citation sources, and change alerts. Public data only, no account connections.',
   keywords: [
     'AI search visibility',
     'generative engine optimization',
     'GEO monitoring',
-    'ChatGPT brand monitoring',
-    'Perplexity visibility',
+    'AI brand monitoring',
+    'AI visibility',
     'AI SEO',
     'share of voice',
     'brand monitoring',
@@ -59,14 +59,14 @@ export const metadata: Metadata = {
     url: siteUrl,
     title: 'SlashSaaS — AI Search Visibility Monitoring',
     description:
-      'See how ChatGPT, Perplexity, Google AI and Gemini answer about your brand versus competitors — daily. Visibility score, share of voice, citations, and alerts.',
+      'See how AI assistants answer about your brand versus competitors — daily. Visibility score, share of voice, citations, and alerts.',
     siteName: 'SlashSaaS',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'SlashSaaS — AI Search Visibility Monitoring',
     description:
-      'See how ChatGPT, Perplexity, Google AI and Gemini answer about your brand versus competitors — daily. Visibility score, share of voice, citations, and alerts.',
+      'See how AI assistants answer about your brand versus competitors — daily. Visibility score, share of voice, citations, and alerts.',
     creator: '@slashsaas',
   },
   icons: {

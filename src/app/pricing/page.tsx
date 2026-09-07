@@ -7,7 +7,7 @@ import { SlashLogoIcon } from '@/components/Logo';
 export const metadata: Metadata = {
   title: 'Pricing',
   description:
-    'Simple, transparent pricing for SlashSaaS AI Search Visibility monitoring. Track how ChatGPT, Perplexity and Gemini answer about your brand.',
+    'Simple, transparent pricing for SlashSaaS AI Search Visibility monitoring. Track how AI assistants answer about your brand.',
 };
 
 type Plan = {

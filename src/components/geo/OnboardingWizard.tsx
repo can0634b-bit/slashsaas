@@ -292,7 +292,7 @@ export function OnboardingWizard({ orgId, orgName }: OnboardingWizardProps) {
           Monitor How AI Assistants Answer About Your Brand
         </h1>
         <p className="text-sm text-zinc-400 mt-2 max-w-xl mx-auto">
-          Configure your brand, key competitors, and customer prompt queries. We&apos;ll monitor recommendations across ChatGPT, Perplexity, Google AI, and Gemini.
+          Configure your brand, key competitors, and customer prompt queries. We&apos;ll monitor recommendations across all leading AI assistants.
         </p>
       </div>
 

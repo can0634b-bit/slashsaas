@@ -83,7 +83,7 @@ export default async function Image() {
             marginBottom: '40px',
           }}
         >
-          Track ChatGPT, Perplexity, Google AI &amp; Gemini — visibility score, share of voice, and alerts.
+          Track AI assistants — visibility score, share of voice, and alerts.
         </div>
 
         <div

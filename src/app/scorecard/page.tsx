@@ -8,7 +8,7 @@ import { ScorecardTool } from '@/components/scorecard/ScorecardTool';
 export const metadata: Metadata = {
   title: 'Free AI Visibility Scorecard',
   description:
-    'Check for free how visible your brand is inside AI answers (ChatGPT, Perplexity, Gemini). Enter your brand and category and get an instant AI Visibility Score.',
+    'Check for free how visible your brand is inside AI answers. Enter your brand and category and get an instant AI Visibility Score.',
   alternates: { canonical: '/scorecard' },
 };
 

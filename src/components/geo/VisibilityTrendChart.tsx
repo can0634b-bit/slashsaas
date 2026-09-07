@@ -49,25 +49,6 @@ export function VisibilityTrendChart({ trend, brandName }: VisibilityTrendChartP
   const last = trend[trend.length - 1];
   const delta = first && last ? last[metric] - first[metric] : 0;
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      const runs = payload[0]?.payload?.runs;
-      return (
-        <div className="rounded-xl border border-outline-variant/30 bg-surface-container-lowest/95 backdrop-blur-xl p-space-sm shadow-2xl space-y-1 font-label-mono-sm text-label-mono-sm">
-          <p className="text-on-surface-variant">{label}</p>
-          <div className="flex items-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: config.color }} />
-            <span className="text-on-surface-variant">{config.label}:</span>
-            <span className="text-on-surface font-bold">{payload[0].value}%</span>
-          </div>
-          {typeof runs === 'number' && (
-            <p className="text-outline">{runs} audit{runs === 1 ? '' : 's'} that day</p>
-          )}
-        </div>
-      );
-    }
-    return null;
-  };
 
   return (
     <section className="bg-surface-container-low/90 backdrop-blur-xl rounded-xl p-space-lg shadow-md space-y-space-md relative overflow-hidden">
@@ -166,7 +147,27 @@ export function VisibilityTrendChart({ trend, brandName }: VisibilityTrendChartP
                 axisLine={{ stroke: 'rgba(255,255,255,0.1)' }}
                 tickFormatter={(v) => `${v}%`}
               />
-              <Tooltip content={<CustomTooltip />} />
+              <Tooltip
+                content={({ active, payload, label }: any) => {
+                  if (active && payload && payload.length) {
+                    const runs = payload[0]?.payload?.runs;
+                    return (
+                      <div className="rounded-xl border border-outline-variant/30 bg-surface-container-lowest/95 backdrop-blur-xl p-space-sm shadow-2xl space-y-1 font-label-mono-sm text-label-mono-sm">
+                        <p className="text-on-surface-variant">{label}</p>
+                        <div className="flex items-center gap-2">
+                          <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: config.color }} />
+                          <span className="text-on-surface-variant">{config.label}:</span>
+                          <span className="text-on-surface font-bold">{payload[0].value}%</span>
+                        </div>
+                        {typeof runs === 'number' && (
+                          <p className="text-outline">{runs} audit{runs === 1 ? '' : 's'} that day</p>
+                        )}
+                      </div>
+                    );
+                  }
+                  return null;
+                }}
+              />
               <Area
                 type="monotone"
                 dataKey={metric}

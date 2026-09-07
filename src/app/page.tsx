@@ -90,7 +90,7 @@ export default function LandingPage() {
                   <span className="bg-gradient-to-r from-primary-container via-secondary-container to-tertiary bg-clip-text text-transparent">not just the ranking.</span>
                 </h1>
                 <p className="font-body-lg text-body-lg text-on-surface-variant max-w-xl">
-                  Your buyers ask ChatGPT, Perplexity and Gemini for a recommendation — SlashSaaS watches those answers every day and shows whether it&apos;s you or your competitor.
+                  Your buyers ask leading AI engines for a recommendation — SlashSaaS watches those answers every day and shows whether it&apos;s you or your competitor.
                 </p>
                 <div className="flex flex-wrap items-center gap-space-md pt-space-xs w-full sm:w-auto">
                   <Link className="w-full sm:w-auto inline-flex items-center justify-center gap-space-xs font-headline-sm text-headline-sm px-space-lg py-space-sm rounded-xl bg-gradient-to-r from-primary-container via-secondary-container to-tertiary text-on-primary shadow-[0_0_24px_rgba(148,125,255,0.4)] hover:shadow-[0_0_35px_rgba(47,217,244,0.6)] hover:-translate-y-0.5 transition-all duration-200" href="/signup">
@@ -109,10 +109,7 @@ export default function LandingPage() {
                   </div>
                   <span className="hidden sm:inline-block text-outline-variant">•</span>
                   <div className="flex items-center gap-space-xs flex-wrap font-label-mono-sm text-label-mono-sm text-on-surface">
-                    <span className="px-2 py-0.5 rounded bg-surface-container-high border border-outline-variant/20">ChatGPT</span>
-                    <span className="px-2 py-0.5 rounded bg-surface-container-high border border-outline-variant/20">Perplexity</span>
-                    <span className="px-2 py-0.5 rounded bg-surface-container-high border border-outline-variant/20">Google AI</span>
-                    <span className="px-2 py-0.5 rounded bg-surface-container-high border border-outline-variant/20">Gemini</span>
+                    <span className="px-2 py-0.5 rounded bg-surface-container-high border border-outline-variant/20">All Major Engines</span>
                   </div>
                 </div>
               </div>
@@ -130,7 +127,7 @@ export default function LandingPage() {
                       <span className="material-symbols-outlined text-[16px]">verified</span>
                     </div>
                     <div>
-                      <p className="font-label-mono-sm text-[10px] text-tertiary uppercase font-bold">Perplexity</p>
+                      <p className="font-label-mono-sm text-[10px] text-tertiary uppercase font-bold">AI Assistant</p>
                       <p className="font-headline-sm text-headline-sm text-on-surface font-semibold">Recommended #1</p>
                     </div>
                   </div>
@@ -220,9 +217,9 @@ export default function LandingPage() {
                         <span className="font-headline-sm text-headline-sm text-on-surface font-semibold">&ldquo;best project tool for startups&rdquo;</span>
                       </div>
                       <div className="flex items-center gap-space-xs flex-wrap font-label-mono-sm text-label-mono-sm mt-1">
-                        <span className="px-2 py-0.5 rounded bg-surface-container text-on-surface border border-outline-variant/20">ChatGPT: <strong className="text-secondary">Mentioned #2</strong></span>
-                        <span className="px-2 py-0.5 rounded bg-tertiary/15 text-tertiary border border-tertiary/30">Perplexity: <strong className="text-tertiary font-bold">Recommended #1</strong></span>
-                        <span className="px-2 py-0.5 rounded bg-surface-container text-on-surface border border-outline-variant/20">Google AI: <strong className="text-primary">Cited 4×</strong></span>
+                        <span className="px-2 py-0.5 rounded bg-surface-container text-on-surface border border-outline-variant/20">Engine 1: <strong className="text-secondary">Mentioned #2</strong></span>
+                        <span className="px-2 py-0.5 rounded bg-tertiary/15 text-tertiary border border-tertiary/30">Engine 2: <strong className="text-tertiary font-bold">Recommended #1</strong></span>
+                        <span className="px-2 py-0.5 rounded bg-surface-container text-on-surface border border-outline-variant/20">Engine 3: <strong className="text-primary">Cited 4×</strong></span>
                       </div>
                     </div>
                     <div className="flex items-center gap-space-md pt-2 md:pt-0 border-t md:border-t-0 border-outline-variant/20">
@@ -278,7 +275,7 @@ export default function LandingPage() {
                   Add your brand, the buyer prompts you care about (e.g. <span className="text-on-surface font-mono text-xs">&lsquo;best project tool for startups&rsquo;</span>), and your direct competitors in under 2 minutes.
                 </Step>
                 <Step n="02" numColor="text-tertiary" iconBg="bg-tertiary-container/20 text-tertiary" icon="smart_toy" hover="hover:border-tertiary/40" title="We run the audits" foot="• Runs on a schedule" footColor="text-tertiary">
-                  On a schedule, we ask real AI engines your exact prompts and read every answer — starting with Google Gemini, expanding across ChatGPT, Perplexity and Google AI.
+                  On a schedule, we ask real AI engines your exact prompts and read every answer — spanning across all leading AI assistants.
                 </Step>
                 <Step n="03" numColor="text-secondary" iconBg="bg-secondary-container/20 text-secondary" icon="notifications_active" hover="hover:border-secondary/40" title="You see the truth over time" foot="• Email & webhook alerts" footColor="text-outline">
                   Track visibility drift, uncover the exact sources influencing the AI, and get alerted when a rival takes your spot in a high-value prompt.
@@ -374,7 +371,7 @@ export default function LandingPage() {
                   </div>
                   <div className="mt-space-md p-space-sm rounded-lg bg-surface-container-low border border-outline-variant/20 flex items-center gap-space-xs">
                     <span className="w-2.5 h-2.5 rounded-full bg-error animate-ping" />
-                    <span className="font-label-mono-sm text-label-mono-sm text-error">Alert: Rival A cited #1 in ChatGPT</span>
+                    <span className="font-label-mono-sm text-label-mono-sm text-error">Alert: Rival A cited #1 in AI search</span>
                   </div>
                 </div>
                 {/* Card 5: Evidence */}
@@ -397,9 +394,7 @@ export default function LandingPage() {
                     <p className="font-body-md text-body-md text-on-surface-variant mt-1">One view across the engines your buyers actually use — because they don&apos;t all ask the same assistant.</p>
                   </div>
                   <div className="flex items-center gap-space-sm flex-wrap">
-                    {['ChatGPT', 'Perplexity', 'Google AI', 'Gemini'].map((e) => (
-                      <span key={e} className="px-space-sm py-space-xs rounded-lg bg-surface-container border border-outline-variant/30 font-label-mono-md text-label-mono-md text-on-surface">{e}</span>
-                    ))}
+                    <span className="px-space-sm py-space-xs rounded-lg bg-surface-container border border-outline-variant/30 font-label-mono-md text-label-mono-md text-on-surface">All Major Engines</span>
                   </div>
                 </div>
               </div>
@@ -435,7 +430,7 @@ export default function LandingPage() {
                   Classic SEO ranks links on a search page. GEO tracks whether conversational AI models synthesize and recommend your brand as the answer. Instead of counting links, it analyzes mentions, ranking position, and citation sources inside AI answers.
                 </Faq>
                 <Faq q="Which AI models does SlashSaaS monitor?">
-                  We run your prompts against the assistants your buyers use — ChatGPT, Perplexity, Google AI Overviews, and Google Gemini. As frontier labs ship model refreshes, they flow into your workspace.
+                  We run your prompts against the leading conversational AI assistants your buyers use. As frontier labs ship model refreshes, they flow into your workspace.
                 </Faq>
                 <Faq q="How often are the prompts refreshed?">
                   Audits run on a schedule (daily or more often, depending on your plan), and you can trigger an on-demand run any time you publish fresh content or PR.

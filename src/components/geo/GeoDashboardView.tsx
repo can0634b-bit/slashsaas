@@ -475,8 +475,8 @@ export function GeoDashboardView({
         </div>
         <div className="flex items-center gap-space-xs flex-wrap font-label-mono-sm text-label-mono-sm">
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-high text-tertiary">
-            <span className="w-1.5 h-1.5 rounded-full bg-tertiary animate-pulse" />
-            <span>Engine: Gemini · Grounded</span>
+            <span className="flex items-center gap-1.5"><span className="text-tertiary">#</span></span>
+            <span>Engine: Live · Grounded</span>
           </div>
           <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container text-on-surface-variant">
             <Clock className="h-3 w-3" />
@@ -579,7 +579,7 @@ export function GeoDashboardView({
                 <h3 className="font-headline-md text-headline-md text-on-surface tracking-tight">AI Search Visibility Score</h3>
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-surface-container-high text-primary font-label-mono-sm text-label-mono-sm font-medium">
                   <Sparkles className="h-3 w-3 text-tertiary" />
-                  Engine: Gemini · Grounded
+                  Engine: Live · Grounded
                 </span>
                 {metrics.lastAuditedAt && (
                   <span className="text-on-surface-variant font-label-mono-sm text-label-mono-sm">Last run {formatTimeAgo(metrics.lastAuditedAt)}</span>
@@ -682,9 +682,9 @@ export function GeoDashboardView({
           <div className="pt-space-md mt-space-md flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-on-surface-variant font-label-mono-sm text-label-mono-sm bg-surface-container-lowest/40 -mx-space-lg -mb-space-lg px-space-lg py-space-sm rounded-b-xl">
             <div className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-tertiary" />
-              <span>Engine active: <strong className="text-on-surface font-medium">Gemini</strong> · Groq extraction (auto-fallback)</span>
+              <span>Engine active: <strong className="text-on-surface font-medium">Premium</strong> · fallback extraction</span>
             </div>
-            <span className="text-outline">Deep Gemini-grounded intelligence</span>
+            <span className="text-outline">Deep AI-grounded intelligence</span>
           </div>
         </div>
       </section>
@@ -790,7 +790,7 @@ export function GeoDashboardView({
 
         {citationIntelligence.sources.length === 0 ? (
           <div className="p-8 rounded-xl border border-dashed border-outline-variant/40 text-center font-body-sm text-body-sm text-on-surface-variant">
-            No citation sources yet. When a <strong className="text-on-surface">grounded Gemini audit</strong> runs, the web sources the AI pulls from show up here — so you know exactly where to get listed to influence the answer. <span className="text-outline">(Ungrounded Groq-fallback runs produce no citations.)</span>
+            No citation sources yet. When a <strong className="text-on-surface">grounded audit</strong> runs, the web sources the AI pulls from show up here — so you know exactly where to get listed to influence the answer. <span className="text-outline">(Ungrounded fallback runs produce no citations.)</span>
           </div>
         ) : (
           <>
