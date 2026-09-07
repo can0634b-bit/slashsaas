@@ -1,10 +1,12 @@
-﻿import { createAdminClient } from './admin';
+import { createAdminClient } from './admin';
 
 export interface Organization {
   id: string;
   name: string;
   owner_user_id: string;
   created_at: string;
+  plan: string;
+  billing_portal_url?: string | null;
 }
 
 export interface Membership {

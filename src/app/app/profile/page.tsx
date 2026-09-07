@@ -91,6 +91,8 @@ export default async function ProfilePage() {
             name: organization.name,
             role: 'Owner',
             createdAt: organization.created_at,
+            plan: organization.plan || 'free',
+            billingPortalUrl: organization.billing_portal_url || null,
           }}
         />
       </main>

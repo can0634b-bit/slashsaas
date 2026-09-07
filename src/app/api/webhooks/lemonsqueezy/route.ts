@@ -37,6 +37,7 @@ export async function POST(req: Request) {
 
       if (orgId && variantId) {
         let planName = 'free';
+        let billingUrl = payload.data.attributes.urls?.customer_portal || null;
 
         // Map variant back to plan name if active
         if (status === 'active' || status === 'past_due') {
@@ -54,7 +55,10 @@ export async function POST(req: Request) {
         const supabaseAdmin = createAdminClient();
         const { error } = await supabaseAdmin
           .from('organizations')
-          .update({ plan: planName })
+          .update({ 
+            plan: planName,
+            billing_portal_url: billingUrl
+          })
           .eq('id', orgId);
 
         if (error) {

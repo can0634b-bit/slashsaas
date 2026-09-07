@@ -66,13 +66,36 @@ const plans: Plan[] = [
   },
 ];
 
-export default function PricingPage() {
+import { createClient } from '@/lib/supabase/server';
+
+export default async function PricingPage() {
+  const supabase = await createClient();
+  const { data: { session } } = await supabase.auth.getSession();
+  let userPlan = 'free';
+
+  if (session?.user) {
+    const { data: memberData } = await supabase
+      .from('memberships')
+      .select('org_id')
+      .eq('user_id', session.user.id)
+      .single();
+
+    if (memberData?.org_id) {
+      const { data: orgData } = await supabase
+        .from('organizations')
+        .select('plan')
+        .eq('id', memberData.org_id)
+        .single();
+      userPlan = orgData?.plan || 'free';
+    }
+  }
+
   return (
     <div className="bg-surface font-body-md text-on-surface antialiased relative min-h-screen selection:bg-primary-container selection:text-on-primary-container">
-      {/* Ambient background: aurora glows + dotted grid */}
+      {/* Ambient background */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        <div className="absolute -top-[20%] left-1/2 -translate-x-1/2 w-[1000px] max-w-full h-[550px] bg-primary-container/15 rounded-full blur-[140px]" />
-        <div className="absolute top-[40%] -left-[10%] w-[600px] h-[600px] bg-tertiary-container/10 rounded-full blur-[160px]" />
+        <div className="absolute top-[20%] right-[-10%] w-[800px] h-[600px] bg-primary-container/10 rounded-full blur-[160px]" />
+        <div className="absolute -bottom-[20%] -left-[10%] w-[600px] h-[600px] bg-tertiary-container/10 rounded-full blur-[140px]" />
         <div className="absolute inset-0 bg-[radial-gradient(#34343d_1px,transparent_1px)] [background-size:24px_24px] opacity-20" />
       </div>
 
@@ -107,19 +130,43 @@ export default function PricingPage() {
               <span className="w-2 h-2 rounded-full bg-tertiary animate-pulse shadow-[0_0_8px_rgba(47,217,244,0.9)]" />
               <span className="font-label-mono-sm text-label-mono-sm text-on-surface uppercase tracking-widest">Pricing</span>
             </div>
-            <h1 className="font-display-hero text-display-hero-mobile md:text-display-hero tracking-tight text-on-surface">
-              Pay for visibility,<br />
-              <span className="bg-gradient-to-r from-primary-container via-secondary-container to-tertiary bg-clip-text text-transparent">
-                not for dashboards.
-              </span>
-            </h1>
-            <p className="font-body-lg text-body-lg text-on-surface-variant max-w-xl">
-              Every plan runs real audits against live AI engines and stores a history no competitor can reconstruct. Start small, scale when the answers start mentioning you.
-            </p>
+            
+            {userPlan === 'free' ? (
+              <>
+                <h1 className="font-display-hero text-display-hero-mobile md:text-display-hero tracking-tight text-on-surface">
+                  Pay for visibility,<br />
+                  <span className="bg-gradient-to-r from-primary-container via-secondary-container to-tertiary bg-clip-text text-transparent">
+                    not for dashboards.
+                  </span>
+                </h1>
+                <p className="font-body-lg text-body-lg text-on-surface-variant max-w-xl">
+                  Every plan runs real audits against live AI engines and stores a history no competitor can reconstruct. Start small, scale when the answers start mentioning you.
+                </p>
+              </>
+            ) : (
+              <>
+                <h1 className="font-display-hero text-display-hero-mobile md:text-display-hero tracking-tight text-on-surface mt-space-md">
+                  <span className="bg-gradient-to-r from-primary-container via-secondary-container to-tertiary bg-clip-text text-transparent">
+                    {userPlan === 'command' ? 'You already have the best package.' : 'You currently have the Radar plan.'}
+                  </span>
+                </h1>
+                <p className="font-body-lg text-body-lg text-on-surface-variant max-w-xl">
+                  You are actively subscribed to SlashSaaS. Head over to your workspace to manage your monitored intents, view reports, or adjust your settings.
+                </p>
+                <Link
+                  href="/app"
+                  className="mt-space-md inline-flex items-center justify-center gap-space-xs font-headline-sm text-headline-sm px-space-lg py-space-sm rounded-xl bg-gradient-to-r from-primary-container via-secondary-container to-tertiary text-on-primary shadow-[0_0_24px_rgba(148,125,255,0.4)] hover:shadow-[0_0_35px_rgba(47,217,244,0.6)] hover:-translate-y-0.5 transition-all duration-200"
+                >
+                  <span>Go to workspace</span>
+                  <span className="material-symbols-outlined text-lg">arrow_forward</span>
+                </Link>
+              </>
+            )}
           </div>
         </section>
 
         {/* Pricing cards */}
+        {userPlan === 'free' && (
         <section className="px-gutter-mobile md:px-gutter-tablet lg:px-gutter-desktop pb-space-2xl">
           <div className="max-w-[64rem] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-space-lg items-start">
             {plans.map((plan) => (
@@ -199,6 +246,7 @@ export default function PricingPage() {
             </span>
           </div>
         </section>
+        )}
       </main>
 
       {/* Footer */}

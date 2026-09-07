@@ -30,6 +30,8 @@ interface ProfileEditorProps {
     name: string;
     role: string;
     createdAt?: string;
+    plan?: string;
+    billingPortalUrl?: string | null;
   };
 }
 
@@ -258,6 +260,24 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({ user, organization
                 <span>Org ID:</span>
                 <span className="font-mono text-zinc-500 text-[11px]">{organization.id.slice(0, 13)}...</span>
               </div>
+              <div className="flex justify-between items-center pt-2 border-t border-white/5">
+                <span>Current Plan:</span>
+                <span className="px-2 py-0.5 rounded bg-[#947dff]/20 text-[#947dff] font-bold uppercase text-[10px] tracking-wider">
+                  {organization.plan || 'Free'}
+                </span>
+              </div>
+              {organization.billingPortalUrl && organization.plan !== 'free' && (
+                <div className="pt-2">
+                  <a
+                    href={organization.billingPortalUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full flex items-center justify-center gap-2 rounded-xl bg-white/[0.04] border border-white/10 py-2.5 text-xs font-semibold text-zinc-300 hover:text-white hover:bg-white/[0.08] transition-colors"
+                  >
+                    Manage Subscription (Cancel)
+                  </a>
+                </div>
+              )}
             </div>
 
             <div className="pt-3 border-t border-white/5">
