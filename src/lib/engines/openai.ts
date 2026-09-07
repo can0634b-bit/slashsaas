@@ -64,7 +64,7 @@ export class OpenAIAdapter implements EngineAdapter {
   private async generateWithRetries(apiKey: string, promptText: string): Promise<EngineRunResult> {
     const openai = new OpenAI({ apiKey });
     const model = DEFAULT_OPENAI_MODEL;
-    const MAX_ATTEMPTS = 2;
+    const MAX_ATTEMPTS = 4;
     let lastError: any = null;
 
     for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
