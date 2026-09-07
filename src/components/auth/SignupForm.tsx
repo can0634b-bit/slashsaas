@@ -165,13 +165,20 @@ export function SignupForm() {
     <div className="w-full max-w-md rounded-3xl border border-white/10 bg-surface-container-low/90 backdrop-blur-xl p-8 sm:p-10 shadow-2xl shadow-black relative overflow-hidden">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-24 bg-[#947dff]/15 blur-3xl pointer-events-none -z-10" />
 
-      <div className="text-center mb-8">
+      <div className="text-center mb-6">
         <h1 className="text-2xl font-black tracking-tight text-white">
           Create Your SlashSaaS Account
         </h1>
         <p className="mt-2 text-xs text-zinc-400">
           Create your workspace and start tracking your AI search visibility.
         </p>
+      </div>
+
+      <div className="mb-6 rounded-xl border border-[#947dff]/20 bg-[#947dff]/5 p-3 text-center text-[11px] text-zinc-300">
+        By clicking &quot;Sign up with Google&quot; or creating an account via email, you explicitly agree to our{' '}
+        <Link href="/terms" target="_blank" className="text-[#947dff] hover:underline font-semibold">Terms of Service</Link>
+        {' '}and{' '}
+        <Link href="/privacy" target="_blank" className="text-[#947dff] hover:underline font-semibold">Privacy Policy</Link>.
       </div>
 
       {errorMessage && (
