@@ -101,7 +101,21 @@ export default function TermsPage() {
           </section>
 
           <section className="space-y-3">
-            <h2 className="text-lg font-bold text-white">10. Contact &amp; Inquiries</h2>
+            <h2 className="text-lg font-bold text-white">10. Prohibited Data &amp; AI Training Consent</h2>
+            <p>
+              You explicitly agree to <strong>NEVER</strong> submit Protected Health Information (PHI), Personally Identifiable Information (PII) of anyone (especially children under 13), trade secrets, or confidential corporate data into our system. Our service transmits your inputs and outputs to third-party AI models (e.g., OpenAI) for processing, evaluation, and model development/training purposes. By using our service, you represent and warrant that you hold all necessary rights and consents to share this data with these third parties for such purposes. 
+            </p>
+          </section>
+
+          <section className="space-y-3">
+            <h2 className="text-lg font-bold text-white">11. Indemnification &amp; Class Action Waiver</h2>
+            <p>
+              If you violate Section 10 and submit prohibited or unauthorized data, or otherwise use the service unlawfully, you agree to fully indemnify, defend, and hold harmless the Operator from any resulting lawsuits, regulatory fines, AI provider penalties, or damages. Furthermore, you agree that any disputes arising from this agreement will be resolved on an individual basis, and you explicitly waive any right to bring or participate in a class action lawsuit against the Operator.
+            </p>
+          </section>
+
+          <section className="space-y-3">
+            <h2 className="text-lg font-bold text-white">12. Contact &amp; Inquiries</h2>
             <p>
               For legal notices, terms questions, or inquiries:
             </p>

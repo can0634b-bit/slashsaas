@@ -92,15 +92,15 @@ export default function PrivacyPage() {
 
           <section className="space-y-3">
             <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
-              <span className="text-[#947dff]">5.</span> Service Providers & International Transfers
+              <span className="text-[#947dff]">5.</span> Service Providers, International Transfers &amp; AI Training
             </h2>
             <p>
-              We rely on a small set of trusted providers that process data only to deliver the service on our behalf. <strong>By using our service, you acknowledge and consent that your data may be transferred to and processed in the United States and other global regions</strong> by these providers:
+              We rely on a small set of trusted providers that process data only to deliver the service on our behalf. <strong>By using our service, you acknowledge and consent that your inputs (prompts) and generated outputs may be transferred to and processed in the United States and other global regions</strong> by these providers, including for the purpose of training and improving their models:
             </p>
             <ul className="list-disc pl-5 space-y-2 text-zinc-400">
               <li><strong>Supabase</strong> — database and authentication.</li>
               <li><strong>Vercel</strong> — hosting and privacy-friendly analytics.</li>
-              <li><strong>AI providers</strong> (such as Google and Groq) — to run your prompts and analyze the public answers.</li>
+              <li><strong>AI providers</strong> (such as OpenAI, Google, and Groq) — to run your prompts, analyze public answers, and optionally use this traffic for model development/training.</li>
               <li><strong>LemonSqueezy</strong> — payment processing, if and when you subscribe.</li>
             </ul>
           </section>
