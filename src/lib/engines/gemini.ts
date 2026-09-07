@@ -354,7 +354,7 @@ export class GeminiAdapter implements EngineAdapter {
 
         // Fatal errors (400, 401, 403, invalid key) fail fast without retry
         if (classification.isFatal || isLastAttempt) {
-          throw new Error(`Gemini API error (model: ${model}): ${lastError?.message || String(lastError)}`);
+          throw new Error(`Live Engine API error (model: ${model}): ${lastError?.message || String(lastError)}`);
         }
 
         if (classification.isRateLimit) {
@@ -363,7 +363,7 @@ export class GeminiAdapter implements EngineAdapter {
           // at most one SHORT retry then bail fast so audit-core can fail over.
           // (When billing is enabled, 429s don't occur, so this never triggers.)
           if (attempt >= 2) {
-            throw new Error(`Gemini API error (model: ${model}): ${lastError?.message || String(lastError)}`);
+            throw new Error(`Live Engine API error (model: ${model}): ${lastError?.message || String(lastError)}`);
           }
           const delayMs = Math.min(classification.retryDelayMs ?? 2000, 3000);
           console.warn(
@@ -391,7 +391,7 @@ export class GeminiAdapter implements EngineAdapter {
       }
     }
 
-    throw new Error(`Gemini API error (model: ${model}): ${lastError?.message || String(lastError)}`);
+    throw new Error(`Live Engine API error (model: ${model}): ${lastError?.message || String(lastError)}`);
   }
 
   /**
