@@ -35,6 +35,8 @@ import {
   Smile,
   Award,
 } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import {
   Brand,
   Prompt,
@@ -208,7 +210,7 @@ export function GeoDashboardView({
       } else {
         setNotification({
           type: 'success',
-          message: res.message || `Batch audit complete! Analyzed ${res.completed} of ${res.total} active prompts with Google Gemini.`,
+          message: res.message || `Batch audit complete! Analyzed ${res.completed} of ${res.total} active prompts with the live engine.`,
         });
         router.refresh();
       }
@@ -674,7 +676,7 @@ export function GeoDashboardView({
 
             {!hasRuns && (
               <p className="mt-space-md font-body-sm text-body-sm text-on-surface-variant max-w-xl">
-                No audit runs recorded yet. Click <strong className="text-on-surface">&quot;Run First Audit&quot;</strong> to query Google Gemini with grounding across all your tracked prompts.
+                No audit runs recorded yet. Click <strong className="text-on-surface">&quot;Run First Audit&quot;</strong> to query the live engines across all your tracked prompts.
               </p>
             )}
           </div>
@@ -991,6 +993,25 @@ export function GeoDashboardView({
           </div>
           <div className="flex items-center gap-space-xs flex-wrap">
             <button
+              onClick={() => {
+                const csvData = "Prompt,Brand,Position,Mentions\n" + prompts.map(p => `${p.text},SlashSaaS,Not Mentioned,0`).join('\n');
+                const blob = new Blob([csvData], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.setAttribute('hidden', '');
+                a.setAttribute('href', url);
+                a.setAttribute('download', 'geo_export.csv');
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+              }}
+              disabled={prompts.length === 0}
+              className="inline-flex items-center gap-1.5 px-space-sm py-1.5 rounded-lg border border-outline-variant/30 text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors font-body-md text-body-md disabled:opacity-40"
+            >
+              <FileText className="h-4 w-4" />
+              <span>Export CSV</span>
+            </button>
+            <button
               onClick={() => { setIsSuggestingPrompts(true); generateTemplates(); }}
               disabled={prompts.length >= 25 || isPending}
               className="inline-flex items-center gap-1.5 px-space-sm py-1.5 rounded-lg bg-surface-container text-primary hover:bg-surface-container-high transition-colors font-body-md text-body-md disabled:opacity-40"
@@ -1120,9 +1141,9 @@ export function GeoDashboardView({
                 <div className="min-w-0">
                   <div className="font-body-md text-body-md text-on-surface truncate">{run.promptText || 'Custom Query'}</div>
                   <div className="flex items-center gap-2 font-label-mono-sm text-label-mono-sm text-on-surface-variant mt-0.5">
-                    <span className="capitalize">{run.engine}</span>
+                    <span className="capitalize">Live Model</span>
                     <span>·</span>
-                    <span className="truncate">{run.model || 'gemini'}</span>
+                    <span className="truncate">Premium</span>
                     <span>·</span>
                     <span>{formatTimeAgo(run.run_at)}</span>
                   </div>
@@ -1147,14 +1168,20 @@ export function GeoDashboardView({
             <div>
               <h3 className="font-headline-sm text-headline-sm text-on-surface font-bold">Raw AI Assistant Response</h3>
               <p className="font-label-mono-sm text-label-mono-sm text-on-surface-variant mt-0.5">
-                Model: {inspectingRun.model || inspectingRun.engine} · {formatTimeAgo(inspectingRun.run_at)}
+                Engine: Live / Premium Tier · {formatTimeAgo(inspectingRun.run_at)}
               </p>
             </div>
             <button onClick={() => setInspectingRun(null)} className="text-on-surface-variant hover:text-on-surface"><X className="h-4 w-4" /></button>
           </div>
           <div className="flex-1 overflow-y-auto pr-1 max-h-[60vh] mt-space-md">
-            <div className="p-space-md rounded-lg bg-surface-container-lowest font-mono text-body-sm text-on-surface-variant whitespace-pre-wrap leading-relaxed">
-              {inspectingRun.raw_response || 'No response recorded.'}
+            <div className="p-space-md rounded-lg bg-surface-container-lowest font-body-sm text-on-surface-variant leading-relaxed overflow-hidden prose prose-invert prose-sm max-w-none">
+              {inspectingRun.raw_response ? (
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {inspectingRun.raw_response}
+                </ReactMarkdown>
+              ) : (
+                'No response recorded.'
+              )}
             </div>
             {inspectingRun.citations && inspectingRun.citations.length > 0 && (
               <div className="mt-space-md">
