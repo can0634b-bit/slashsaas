@@ -25,16 +25,16 @@ export async function GET(req: Request) {
 
     // Get user's active organization
     const { data: memberData } = await supabase
-      .from('organization_members')
-      .select('organization_id')
+      .from('memberships')
+      .select('org_id')
       .eq('user_id', user.id)
       .single();
 
-    if (!memberData?.organization_id) {
+    if (!memberData?.org_id) {
       return NextResponse.json({ error: 'No active organization found' }, { status: 400 });
     }
 
-    const orgId = memberData.organization_id;
+    const orgId = memberData.org_id;
 
     const url = new URL(req.url);
     const plan = url.searchParams.get('plan') || 'command';
