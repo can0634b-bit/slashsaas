@@ -46,7 +46,7 @@ export default function PrivacyPage() {
               <span className="text-[#947dff]">1.</span> Overview
             </h2>
             <p>
-              SlashSaaS (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) operates <strong>slashsaas.com</strong>. We respect your privacy and are committed to protecting personal information you provide when using our services.
+              SlashSaaS (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) operates <strong>slashsaas.com</strong>. We respect your privacy and are committed to protecting personal information you provide when using our services. This service is operated by an individual founder, and we have adopted data minimization practices to ensure compliance without the overhead of a corporate compliance department.
             </p>
           </section>
 
@@ -92,10 +92,10 @@ export default function PrivacyPage() {
 
           <section className="space-y-3">
             <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
-              <span className="text-[#947dff]">5.</span> Service Providers
+              <span className="text-[#947dff]">5.</span> Service Providers & International Transfers
             </h2>
             <p>
-              We rely on a small set of trusted providers that process data only to deliver the service on our behalf:
+              We rely on a small set of trusted providers that process data only to deliver the service on our behalf. <strong>By using our service, you acknowledge and consent that your data may be transferred to and processed in the United States and other global regions</strong> by these providers:
             </p>
             <ul className="list-disc pl-5 space-y-2 text-zinc-400">
               <li><strong>Supabase</strong> — database and authentication.</li>
@@ -134,7 +134,16 @@ export default function PrivacyPage() {
 
           <section className="space-y-3">
             <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
-              <span className="text-[#947dff]">9.</span> Contact Us
+              <span className="text-[#947dff]">9.</span> Age Restrictions
+            </h2>
+            <p>
+              Our services are designed exclusively for professionals and businesses. You must be at least 18 years old to create an account. We do not knowingly collect personal information from children under 18. If we become aware of such data, we will securely delete it immediately.
+            </p>
+          </section>
+
+          <section className="space-y-3">
+            <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
+              <span className="text-[#947dff]">10.</span> Contact Us
             </h2>
             <p>
               If you have any questions or concerns about this Privacy Policy, please contact:
