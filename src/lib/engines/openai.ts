@@ -124,12 +124,6 @@ export class OpenAIAdapter implements EngineAdapter {
            rawResponse = (response as any).output_text;
         }
         
-        // Persist debug string invisibly in the raw_response
-        rawResponse += `
-
-<!-- ${debugString} -->`;
-
-
         const citations = Array.from(citationsSet.entries()).map(([url, title]) => ({ url, title }));
         
         if (citations.length === 0 && rawResponse) {
