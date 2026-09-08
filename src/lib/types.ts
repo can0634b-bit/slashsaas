@@ -126,6 +126,8 @@ export interface VisibilityTrendPoint {
 
 export interface GeoWorkspaceMetrics {
   totalRuns: number;
+  groundedRunsCount: number;
+  isKnowledgeOnlyEstimate: boolean;
   brandMentionRate: number; // 0 - 100 %
   shareOfVoice: number; // 0 - 100 %
   topCitationsCount: number;

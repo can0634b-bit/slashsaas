@@ -199,9 +199,18 @@ export async function getGeoWorkspaceData(orgId: string): Promise<GeoWorkspaceDa
     mentionList = (rawMentions || []) as Mention[];
   }
 
-  // 5. Compute Metrics (only ok runs contribute to percentage metrics)
+  // 5. Compute Metrics (Compute from GROUNDED runs if any exist, fallback to knowledge-only)
   const okRuns = runList.filter((r) => r.status !== 'error');
-  const totalRuns = okRuns.length;
+  const groundedRuns = okRuns.filter((r) => r.citations && r.citations.length > 0);
+  
+  // Decide which runs constitute the "basis" for headline metrics
+  const isKnowledgeOnlyEstimate = groundedRuns.length === 0;
+  const basisRuns = isKnowledgeOnlyEstimate ? okRuns : groundedRuns;
+  
+  const basisRunIds = new Set(basisRuns.map(r => r.id));
+  const basisMentions = mentionList.filter(m => basisRunIds.has(m.run_id));
+  
+  const basisRunsCount = basisRuns.length;
   let selfMentionsCount = 0;
   let competitorMentionsCount = 0;
   let topCitationsCount = 0;
@@ -209,7 +218,7 @@ export async function getGeoWorkspaceData(orgId: string): Promise<GeoWorkspaceDa
 
   const selfBrandId = selfBrand?.id;
 
-  for (const m of mentionList) {
+  for (const m of basisMentions) {
     if (selfBrandId && m.brand_id === selfBrandId) {
       if (m.mentioned) selfMentionsCount++;
       if (m.cited) {
@@ -223,7 +232,6 @@ export async function getGeoWorkspaceData(orgId: string): Promise<GeoWorkspaceDa
       competitorMentionsCount++;
     }
 
-    // Also collect cited domains from any citation_url
     if (m.cited && m.citation_url) {
       const domain = extractDomainFromUrl(m.citation_url);
       if (domain && (!selfBrand?.domain || !domain.includes(selfBrand.domain))) {
@@ -232,7 +240,7 @@ export async function getGeoWorkspaceData(orgId: string): Promise<GeoWorkspaceDa
     }
   }
 
-  const brandMentionRate = totalRuns > 0 ? Math.round((selfMentionsCount / totalRuns) * 100) : 0;
+  const brandMentionRate = basisRunsCount > 0 ? Math.round((selfMentionsCount / basisRunsCount) * 100) : 0;
   const totalMentions = selfMentionsCount + competitorMentionsCount;
   const shareOfVoice = totalMentions > 0 ? Math.round((selfMentionsCount / totalMentions) * 100) : 0;
 
@@ -242,7 +250,9 @@ export async function getGeoWorkspaceData(orgId: string): Promise<GeoWorkspaceDa
     .slice(0, 5);
 
   const metrics: GeoWorkspaceMetrics = {
-    totalRuns,
+    totalRuns: okRuns.length,
+    groundedRunsCount: groundedRuns.length,
+    isKnowledgeOnlyEstimate,
     brandMentionRate,
     shareOfVoice,
     topCitationsCount,

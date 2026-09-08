@@ -75,15 +75,26 @@ export class OpenAIAdapter implements EngineAdapter {
       const isLastAttempt = attempt === MAX_ATTEMPTS;
 
       try {
-        const response = await openai.responses.create({
+                const response = await openai.responses.create({
           model,
-          input: [{ role: 'user', content: promptText }],
-          tools: [{ type: 'web_search' }]
+          input: [
+            { role: 'developer', content: 'Use web search to find current information and cite your sources with URLs. Do not answer from prior knowledge alone.' },
+            { role: 'user', content: promptText }
+          ],
+          tools: [{ type: 'web_search' }],
+          tool_choice: 'required'
         });
         
         let rawResponse = '';
         const citationsSet = new Map<string, string>(); // url -> title
         let searchUsed = false;
+        
+        // --- 1A: Diagnostics FIRST ---
+        const itemTypes = (response.output || []).map(item => item.type).join(', ');
+        const hasWebSearchCall = (response.output || []).some(item => item.type === 'web_search_call' || (item as any).type === 'tool_call');
+        const debugString = `[DEBUG] model: ${model} | output_items: [${itemTypes}] | web_search_call: ${hasWebSearchCall} | usage: ${JSON.stringify(response.usage)}`;
+        console.log(debugString);
+
 
         if (response.output) {
           for (const item of response.output) {
@@ -109,9 +120,15 @@ export class OpenAIAdapter implements EngineAdapter {
           }
         }
         
-        if (!rawResponse && (response as any).output_text) {
+                if (!rawResponse && (response as any).output_text) {
            rawResponse = (response as any).output_text;
         }
+        
+        // Persist debug string invisibly in the raw_response
+        rawResponse += `
+
+<!-- ${debugString} -->`;
+
 
         const citations = Array.from(citationsSet.entries()).map(([url, title]) => ({ url, title }));
         
@@ -138,6 +155,13 @@ export class OpenAIAdapter implements EngineAdapter {
       } catch (err: any) {
         lastError = err;
         const classification = classifyOpenAIError(err);
+        
+        // --- 1C: Surface EXACT error for web_search requirements ---
+        // NOTE: The built-in web_search tool via the Responses API requires:
+        // 1. A compatible model (e.g., gpt-4o, gpt-5 series).
+        // 2. A Paid account tier.
+        // 3. For some accounts/models, Organization Verification (KYC check via Stripe Identity).
+        // We throw the raw error message to ensure these requirements are visible to the developer/user.
 
         if (classification.isFatal || isLastAttempt) {
           throw new Error(`Live Engine API error (model: ${model}): ${err?.message || String(err)}`);

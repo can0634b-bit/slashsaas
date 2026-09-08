@@ -90,6 +90,8 @@ function formatTimeAgo(dateStr?: string | null): string {
   return `${diffDays}d ago`;
 }
 
+const MIN_MENTIONS_FOR_CONFIDENCE = 5;
+
 export function GeoDashboardView({
   orgId,
   orgName,
@@ -476,9 +478,9 @@ export function GeoDashboardView({
           <span className="text-primary font-medium">Overview</span>
         </div>
         <div className="flex items-center gap-space-xs flex-wrap font-label-mono-sm text-label-mono-sm">
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-high text-tertiary">
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-high text-tertiary">
             <span className="flex items-center gap-1.5"><span className="text-tertiary">#</span></span>
-            <span>Engine: Live · Grounded</span>
+            <span>Engine: Live · {citationIntelligence.runsWithCitations > 0 ? 'Grounded' : 'Knowledge-only — grounding unavailable'}</span>
           </div>
           <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container text-on-surface-variant">
             <Clock className="h-3 w-3" />
@@ -579,9 +581,9 @@ export function GeoDashboardView({
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm pb-space-md">
               <div className="flex items-center gap-space-sm flex-wrap">
                 <h3 className="font-headline-md text-headline-md text-on-surface tracking-tight">AI Search Visibility Score</h3>
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-surface-container-high text-primary font-label-mono-sm text-label-mono-sm font-medium">
-                  <Sparkles className="h-3 w-3 text-tertiary" />
-                  Engine: Live · Grounded
+                                <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-label-mono-sm text-label-mono-sm font-medium ${metrics.isKnowledgeOnlyEstimate ? 'bg-surface-container-high text-on-surface-variant' : 'bg-surface-container-high text-primary'}`}>
+                  <Sparkles className={`h-3 w-3 ${metrics.isKnowledgeOnlyEstimate ? 'text-outline' : 'text-tertiary'}`} />
+                  {metrics.isKnowledgeOnlyEstimate ? 'No grounded data yet — knowledge-only estimate' : 'Engine: Live · Grounded'}
                 </span>
                 {metrics.lastAuditedAt && (
                   <span className="text-on-surface-variant font-label-mono-sm text-label-mono-sm">Last run {formatTimeAgo(metrics.lastAuditedAt)}</span>
@@ -609,7 +611,7 @@ export function GeoDashboardView({
             {/* Metric tiles */}
             <div className={`grid grid-cols-1 md:grid-cols-3 gap-space-sm pt-space-xs ${hasRuns ? '' : 'opacity-40 select-none pointer-events-none'}`}>
               {/* Brand Mention Rate */}
-              <div className="bg-surface-container rounded-lg p-space-md flex flex-col justify-between shadow-sm">
+                            <div className="bg-surface-container rounded-lg p-space-md flex flex-col justify-between shadow-sm">
                 <div className="flex items-start justify-between">
                   <span className="font-label-mono-sm text-label-mono-sm text-on-surface-variant">Brand Mention Rate</span>
                   <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-tertiary/15 text-tertiary font-label-mono-sm text-label-mono-sm font-medium">
@@ -624,12 +626,14 @@ export function GeoDashboardView({
                   <div className="w-full bg-surface-container-highest rounded-full h-1.5 overflow-hidden">
                     <div className="bg-gradient-to-r from-primary to-tertiary h-full rounded-full transition-all duration-700" style={{ width: `${Math.min(100, metrics.brandMentionRate)}%` }} />
                   </div>
-                  <p className="font-body-sm text-body-sm text-on-surface-variant truncate">Recommended in AI answers</p>
+                  <p className="font-body-sm text-body-sm text-on-surface-variant truncate">
+                    {hasRuns ? `based on ${metrics.isKnowledgeOnlyEstimate ? metrics.totalRuns : metrics.groundedRunsCount} ${metrics.isKnowledgeOnlyEstimate ? 'runs' : 'grounded runs'}` : 'Recommended in AI answers'}
+                  </p>
                 </div>
               </div>
 
               {/* Share of Voice */}
-              <div className="bg-surface-container rounded-lg p-space-md flex flex-col justify-between shadow-sm">
+                            <div className="bg-surface-container rounded-lg p-space-md flex flex-col justify-between shadow-sm">
                 <div className="flex items-start justify-between">
                   <span className="font-label-mono-sm text-label-mono-sm text-on-surface-variant">Share of Voice</span>
                   <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-surface-container-high text-secondary font-label-mono-sm text-label-mono-sm">
@@ -643,16 +647,18 @@ export function GeoDashboardView({
                   <div className="w-full bg-surface-container-highest rounded-full h-1.5 overflow-hidden">
                     <div className="bg-tertiary h-full rounded-full transition-all duration-700" style={{ width: `${Math.min(100, metrics.shareOfVoice)}%` }} />
                   </div>
-                  <p className="font-body-sm text-body-sm text-on-surface-variant truncate">Your slice of the AI conversation</p>
+                  <p className="font-body-sm text-body-sm text-on-surface-variant truncate">
+                    {hasRuns ? `based on ${metrics.isKnowledgeOnlyEstimate ? metrics.totalRuns : metrics.groundedRunsCount} ${metrics.isKnowledgeOnlyEstimate ? 'runs' : 'grounded runs'}` : 'Your slice of the AI conversation'}
+                  </p>
                 </div>
               </div>
 
               {/* Top Citations */}
-              <div className="bg-surface-container rounded-lg p-space-md flex flex-col justify-between shadow-sm">
+                            <div className="bg-surface-container rounded-lg p-space-md flex flex-col justify-between shadow-sm">
                 <div className="flex items-start justify-between">
                   <span className="font-label-mono-sm text-label-mono-sm text-on-surface-variant">Top Citations</span>
                   <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface font-label-mono-sm text-label-mono-sm">
-                    {metrics.totalRuns} runs
+                    {hasRuns ? (metrics.isKnowledgeOnlyEstimate ? '0 grounded' : `${metrics.groundedRunsCount} grounded`) : `${metrics.totalRuns} runs`}
                   </span>
                 </div>
                 <div className="py-space-xs flex items-baseline justify-between gap-2">
@@ -896,13 +902,13 @@ export function GeoDashboardView({
             </div>
 
             {/* Positioning tile */}
-            <div className="bg-surface-container rounded-lg p-space-md shadow-sm flex flex-col justify-between">
+                        <div className="bg-surface-container rounded-lg p-space-md shadow-sm flex flex-col justify-between">
               <div className="flex items-center justify-between">
                 <span className="font-label-mono-sm text-label-mono-sm text-on-surface-variant">Rank when mentioned</span>
                 <Award className="h-4 w-4 text-tertiary" />
               </div>
               <div className="flex items-end gap-space-md py-space-xs">
-                <span className="text-[32px] leading-9 font-extrabold text-on-surface">
+                <span className={`text-[32px] leading-9 font-extrabold ${sentimentPositioning.totalMentions >= MIN_MENTIONS_FOR_CONFIDENCE ? 'text-on-surface' : 'text-on-surface-variant'}`}>
                   {sentimentPositioning.avgPosition !== null ? `#${sentimentPositioning.avgPosition}` : '—'}
                 </span>
                 <span className="font-body-sm text-body-sm text-on-surface-variant pb-1">
@@ -910,7 +916,9 @@ export function GeoDashboardView({
                 </span>
               </div>
               <p className="font-body-sm text-body-sm text-on-surface-variant">
-                Across {sentimentPositioning.totalMentions} mention{sentimentPositioning.totalMentions === 1 ? '' : 's'} — lower rank is better.
+                {sentimentPositioning.totalMentions < MIN_MENTIONS_FOR_CONFIDENCE 
+                  ? <span className="text-secondary font-medium">LOW-CONFIDENCE / Provisional (only {sentimentPositioning.totalMentions} mention{sentimentPositioning.totalMentions === 1 ? '' : 's'})</span> 
+                  : `Across ${sentimentPositioning.totalMentions} mention${sentimentPositioning.totalMentions === 1 ? '' : 's'} — lower rank is better.`}
               </p>
             </div>
           </div>
