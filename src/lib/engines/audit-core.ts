@@ -158,9 +158,9 @@ export async function auditPromptCore(
       resolvedModel = stepAResult.model;
     } catch (stepAErr: any) {
       let fullError = stepAErr?.message || String(stepAErr);
-      const isRateLimit = isGeminiRateLimitError(stepAErr) || /429|resource_exhausted|quota/i.test(fullError);
+      const isRateLimit = isGeminiRateLimitError(stepAErr) || /429|resource_exhausted|quota|overloaded|denied/i.test(fullError);
 
-      // Auto-fallback: if the grounded engine is rate-limited / quota-exhausted,
+      // Auto-fallback: if the grounded engine fails (rate-limit, quota, or access denied),
       // retry with a free ungrounded answer engine so the audit still completes
       // without a paid key. Prefer NVIDIA NIM (larger free model) over Groq when
       // NVIDIA_API_KEY is set. The run is recorded under whichever engine
@@ -168,18 +168,18 @@ export async function auditPromptCore(
       const nvidiaConfigured = !!(process.env.NVIDIA_API_KEY || '').trim();
       const groqConfigured = !!(process.env.GROQ_API_KEY || '').trim();
       const fallbackEngine: EngineType | null = nvidiaConfigured ? 'nvidia' : groqConfigured ? 'groq' : null;
-      if (isRateLimit && (engine === 'gemini' || engine === 'google_ai') && fallbackEngine) {
+      if (isRateLimit && fallbackEngine) {
         try {
           stepAResult = await getEngineAdapter(fallbackEngine).run(prompt.text, { locale: prompt.locale });
           effectiveEngine = fallbackEngine;
           resolvedModel = stepAResult.model;
-          console.warn(`[AUDIT] "${engine}" was rate-limited; fell back to ${fallbackEngine} for prompt "${prompt.text}".`);
+          console.warn(`[AUDIT] "${engine}" failed (${fullError}); fell back to ${fallbackEngine} for prompt "${prompt.text}".`);
         } catch (fbErr: any) {
           const fbMsg = fbErr?.message || String(fbErr);
           console.warn(`[AUDIT] ${fallbackEngine} fallback also failed:`, fbMsg);
-          // Fail loud: record the fallback's REAL error, not just the Gemini 429,
+          // Fail loud: record the fallback's REAL error, not just the primary error,
           // so a failed audit is debuggable (e.g. NVIDIA rate limit vs 401).
-          fullError = `Primary(${engine}) rate-limited: ${fullError} — Fallback(${fallbackEngine}) failed: ${fbMsg}`;
+          fullError = `Primary(${engine}) failed: ${fullError} — Fallback(${fallbackEngine}) failed: ${fbMsg}`;
         }
       }
 

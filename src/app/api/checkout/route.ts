@@ -20,7 +20,7 @@ export async function GET(req: Request) {
       // If not logged in, redirect to login which then redirects to checkout
       const url = new URL(req.url);
       const plan = url.searchParams.get('plan') || 'command';
-      return NextResponse.redirect(new URL(`/login?next=/api/checkout?plan=${plan}`, req.url));
+      return NextResponse.redirect(new URL(`/login?next=${encodeURIComponent('/api/checkout?plan=' + plan)}`, req.url));
     }
 
     // Get user's active organization

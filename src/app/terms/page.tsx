@@ -32,7 +32,7 @@ export default function TermsPage() {
             Terms of Service
           </h1>
           <p className="text-sm text-zinc-400 mt-2">
-            Last Updated: September 5, 2026 • Effective Immediately
+            Last Updated: September 9, 2026 • Effective Immediately
           </p>
         </div>
 
@@ -89,7 +89,7 @@ export default function TermsPage() {
           <section className="space-y-3">
             <h2 className="text-lg font-bold text-white">8. Disclaimer &amp; Absolute Limitation of Liability</h2>
             <p>
-              <strong>THE SERVICE IS PROVIDED &quot;AS IS&quot; AND &quot;AS AVAILABLE&quot;, WITHOUT WARRANTIES OF ANY KIND (EXPRESS OR IMPLIED).</strong> To the maximum extent permitted by applicable law, the Operator shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of profits or revenues. In no event shall the aggregate liability of the Operator exceed the total amount paid by you to SlashSaaS in the past three (3) months, or $0 if you are on a free plan. This limitation protects the personal assets of the Operator and is a fundamental condition of your use of the service.
+              <strong>THE SERVICE IS PROVIDED &quot;AS IS&quot; AND &quot;AS AVAILABLE&quot;, WITHOUT WARRANTIES OF ANY KIND (EXPRESS OR IMPLIED).</strong> To the maximum extent permitted by applicable law, the Operator shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of profits or revenues. In no event shall the aggregate liability of the Operator exceed the total amount paid by you to SlashSaaS in the past three (3) months, or $0 if you are on a free plan.
             </p>
           </section>
 
@@ -103,14 +103,14 @@ export default function TermsPage() {
           <section className="space-y-3">
             <h2 className="text-lg font-bold text-white">10. Prohibited Data &amp; AI Training Consent</h2>
             <p>
-              You explicitly agree to <strong>NEVER</strong> submit Protected Health Information (PHI), Personally Identifiable Information (PII) of anyone (especially children under 13), trade secrets, or confidential corporate data into our system. Our service transmits your inputs and outputs to third-party AI models (e.g., OpenAI) for processing, evaluation, and model development/training purposes. By using our service, you represent and warrant that you hold all necessary rights and consents to share this data with these third parties for such purposes. 
+              You explicitly agree to <strong>NEVER</strong> submit Protected Health Information (PHI), the personal data of third parties (especially children under 13), government IDs, trade secrets, or confidential corporate data into the service. Our service transmits your inputs (prompts) and the resulting outputs to third-party AI providers (e.g., OpenAI, Google, Groq) solely to generate and analyze the answers you request; per those providers&apos; API terms, this data is not used to train their models. You represent and warrant that you hold all rights and consents necessary to submit the brand names and prompts you configure, and you are solely responsible for the content you submit.
             </p>
           </section>
 
           <section className="space-y-3">
             <h2 className="text-lg font-bold text-white">11. Indemnification &amp; Class Action Waiver</h2>
             <p>
-              If you violate Section 10 and submit prohibited or unauthorized data, or otherwise use the service unlawfully, you agree to fully indemnify, defend, and hold harmless the Operator from any resulting lawsuits, regulatory fines, AI provider penalties, or damages. Furthermore, you agree that any disputes arising from this agreement will be resolved on an individual basis, and you explicitly waive any right to bring or participate in a class action lawsuit against the Operator.
+              You agree to indemnify, defend, and hold harmless the Operator from any third-party claims, damages, fines, or penalties arising from (a) your submission of prohibited or unauthorized data in violation of Section 10, or (b) your unlawful or abusive use of the service. To the fullest extent permitted by applicable law, disputes will be resolved on an individual basis and you waive participation in any class action; nothing in these Terms limits rights that cannot be waived under mandatory consumer-protection law.
             </p>
           </section>
 

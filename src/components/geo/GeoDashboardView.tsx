@@ -1168,7 +1168,7 @@ export function GeoDashboardView({
             <div>
               <h3 className="font-headline-sm text-headline-sm text-on-surface font-bold">Raw AI Assistant Response</h3>
               <p className="font-label-mono-sm text-label-mono-sm text-on-surface-variant mt-0.5">
-                Engine: Live / Premium Tier · {formatTimeAgo(inspectingRun.run_at)}
+                Engine: {inspectingRun.engine || 'Live'} / {(!inspectingRun.citations || inspectingRun.citations.length === 0) ? <span className="text-[#a5d6a7] font-bold">KNOWLEDGE-ONLY</span> : <span className="text-[#947dff] font-bold">GROUNDED</span>} • {formatTimeAgo(inspectingRun.run_at)}
               </p>
             </div>
             <button onClick={() => setInspectingRun(null)} className="text-on-surface-variant hover:text-on-surface"><X className="h-4 w-4" /></button>
@@ -1183,7 +1183,7 @@ export function GeoDashboardView({
                 'No response recorded.'
               )}
             </div>
-            {inspectingRun.citations && inspectingRun.citations.length > 0 && (
+            {inspectingRun.citations && inspectingRun.citations.length > 0 ? (
               <div className="mt-space-md">
                 <p className="font-label-mono-sm text-label-mono-sm text-on-surface-variant uppercase tracking-wider mb-2 flex items-center gap-1.5">
                   <Quote className="h-3.5 w-3.5 text-tertiary" /> Sources cited ({inspectingRun.citations.length})
@@ -1202,6 +1202,10 @@ export function GeoDashboardView({
                     </a>
                   ))}
                 </div>
+              </div>
+            ) : (
+              <div className="mt-space-md p-4 rounded-lg border border-dashed border-outline-variant/40 text-center font-body-sm text-body-sm text-on-surface-variant">
+                No citations returned for this run. The AI relied solely on its internal training knowledge (KNOWLEDGE-ONLY) or fell back to an ungrounded model.
               </div>
             )}
           </div>

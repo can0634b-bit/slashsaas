@@ -2,7 +2,11 @@ import OpenAI from 'openai';
 import { EngineAdapter, EngineRunOptions } from './types';
 import { EngineRunResult } from '@/lib/types';
 
-export const DEFAULT_OPENAI_MODEL = process.env.OPENAI_MODEL || 'gpt-4o-mini';
+export const DEFAULT_OPENAI_MODEL = process.env.OPENAI_MODEL || 'gpt-4o';
+
+// Web search tool cost is a per-call fee on top of standard tokens. 
+// Ref: OpenAI pricing docs indicate ~$10-$25 per 1000 searches. Using $0.015 default.
+const OPENAI_WEBSEARCH_COST_PER_CALL = parseFloat(process.env.OPENAI_WEBSEARCH_COST_PER_CALL || '0.015');
 
 export function getOpenAIApiKeys(): string[] {
   const raw = [
@@ -71,30 +75,70 @@ export class OpenAIAdapter implements EngineAdapter {
       const isLastAttempt = attempt === MAX_ATTEMPTS;
 
       try {
-        const response = await openai.chat.completions.create({
+        const response = await openai.responses.create({
           model,
-          messages: [{ role: 'user', content: promptText }],
-          temperature: 0.2,
+          input: [{ role: 'user', content: promptText }],
+          tools: [{ type: 'web_search' }]
         });
+        
+        let rawResponse = '';
+        const citationsSet = new Map<string, string>(); // url -> title
+        let searchUsed = false;
 
-        const rawResponse = response.choices[0]?.message?.content || '';
+        if (response.output) {
+          for (const item of response.output) {
+            if (item.type === 'message' && item.content) {
+              for (const content of item.content) {
+                if (content.type === 'output_text') {
+                  rawResponse += content.text;
+                  if (content.annotations) {
+                    for (const ann of content.annotations) {
+                      if (ann.type === 'url_citation' && ann.url) {
+                        citationsSet.set(ann.url, ann.title || ann.url);
+                        searchUsed = true; // Web search actually provided citations
+                      }
+                    }
+                  }
+                }
+              }
+            } else if (item.type === 'web_search_call') {
+               searchUsed = true;
+            } else if ((item as any).type === 'tool_call' && (item as any).tool?.type === 'web_search') {
+               searchUsed = true;
+            }
+          }
+        }
+        
+        if (!rawResponse && (response as any).output_text) {
+           rawResponse = (response as any).output_text;
+        }
 
-        // Estimate cost based on gpt-4o-mini pricing ($0.15/1M input, $0.60/1M output)
-        const inTokens = response.usage?.prompt_tokens || 0;
-        const outTokens = response.usage?.completion_tokens || 0;
-        const costUsd = (inTokens / 1_000_000) * 0.15 + (outTokens / 1_000_000) * 0.60;
+        const citations = Array.from(citationsSet.entries()).map(([url, title]) => ({ url, title }));
+        
+        if (citations.length === 0 && rawResponse) {
+           console.warn(`[OPENAI_ADAPTER] Web search returned no citations. Grounding may be missing.`);
+        }
+
+        // Estimate cost based on gpt-4o pricing
+        const inTokens = response.usage?.input_tokens || 0;
+        const outTokens = response.usage?.output_tokens || 0;
+        let costUsd = (inTokens / 1_000_000) * 2.50 + (outTokens / 1_000_000) * 10.00;
+        
+        // Add the per-call web search cost if the tool was utilized
+        if (searchUsed || citations.length > 0) {
+           costUsd += OPENAI_WEBSEARCH_COST_PER_CALL;
+        }
 
         return {
           model,
           rawResponse,
-          citations: [], // Standard completion endpoint doesn't return web citations natively out of the box
+          citations,
           costUsd: costUsd > 0 ? costUsd : 0.0001,
         };
       } catch (err: any) {
         lastError = err;
         const classification = classifyOpenAIError(err);
 
-        // Treat 403 / 401 as fatal, also 429 quota (insufficient_quota)
         if (classification.isFatal || isLastAttempt) {
           throw new Error(`Live Engine API error (model: ${model}): ${err?.message || String(err)}`);
         }
