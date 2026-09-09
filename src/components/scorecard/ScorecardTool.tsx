@@ -8,6 +8,7 @@ interface PromptResult {
   prompt: string;
   mentioned: boolean;
   excerpt: string;
+  citations?: Array<{url: string; title?: string}>;
   error?: string;
 }
 interface ScorecardResult {
@@ -46,7 +47,13 @@ export function ScorecardTool() {
         body: JSON.stringify({ brand: brand.trim(), domain: domain.trim(), category: category.trim() }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to run the scorecard.');
+      if (!res.ok) {
+        if (data.limitReached && data.upgradeUrl) {
+          window.location.href = `${data.upgradeUrl}?message=${encodeURIComponent("You've used your free checks — see plans to track continuously.")}`;
+          return;
+        }
+        throw new Error(data.error || 'Failed to run the scorecard.');
+      }
 
       // Capture the lead into the existing waitlist pipeline (fire-and-forget).
       fetch('/api/waitlist', {
@@ -129,10 +136,30 @@ export function ScorecardTool() {
                   {r.mentioned ? 'Mentioned' : 'Not mentioned'}
                 </span>
               </div>
-              {r.excerpt && (
+                            {r.excerpt && (
                 <p className="font-body-sm text-body-sm text-on-surface-variant mt-2 line-clamp-3 border-l-2 border-outline-variant/30 pl-space-sm">
                   {r.excerpt}…
                 </p>
+              )}
+              {r.citations && r.citations.length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {r.citations.slice(0, 2).map((cit, idx) => {
+                    let domain = '';
+                    try { domain = new URL(cit.url).hostname; } catch(e) {}
+                    return (
+                      <a
+                        key={idx}
+                        href={cit.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1 px-2 py-1 rounded bg-surface-container-high text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-colors font-label-mono-sm text-[10px]"
+                      >
+                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
+                        <span className="truncate max-w-[150px]">{cit.title || domain || cit.url}</span>
+                      </a>
+                    );
+                  })}
+                </div>
               )}
             </div>
           ))}

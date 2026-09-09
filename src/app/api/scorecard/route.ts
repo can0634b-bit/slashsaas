@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getEngineAdapter } from '@/lib/engines';
 import { clientIp, capString } from '@/lib/security/rate-limit';
 import { enforceRateLimit } from '@/lib/security/rate-limit-db';
+import { createAdminClient } from '@/lib/supabase/admin';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -46,6 +47,27 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const SCORECARD_FREE_PER_IP = parseInt(process.env.SCORECARD_FREE_PER_IP || '2', 10);
+    // rolling 24h limit per IP for grounded runs
+    if (await enforceRateLimit(`scorecard_24h:${clientIp(req)}`, SCORECARD_FREE_PER_IP, 24 * 60 * 60 * 1000)) {
+      return NextResponse.json(
+        { limitReached: true, upgradeUrl: '/pricing' },
+        { status: 402 }
+      );
+    }
+
+    const SCORECARD_GROUNDED_DAILY_CAP = parseInt(process.env.SCORECARD_GROUNDED_DAILY_CAP || '80', 10);
+    const dateStr = new Date().toISOString().split('T')[0];
+    const admin = createAdminClient();
+    
+    let globalGroundedCount = 0;
+    try {
+      const { data } = await admin.from('scorecard_daily_usage').select('grounded_count').eq('date_utc', dateStr).single();
+      if (data) globalGroundedCount = data.grounded_count;
+    } catch (e) {
+      // Table might not exist yet if migration hasn't run
+    }
+
     const body = await req.json().catch(() => ({}));
     const brand = capString(body.brand, 80);
     const category = capString(body.category, 80);
@@ -59,9 +81,17 @@ export async function POST(req: NextRequest) {
     }
 
     const prompts = buildPrompts(category);
-    const adapter = getEngineAdapter('groq');
+    
+    let isGrounded = false;
+    let adapter;
+    if (globalGroundedCount < SCORECARD_GROUNDED_DAILY_CAP) {
+       adapter = getEngineAdapter('openai');
+       isGrounded = true;
+    } else {
+       adapter = getEngineAdapter('groq');
+    }
 
-    const results: Array<{ prompt: string; mentioned: boolean; excerpt: string; error?: string }> = [];
+    const results: Array<{ prompt: string; mentioned: boolean; excerpt: string; citations: Array<{url: string, title?: string}>; error?: string }> = [];
     let engineErrors = 0;
 
     for (const p of prompts) {
@@ -71,10 +101,11 @@ export async function POST(req: NextRequest) {
           prompt: p,
           mentioned: isMentioned(r.rawResponse, brand, domain),
           excerpt: (r.rawResponse || '').slice(0, 260).trim(),
+          citations: r.citations || [],
         });
       } catch (e: any) {
         engineErrors++;
-        results.push({ prompt: p, mentioned: false, excerpt: '', error: e?.message || 'engine error' });
+        results.push({ prompt: p, mentioned: false, excerpt: '', citations: [], error: e?.message || 'engine error' });
       }
     }
 
@@ -84,6 +115,12 @@ export async function POST(req: NextRequest) {
         { error: 'The analysis engine is temporarily unavailable. Please try again shortly.' },
         { status: 503 }
       );
+    }
+
+    if (isGrounded && engineErrors < prompts.length) {
+      try {
+        await admin.rpc('increment_scorecard_cap', { p_date: dateStr });
+      } catch {}
     }
 
     const mentionedCount = results.filter((r) => r.mentioned).length;
