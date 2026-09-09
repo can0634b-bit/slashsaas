@@ -83,7 +83,7 @@ export class OpenAIAdapter implements EngineAdapter {
                 const response = await openai.responses.create({
           model,
           input: [
-            { role: 'developer', content: 'Use web search to find current information and cite your sources with URLs. Do not answer from prior knowledge alone.' },
+            { role: 'developer', content: "Use web search to find current information and cite your sources with URLs. Do not answer from prior knowledge alone. Always respond in the same language as the user's question, regardless of the language of the sources you find." },
             { role: 'user', content: promptText }
           ],
           tools: [{ type: 'web_search' }],
