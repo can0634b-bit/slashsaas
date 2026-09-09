@@ -61,11 +61,18 @@ export async function POST(req: NextRequest) {
     const admin = createAdminClient();
     
     let globalGroundedCount = 0;
-    try {
-      const { data } = await admin.from('scorecard_daily_usage').select('grounded_count').eq('date_utc', dateStr).single();
+    let capReadable = false;
+    
+    const { data, error } = await admin.from('scorecard_daily_usage')
+      .select('grounded_count')
+      .eq('date_utc', dateStr)
+      .maybeSingle();
+
+    if (error) {
+      console.warn('[SCORECARD] Cap unreadable, defaulting to Groq fallback:', error);
+    } else {
       if (data) globalGroundedCount = data.grounded_count;
-    } catch (e) {
-      // Table might not exist yet if migration hasn't run
+      capReadable = true;
     }
 
     const body = await req.json().catch(() => ({}));
@@ -84,7 +91,7 @@ export async function POST(req: NextRequest) {
     
     let isGrounded = false;
     let adapter;
-    if (globalGroundedCount < SCORECARD_GROUNDED_DAILY_CAP) {
+    if (capReadable && globalGroundedCount < SCORECARD_GROUNDED_DAILY_CAP) {
        adapter = getEngineAdapter('openai');
        isGrounded = true;
     } else {
