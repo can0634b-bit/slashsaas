@@ -2,7 +2,12 @@ import OpenAI from 'openai';
 import { EngineAdapter, EngineRunOptions } from './types';
 import { EngineRunResult } from '@/lib/types';
 
-export const DEFAULT_OPENAI_MODEL = process.env.OPENAI_MODEL || 'gpt-4o';
+export const DEFAULT_OPENAI_MODEL = process.env.OPENAI_MODEL || 'gpt-4o-mini';
+
+const OPENAI_TOKEN_RATES: Record<string, { in: number, out: number }> = {
+  'gpt-4o':      { in: 2.50, out: 10.00 },
+  'gpt-4o-mini': { in: 0.15, out: 0.60 },
+};
 
 // Web search tool cost is a per-call fee on top of standard tokens. 
 // Ref: OpenAI pricing docs indicate ~$10-$25 per 1000 searches. Using $0.015 default.
@@ -130,10 +135,11 @@ export class OpenAIAdapter implements EngineAdapter {
            console.warn(`[OPENAI_ADAPTER] Web search returned no citations. Grounding may be missing.`);
         }
 
-        // Estimate cost based on gpt-4o pricing
+        // Estimate cost based on model pricing
+        const rates = OPENAI_TOKEN_RATES[model] || OPENAI_TOKEN_RATES['gpt-4o-mini'];
         const inTokens = response.usage?.input_tokens || 0;
         const outTokens = response.usage?.output_tokens || 0;
-        let costUsd = (inTokens / 1_000_000) * 2.50 + (outTokens / 1_000_000) * 10.00;
+        let costUsd = (inTokens / 1_000_000) * rates.in + (outTokens / 1_000_000) * rates.out;
         
         // Add the per-call web search cost if the tool was utilized
         if (searchUsed || citations.length > 0) {
