@@ -36,7 +36,7 @@ export function ScorecardTool() {
 
     if (brand.trim().length < 2) return setError('Please enter your brand name.');
     if (category.trim().length < 2) return setError('Please describe your category (e.g. "CRM software").');
-    if (!emailRegex.test(email.trim())) return setError('Please enter a valid email to receive your scorecard.');
+    if (!emailRegex.test(email.trim())) return setError('Please enter a valid email.');
 
     setLoading(true);
     try {
@@ -195,7 +195,7 @@ export function ScorecardTool() {
       </div>
 
       <div className="relative">
-        <label className={labelCls}>Email — where to send your scorecard *</label>
+        <label className={labelCls}>Work email *  ·  for occasional GEO tips &amp; product updates</label>
         <input className={inputCls} type="email" placeholder="you@company.com" value={email} onChange={(e) => setEmail(e.target.value)} />
       </div>
 
@@ -210,9 +210,14 @@ export function ScorecardTool() {
       >
         {loading ? 'Asking the AI…' : 'Get my free AI Visibility Score'}
       </button>
-      <p className="font-label-mono-sm text-label-mono-sm text-outline text-center relative">
-        Public data only · takes ~15 seconds · no credit card
-      </p>
+      <div className="space-y-1 mt-3">
+        <p className="font-label-mono-sm text-label-mono-sm text-outline text-center relative">
+          Your score appears right here in a few seconds — no inbox required.
+        </p>
+        <p className="font-label-mono-sm text-label-mono-sm text-outline text-center relative">
+          Public data only · takes ~15 seconds · no credit card
+        </p>
+      </div>
     </form>
   );
 }
